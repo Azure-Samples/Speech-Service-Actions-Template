@@ -339,6 +339,23 @@ jobs:
           if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
           echo "::set-env name=CUSTOM_SPEECH_MODEL_ID::$(echo $custom_speech_model_id)"
 
+      - name: Delete all but the 5 latest models
+        run: |
+          file="speech-model-list.txt"
+          speech model list > $file
+          sed -i '1d' $file
+          sed -i '$d' $file
+          number_of_models_to_delete=`expr $(cat $file | wc -l) - 5`
+          if [[ $number_of_models_to_delete -gt 0 ]]; then
+            while read -a line
+            do
+              if [[ ${line//-/} =~ ^[[:xdigit:]]{32}$ ]];
+              then
+                speech model delete "$line"
+              fi
+            done <"$file" | head -$number_of_models_to_delete
+          fi
+
       - name: Create Release Asset
         run: |
           speech endpoint create -n endpoint_${{ env.CURRENT_COMMIT_HASH }} -l en-us -m ${{ env.CUSTOM_SPEECH_MODEL_ID }} -lm ${{ env.CUSTOM_SPEECH_MODEL_ID }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/endpoint-output.txt
