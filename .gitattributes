@@ -1,0 +1,4 @@
+testing/audio-and-trans.zip filter=lfs diff=lfs merge=lfs -text
+training/audio-and-trans.zip filter=lfs diff=lfs merge=lfs -text
+training/pronunciation.txt filter=lfs diff=lfs merge=lfs -text
+training/related-text.txt filter=lfs diff=lfs merge=lfs -text
