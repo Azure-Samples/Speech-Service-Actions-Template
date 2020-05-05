@@ -1,0 +1,379 @@
+###############################################################################
+#
+# Custom Speech Continuous Improvement Pipeline for GitHub Actions
+#
+###############################################################################
+
+name: SpeechTrainDataCICD
+
+on:
+  push:
+    # Execute on pushes to master.
+    branches:
+      - master
+    # The push must include updates to testing or training data.
+    paths:
+      - "training/audio-and-trans.zip"
+      - "training/pronunciation.txt"
+      - "training/related-text.txt"
+
+env:
+  # If your repository is private, set this to `true`.
+  IS_PRIVATE_REPOSITORY: false
+  #############################################################################
+  # Testing Data
+  #############################################################################
+  TEST_TRANS_FILE: "trans.txt"
+  TEST_ZIP_SOURCE_PATH: "testing/audio-and-trans.zip"
+  #############################################################################
+  # Training Data
+  #############################################################################
+  PRONUNCIATION_FILE_PATH: "training/pronunciation.txt"
+  RELATED_TEXT_FILE_PATH: "training/related-text.txt"
+  TRAIN_TRANS_FILE: "trans.txt"
+  TRAIN_ZIP_SOURCE_PATH: "training/audio-and-trans.zip"
+
+jobs:
+  #############################################################################
+  #
+  #   Workflow Setup - Used for updates to any data along with releasing.
+  #
+  #############################################################################
+
+  setup:
+    name: Workflow setup
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://github.com/Azure/azure-cli
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create the test-results container if needed
+        run: |
+          az storage container exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name test-results --auth-mode login > verify-test-results-container.json
+          results_container_exists=$(node --eval "fs.readFile('verify-test-results-container.json','utf8',(err,data)=>console.log(JSON.parse(data).exists))")
+          if [ $results_container_exists != 'true' ]
+          then
+            echo CREATING TEST RESULTS CONTAINER...
+            az storage container create --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name test-results --auth-mode login
+          fi
+
+      - name: Create the configuration container if needed
+        run: |
+          az storage container exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name configuration --auth-mode login > verify-configuration-container.json
+          config_container_exists=$(node --eval "fs.readFile('verify-configuration-container.json','utf8',(err,data)=>console.log(JSON.parse(data).exists))")
+          if [ $config_container_exists != 'true' ]
+          then
+            echo CREATING CONFIGURATION CONTAINER...
+            az storage container create --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name configuration --public-access blob --auth-mode login
+          fi
+
+  #############################################################################
+  #
+  #   Continuous Integration - handle updates to training data.
+  #
+  #############################################################################
+
+  train_data_update:
+    name: Build and test new model
+    runs-on: ubuntu-latest
+    # Execute when setup finishes executing and passes.
+    needs: setup
+
+    steps:
+      - name: Checkout and download LFS dependencies
+        uses: actions/checkout@v2
+        with:
+          # Indicates all history.
+          fetch-depth: "0"
+          lfs: true
+
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      - name: Set environment variables
+        run: |
+          echo "::set-env name=CURRENT_COMMIT_HASH::$(git rev-parse --short HEAD)"
+          echo "::set-env name=CUSTOM_SPEECH_MODEL_DATA::"
+          echo "::set-env name=TEST_AUDIO_ZIP_FILE::test-audio.zip"
+          echo "::set-env name=TEST_BUILD_FOLDER_PATH::build-speech-test"
+          echo "::set-env name=TRAIN_AUDIO_ZIP_FILE::'train-audio.zip'"
+          echo "::set-env name=TRAIN_BUILD_FOLDER_PATH::build-speech-train"
+
+      # https://github.com/msimecek/Azure-Speech-CLI
+      - name: Install and configure Azure Speech CLI
+        run: |
+          dotnet tool install -g azurespeechcli --version 1.5.2
+          speech config set -n ${{ secrets.SPEECH_PROJECT_NAME }} -k ${{ secrets.SPEECH_SUBSCRIPTION_KEY }} -r ${{ secrets.SPEECH_RESOURCE_REGION }} -s
+
+      #########################################################################
+      # Upload training data and create the Custom Speech model.
+      #########################################################################
+
+      # Assemble the Audio + Human-Labeled Transcript and upload to Speech. Fail
+      # if a GUID is not generated.
+      - name: Upload audio and human transcript training data
+        if: env.TRAIN_ZIP_SOURCE_PATH && env.TRAIN_ZIP_SOURCE_PATH != ''
+        run: |
+          unzip ${{ env.TRAIN_ZIP_SOURCE_PATH }} -d ${{ env.TRAIN_BUILD_FOLDER_PATH }}
+          zip -r ${{ env.TRAIN_BUILD_FOLDER_PATH }}/${{ env.TRAIN_AUDIO_ZIP_FILE }} ${{ env.TRAIN_BUILD_FOLDER_PATH }} -x "*.txt"
+          speech dataset create -n audio_trans_train_${{ env.CURRENT_COMMIT_HASH }} -a ${{ env.TRAIN_BUILD_FOLDER_PATH }}/${{ env.TRAIN_AUDIO_ZIP_FILE }} -t ${{ env.TRAIN_BUILD_FOLDER_PATH }}/${{ env.TRAIN_TRANS_FILE }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/audio-trans-train-upload.txt
+          audio_trans_train_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/audio-trans-train-upload.txt | sed -n '3p')
+          if ! [[ ${audio_trans_train_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          echo "::set-env name=AUDIO_TRANS_TRAIN_ID::$(echo $audio_trans_train_id)"
+          echo "::set-env name=CUSTOM_SPEECH_MODEL_DATA::--audio-dataset $audio_trans_train_id"
+
+      # Upload pronunciation data to Speech. Fail if a GUID is not generated.
+      - name: Upload pronunciation data
+        if: env.PRONUNCIATION_FILE_PATH && env.PRONUNCIATION_FILE_PATH != ''
+        run: |
+          speech dataset create -n pronunciation_${{ env.CURRENT_COMMIT_HASH }} -pro ${{ env.PRONUNCIATION_FILE_PATH }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/pronunciation-upload.txt
+          pronunciation_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/pronunciation-upload.txt | sed -n '3p' )
+          if ! [[ ${pronunciation_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          echo "::set-env name=PRONUNCIATION_ID::$(echo $pronunciation_id)"
+          echo "::set-env name=CUSTOM_SPEECH_MODEL_DATA::${{ env.CUSTOM_SPEECH_MODEL_DATA }} -pro $pronunciation_id"
+
+      # Upload language data to Speech. Fail if a GUID is not generated.
+      - name: Upload language data
+        if: env.RELATED_TEXT_FILE_PATH && env.TRAIN_ZIP_SOURCE_PATH != ''
+        run: |
+          speech dataset create -n language_${{ env.CURRENT_COMMIT_HASH }} -lng ${{ env.RELATED_TEXT_FILE_PATH }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/language-upload.txt
+          language_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/language-upload.txt | sed -n '3p')
+          if ! [[ ${language_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          echo "::set-env name=LANGUAGE_ID::$(echo $language_id)"
+          echo "::set-env name=CUSTOM_SPEECH_MODEL_DATA::${{ env.CUSTOM_SPEECH_MODEL_DATA }} -lng $language_id"
+
+      - name: Get latest baseline model
+        run: |
+          speech model list-scenarios --locale en-us --simple > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/base-models.txt
+          base_model_id=$(head -n 1 ${{ env.TRAIN_BUILD_FOLDER_PATH }}/base-models.txt)
+          if ! [[ ${base_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          echo "::set-env name=BASE_MODEL_ID::$(echo $base_model_id)"
+
+      # Assemble and upload the Custom Speech Model using only the training data
+      # the user supplied. Fail if a GUID is not generated.
+      - name: Create Custom Speech model with training data
+        run: |
+          speech model create -l en-us ${{ env.CUSTOM_SPEECH_MODEL_DATA }} -s ${{ env.BASE_MODEL_ID }} -n custom_speech_model_${{ env.CURRENT_COMMIT_HASH }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/model-creation-output.txt
+          custom_speech_model_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/model-creation-output.txt | sed -n '3p')
+          if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          echo "::set-env name=CUSTOM_SPEECH_MODEL_ID::$(echo $custom_speech_model_id)"
+
+      #########################################################################
+      # Test the Custom Speech model.
+      #########################################################################
+
+      # If test data was updated the Audio + Human-Labeled Transcript will
+      # already have been uploaded, so simply get the latest upload from Speech.
+      #
+      # Otherwise assemble the data and upload to Speech.
+      #
+      # Fail if a GUID is not generated.
+      - name: Upload audio and human transcript testing data
+        run: |
+          audio_trans_test_id=''
+          if [git diff --name-only env.TEST_ZIP_SOURCE_PATH | grep -w 'env.TEST_ZIP_SOURCE_PATH']
+          then
+            speech dataset list > ${{ env.TEST_BUILD_FOLDER_PATH }}/audio-dataset-list.txt
+            audio_trans_test_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/audio-trans-test-upload.txt | sed -n '3p')
+          else
+            unzip ${{ env.TEST_ZIP_SOURCE_PATH }} -d ${{ env.TEST_BUILD_FOLDER_PATH }}
+            zip -r ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_AUDIO_ZIP_FILE }} ${{ env.TEST_BUILD_FOLDER_PATH }} -x "*.txt"
+            speech dataset create -n audio_trans_test_${{ env.CURRENT_COMMIT_HASH }} -a ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_AUDIO_ZIP_FILE }} -t ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_TRANS_FILE }} --wait > ${{ env.TEST_BUILD_FOLDER_PATH }}/audio-trans-test-upload.txt
+            audio_trans_test_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/audio-trans-test-upload.txt | sed -n '3p')
+          fi
+          if ! [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          echo "::set-env name=AUDIO_TRANS_TEST_ID::$(echo $audio_trans_test_id)"
+
+      # Test with Speech. Fail if a GUID is not generated.
+      - name: Test the new Speech model
+        run: |
+          speech test create -n test_from_train_data_update_${{ env.CURRENT_COMMIT_HASH }} -a ${{ env.AUDIO_TRANS_TEST_ID }} -m ${{ env.CUSTOM_SPEECH_MODEL_ID }} -lm ${{ env.CUSTOM_SPEECH_MODEL_ID }} --wait > ${{ env.TEST_BUILD_FOLDER_PATH }}/test-output.txt
+          test_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/test-output.txt | sed -n '3p')
+          echo "::set-env name=TEST_ID::$(echo $test_id)"
+          if ! [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+
+      # Get the content from the test and remove the first line, which is
+      # logging, so the result is a JSON file.
+      - name: Store JSON test output
+        run: |
+          test_summary_file_name="test-summary-from-train-data-update-${{ env.CURRENT_COMMIT_HASH }}.json"
+          echo "::set-env name=TEST_SUMMARY_FILE::$(echo $test_summary_file_name)"
+          speech test show ${{ env.TEST_ID }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
+          sed -i '1d' ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
+
+      ###########################################################################
+      # Archiving test results in blob
+      ###########################################################################
+
+      # https://github.com/Azure/azure-cli
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Save test summary in Azure Blob
+        uses: azure/CLI@v1
+        with:
+          inlineScript: az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name ${{ env.TEST_SUMMARY_FILE }} --file ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} --auth-mode login
+
+      - name: Save test results in Azure Blob
+        run: |
+          file_location="'${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }}'"
+          results_url=$(node --eval "fs.readFile($file_location,'utf8',(err,data)=>console.log(JSON.parse(data).resultsUrl));")
+          curl $results_url -o "test-results.txt"
+          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-train-data-update-${{ env.CURRENT_COMMIT_HASH }} --file test-results.txt --auth-mode login
+
+      ###########################################################################
+      # FAIL pipeline and delete assets in Speech Studio if WER did not improve.
+      ###########################################################################
+
+      - name: Verify the configuration file exists
+        run: |
+          az storage blob exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --auth-mode login > verify-configuration-blob.json
+          config_blob_exists=$(node --eval "fs.readFile('verify-configuration-blob.json','utf8',(err,data)=>console.log(JSON.parse(data).exists))")
+          echo "::set-env name=BENCHMARK_BLOB_EXISTS::$(echo $config_blob_exists)"
+
+      - name: Get the benchmark word error rate (WER)
+        if: env.BENCHMARK_BLOB_EXISTS == 'true'
+        run: |
+          az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file previous-benchmark-test.txt --auth-mode login
+          benchmark_test_results_name=$(cat previous-benchmark-test.txt)
+          az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name $(echo $benchmark_test_results_name) --file benchmark-test-results.json --auth-mode login
+          benchmark_error_rate=$(node --eval "fs.readFile('benchmark-test-results.json','utf8',(err,data)=>console.log(JSON.parse(data).wordErrorRate))")
+          echo "::set-env name=BENCHMARK_WER::$(echo $benchmark_error_rate)"
+
+      # Get NEW_WER from the newly-created test results file.
+      - name: Get the new word error rate (WER)
+        if: env.BENCHMARK_BLOB_EXISTS == 'true'
+        run: |
+          file_location="'${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }}'"
+          new_error_rate=$(node --eval "fs.readFile($file_location,'utf8',(err,data)=>{if(err){console.log(err)};console.log(JSON.parse(data).wordErrorRate)})")
+          echo "::set-env name=NEW_WER::$(echo $new_error_rate)"
+
+      - name: PASS - Update benchmark in configuration file
+        if: env.BENCHMARK_BLOB_EXISTS == 'false' || env.BENCHMARK_WER > env.NEW_WER
+        run: |
+          echo ${{ env.TEST_SUMMARY_FILE }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt
+          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt --auth-mode login
+
+      # We do not delete AUDIO_TRANS_TEST_ID. If we did, the `resultsUrl` in the
+      # test results would not be accessible.
+      - name: FAIL - Delete training uploads to Speech
+        if: env.BENCHMARK_WER <= env.NEW_WER
+        run: |
+          if [[ ${${{ env.CUSTOM_SPEECH_MODEL_ID }}//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech model delete ${{ env.CUSTOM_SPEECH_MODEL_ID }}; fi
+          if [[ ${${{ env.AUDIO_TRANS_TRAIN_ID }}//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.AUDIO_TRANS_TRAIN_ID }}; fi
+          if [[ ${${{ env.PRONUNCIATION_ID }}//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.PRONUNCIATION_ID }}; fi
+          if [[ ${${{ env.LANGUAGE_ID }}//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.LANGUAGE_ID }}; fi
+          exit 1
+
+  #############################################################################
+  #
+  #   Continuous Delivery - create release after updates to training data.
+  #
+  #############################################################################
+
+  release:
+    name: Release improved endpoint
+    runs-on: ubuntu-latest
+    # Execute when setup, test_data_update, and train_data_update finish
+    # executing and pass.
+    needs: [setup, train_data_update]
+
+    steps:
+      - name: Checkout and download LFS dependencies
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      - name: Fetch all history for all tags and branches - for GitVersion
+        if: env.IS_PRIVATE_REPOSITORY == 'false'
+        run: git fetch --prune --unshallow
+
+      - name: Fetch all history for all tags and branches (private repo) - for GitVersion
+        if: env.IS_PRIVATE_REPOSITORY == 'true'
+        run: |
+          git config remote.origin.url https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git fetch --prune --unshallow
+
+      # https://github.com/GitTools/GitVersion
+      - name: GitVersion
+        uses: docker://gittools/gitversion:5.2.5-linux-ubuntu-16.04-netcoreapp2.1
+        with:
+          args: /github/workspace /nofetch /output buildserver
+
+      - name: Set environment variables
+        run: |
+          echo "::set-env name=CURRENT_COMMIT_HASH::$(git rev-parse --short HEAD)"
+          echo "::set-env name=RELEASE_FILE::release-endpoints.json"
+          echo "::set-env name=SEMANTIC_VERSION::$GitVersion_SemVer"
+          echo "::set-env name=TRAIN_BUILD_FOLDER_PATH::build-speech-train"
+
+      # https://github.com/msimecek/Azure-Speech-CLI
+      - name: Install and configure Azure Speech CLI
+        run: |
+          dotnet tool install -g azurespeechcli --version 1.5.2
+          speech config set -n ${{ secrets.SPEECH_PROJECT_NAME }} -k ${{ secrets.SPEECH_SUBSCRIPTION_KEY }} -r ${{ secrets.SPEECH_RESOURCE_REGION }} -s
+
+      - name: Get the benchmark Speech model
+        run: |
+          mkdir ${{ env.TRAIN_BUILD_FOLDER_PATH }}
+          speech model list > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/speech-model-list.txt
+          custom_speech_model_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/speech-model-list.txt | tail -1 | awk '{print $1;}')
+          if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          echo "::set-env name=CUSTOM_SPEECH_MODEL_ID::$(echo $custom_speech_model_id)"
+
+      - name: Delete all but the 5 latest models
+        run: |
+          file="speech-model-list.txt"
+          speech model list > $file
+          sed -i '1d' $file
+          sed -i '$d' $file
+          number_of_models_to_delete=`expr $(cat $file | wc -l) - 5`
+          if [[ $number_of_models_to_delete -gt 0 ]]; then
+            while read -a line
+            do
+              if [[ ${line//-/} =~ ^[[:xdigit:]]{32}$ ]];
+              then
+                speech model delete "$line"
+              fi
+            done <"$file" | head -$number_of_models_to_delete
+          fi
+
+      - name: Create Release Asset
+        run: |
+          speech endpoint create -n endpoint_${{ env.CURRENT_COMMIT_HASH }} -l en-us -m ${{ env.CUSTOM_SPEECH_MODEL_ID }} -lm ${{ env.CUSTOM_SPEECH_MODEL_ID }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/endpoint-output.txt
+          endpoint_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/endpoint-output.txt | sed -n '3p')
+          if ! [[ ${endpoint_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          echo '{"ENDPOINT_ID":"'$endpoint_id'"}' > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/${{ env.RELEASE_FILE }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.SEMANTIC_VERSION }}
+          release_name: Release ${{ env.SEMANTIC_VERSION }}
+          body: |
+            Releasing new Release Asset
+            draft: false
+            prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.TRAIN_BUILD_FOLDER_PATH }}/${{ env.RELEASE_FILE }}
+          asset_name: ${{ env.RELEASE_FILE }}
+          asset_content_type: application/json

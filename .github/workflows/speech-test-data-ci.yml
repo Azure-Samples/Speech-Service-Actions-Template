@@ -1,0 +1,163 @@
+###############################################################################
+#
+# Custom Speech Continuous Improvement Pipeline for GitHub Actions
+#
+###############################################################################
+
+name: SpeechTestDataCI
+
+on:
+  push:
+    # Execute on pushes to master.
+    branches:
+      - master
+    # The push must include updates to testing or training data.
+    paths:
+      - "testing/audio-and-trans.zip"
+
+env:
+  #############################################################################
+  # Testing Data
+  #############################################################################
+  TEST_TRANS_FILE: "trans.txt"
+  TEST_ZIP_SOURCE_PATH: "testing/audio-and-trans.zip"
+
+jobs:
+  #############################################################################
+  #
+  #   Workflow Setup - Used for updates to any data along with releasing.
+  #
+  #############################################################################
+
+  setup:
+    name: Workflow setup
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://github.com/Azure/azure-cli
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create the test-results container if needed
+        run: |
+          az storage container exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name test-results --auth-mode login > verify-test-results-container.json
+          results_container_exists=$(node --eval "fs.readFile('verify-test-results-container.json','utf8',(err,data)=>console.log(JSON.parse(data).exists))")
+          if [ $results_container_exists != 'true' ]
+          then
+            echo CREATING TEST RESULTS CONTAINER...
+            az storage container create --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name test-results --auth-mode login
+          fi
+
+      - name: Create the configuration container if needed
+        run: |
+          az storage container exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name configuration --auth-mode login > verify-configuration-container.json
+          config_container_exists=$(node --eval "fs.readFile('verify-configuration-container.json','utf8',(err,data)=>console.log(JSON.parse(data).exists))")
+          if [ $config_container_exists != 'true' ]
+          then
+            echo CREATING CONFIGURATION CONTAINER...
+            az storage container create --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name configuration --public-access blob --auth-mode login
+          fi
+
+  #############################################################################
+  #
+  #   Continuous Integration - handle updates to testing data.
+  #
+  #############################################################################
+
+  test_data_update:
+    name: Test benchmark model
+    runs-on: ubuntu-latest
+    # Execute when setup finishes executing and passes.
+    needs: setup
+
+    steps:
+      - name: Checkout and download LFS dependencies
+        uses: actions/checkout@v2
+        with:
+          # Indicates all history.
+          fetch-depth: "0"
+          lfs: true
+
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      - name: Set environment variables
+        run: |
+          echo "::set-env name=CURRENT_COMMIT_HASH::$(git rev-parse --short HEAD)"
+          echo "::set-env name=TEST_AUDIO_ZIP_FILE::test-audio.zip"
+          echo "::set-env name=TEST_BUILD_FOLDER_PATH::build-speech-test"
+
+      # https://github.com/msimecek/Azure-Speech-CLI
+      - name: Install and configure Azure Speech CLI
+        run: |
+          dotnet tool install -g azurespeechcli --version 1.5.2
+          speech config set -n ${{ secrets.SPEECH_PROJECT_NAME }} -k ${{ secrets.SPEECH_SUBSCRIPTION_KEY }} -r ${{ secrets.SPEECH_RESOURCE_REGION }} -s
+
+      #########################################################################
+      # Test the Custom Speech model.
+      #########################################################################
+
+      # Assemble the Audio + Human-Labeled Transcript and upload to Speech. Fail
+      # if a GUID is not generated.
+      - name: Upload audio and human transcript testing data
+        run: |
+          unzip ${{ env.TEST_ZIP_SOURCE_PATH }} -d ${{ env.TEST_BUILD_FOLDER_PATH }}
+          zip -r ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_AUDIO_ZIP_FILE }} ${{ env.TEST_BUILD_FOLDER_PATH }} -x "*.txt"
+          speech dataset create -n audio_trans_test_${{ env.CURRENT_COMMIT_HASH }} -a ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_AUDIO_ZIP_FILE }} -t ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_TRANS_FILE }} --wait > ${{ env.TEST_BUILD_FOLDER_PATH }}/audio-trans-test-upload.txt
+          audio_trans_test_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/audio-trans-test-upload.txt | sed -n '3p')
+          if ! [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          echo "::set-env name=AUDIO_TRANS_TEST_ID::$(echo $audio_trans_test_id)"
+
+      # Get the benchmark Speech model. Fail if a GUID is not generated.
+      - name: Get the benchmark Speech model
+        run: |
+          speech model list > ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt
+          custom_speech_model_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt | tail -1 | awk '{print $1;}')
+          if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          echo "::set-env name=CUSTOM_SPEECH_MODEL_ID::$(echo $custom_speech_model_id)"
+
+      # Test with Speech. Fail if a GUID is not generated.
+      - name: Test the benchmark Speech model
+        run: |
+          speech test create -n test_from_test_data_update_${{ env.CURRENT_COMMIT_HASH }} -a ${{ env.AUDIO_TRANS_TEST_ID }} -m ${{ env.CUSTOM_SPEECH_MODEL_ID }} -lm ${{ env.CUSTOM_SPEECH_MODEL_ID }} --wait > ${{ env.TEST_BUILD_FOLDER_PATH }}/test-output.txt
+          test_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/test-output.txt | sed -n '3p')
+          if ! [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          echo "::set-env name=TEST_ID::$(echo $test_id)"
+
+      # Get the content from the test and remove the first line, which is
+      # logging, so the result is a JSON file.
+      - name: Store JSON test output
+        run: |
+          test_summary_file_name="test-summary-from-test-data-update-${{ env.CURRENT_COMMIT_HASH }}.json"
+          echo "::set-env name=TEST_SUMMARY_FILE::$(echo $test_summary_file_name)"
+          speech test show ${{ env.TEST_ID }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
+          sed -i '1d' ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
+
+      #########################################################################
+      # Archive test summary and test results in Blob
+      #########################################################################
+
+      # https://github.com/Azure/azure-cli
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Save test summary in Azure Blob
+        uses: azure/CLI@v1
+        with:
+          inlineScript: az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name ${{ env.TEST_SUMMARY_FILE }} --file ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} --auth-mode login
+
+      - name: Save test results in Azure Blob
+        run: |
+          file_location="'${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }}'"
+          results_url=$(node --eval "fs.readFile($file_location,'utf8',(err,data)=>console.log(JSON.parse(data).resultsUrl));")
+          curl $results_url -o "test-results.txt"
+          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-test-data-update-${{ env.CURRENT_COMMIT_HASH }} --file test-results.txt --auth-mode login
+
+      - name: Update benchmark in configuration file
+        run: |
+          echo ${{ env.TEST_SUMMARY_FILE }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt
+          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt --auth-mode login
