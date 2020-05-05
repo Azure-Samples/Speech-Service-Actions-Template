@@ -39,7 +39,7 @@ Change into your repository's directory and install Git LFS. Track the testing a
 
 ```bash
 git lfs install
-git lfs track "testing/audio-and-trans.zip" "training/audio-and-trans.zip" "training/pronunciation.txt" "training/related-text.txt"
+git lfs track "*.zip*"
 git add .gitattributes
 git commit -m "Track large files with LFS."
 ```
@@ -47,20 +47,18 @@ git commit -m "Track large files with LFS."
 The testing and training data is currently stored as Git objects and needs to be converted to Git LFS objects. First, you need to remove the testing and training data Git objects:
 
 ```bash
-git rm --cached "testing/audio-and-trans.zip" "training/audio-and-trans.zip" "training/pronunciation.txt" "training/related-text.txt"
-git add "testing/audio-and-trans.zip" "training/audio-and-trans.zip" "training/pronunciation.txt" "training/related-text.txt"
+git rm --cached "*.zip*"
+git add "*.zip*"
 git commit -m "Convert large files from last commit to LFS."
 git push
 git lfs ls-files
 ```
 
-Running `git lfs ls-files` in the above command should output the four testing and training files that Git LFS is successfully managing. For example:
+Running `git lfs ls-files` in the above command should output the two testing and training files that Git LFS is successfully managing. For example:
 
 ```bash
 7aeb3069fa - testing/audio-and-trans.zip
 3a7ddef774 - training/audio-and-trans.zip
-cd881b1d34 - training/pronunciation.txt
-4911fe118b - training/related-text.txt
 ```
 
 If needed, [purchase more large file storage](https://help.github.com/en/github/setting-up-and-managing-billing-and-payments-on-github/upgrading-git-large-file-storage) through GitHub. There are many ways to version and manage the testing and training data, but Git LFS was chosen for its simplicity. It doesn't require additional tooling, but at the cost of paying more for storage than using a solution with Azure Blob Storage for example. With the amount of data typically used for Custom Speech models, this will probably not be a very high cost, but it is possible to [customize this solution to use different storage](4-advanced-customization.md#Configure-Different-Data-Storage) options if you choose.
