@@ -163,6 +163,18 @@ jobs:
           if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
           echo "::set-env name=CUSTOM_SPEECH_MODEL_ID::$(echo $custom_speech_model_id)"
 
+      - name: Delete Custom Speech training dataset after model is created
+        run: |
+          audio_trans_train_id=${{ env.AUDIO_TRANS_TRAIN_ID }}
+          if [[ ${audio_trans_train_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.AUDIO_TRANS_TRAIN_ID }}; fi
+          echo "audio trans train dataset deleted"
+          pronunciation_id=${{ env.PRONUNCIATION_ID }}
+          if [[ ${pronunciation_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.PRONUNCIATION_ID }}; fi
+          echo "pronunciation dataset deleted"
+          language_id=${{ env.LANGUAGE_ID }}
+          if [[ ${language_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.LANGUAGE_ID }}; fi
+          echo "language dataset deleted"
+
       #########################################################################
       # Test the Custom Speech model.
       #########################################################################
@@ -267,9 +279,6 @@ jobs:
         if: env.BENCHMARK_WER <= env.NEW_WER
         run: |
           if [[ ${${{ env.CUSTOM_SPEECH_MODEL_ID }}//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech model delete ${{ env.CUSTOM_SPEECH_MODEL_ID }}; fi
-          if [[ ${${{ env.AUDIO_TRANS_TRAIN_ID }}//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.AUDIO_TRANS_TRAIN_ID }}; fi
-          if [[ ${${{ env.PRONUNCIATION_ID }}//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.PRONUNCIATION_ID }}; fi
-          if [[ ${${{ env.LANGUAGE_ID }}//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.LANGUAGE_ID }}; fi
           exit 1
 
   #############################################################################
@@ -330,23 +339,6 @@ jobs:
           custom_speech_model_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/speech-model-list.txt | tail -1 | awk '{print $1;}')
           if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
           echo "::set-env name=CUSTOM_SPEECH_MODEL_ID::$(echo $custom_speech_model_id)"
-
-      - name: Delete all but the 5 latest models
-        run: |
-          file="speech-model-list.txt"
-          speech model list > $file
-          sed -i '1d' $file
-          sed -i '$d' $file
-          number_of_models_to_delete=`expr $(cat $file | wc -l) - 5`
-          if [[ $number_of_models_to_delete -gt 0 ]]; then
-            while read -a line
-            do
-              if [[ ${line//-/} =~ ^[[:xdigit:]]{32}$ ]];
-              then
-                speech model delete "$line"
-              fi
-            done <"$file" | head -$number_of_models_to_delete
-          fi
 
       - name: Create Release Asset
         run: |
