@@ -41,7 +41,7 @@ Use this template repository as the foundation for your own project to implement
 * [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest)
 * [Azure subscription](https://azure.microsoft.com/free/)
 * [Git](https://git-scm.com/downloads)
-* Git Large File Storage
+* [Git Large File Storage](https://git-lfs.github.com/)
     * [Windows installer](https://github.com/git-lfs/git-lfs/releases/download/v2.10.0/git-lfs-windows-v2.10.0.exe)
     * See here for [OS-specific guidance](https://github.com/git-lfs/git-lfs/wiki/Installation)
 * [GitHub account](https://github.com/join)
