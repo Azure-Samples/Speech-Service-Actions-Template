@@ -138,7 +138,11 @@ jobs:
       - name: Delete Testing dataset after testing is complete
         run: |
           audio_trans_test_id=${{ env.AUDIO_TRANS_TEST_ID }}
-          if [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech test delete ${{ env.AUDIO_TRANS_TEST_ID }}; fi
+          if [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          then
+            speech test delete ${{ env.AUDIO_TRANS_TEST_ID }};
+            echo "AUDIO TRANS TEST DATASET DELETED"
+          fi
 
       #########################################################################
       # Archive test summary and test results in Blob
