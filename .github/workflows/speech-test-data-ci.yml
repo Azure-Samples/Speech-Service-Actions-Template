@@ -155,7 +155,7 @@ jobs:
           file_location="'${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }}'"
           results_url=$(node --eval "fs.readFile($file_location,'utf8',(err,data)=>console.log(JSON.parse(data).resultsUrl));")
           curl $results_url -o "test-results.txt"
-          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-test-data-update-${{ env.CURRENT_COMMIT_HASH }} --file test-results.txt --auth-mode login
+          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-test-data-update-${{ env.CURRENT_COMMIT_HASH }}.txt --file test-results.txt --auth-mode login
 
       - name: Update benchmark in configuration file
         run: |
