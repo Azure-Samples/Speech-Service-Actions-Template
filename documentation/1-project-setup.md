@@ -23,13 +23,7 @@ Create the Azure resources and set up Git to begin developing Custom Speech mode
 2. Leave **Include all branches** unchecked. You only need to copy the master branch of this repository.
 3. Click **Create repository from template** to create your copy.
 
-[Clone the repository with SSH](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository):
-
-```bash
-git clone <<SSH_REPOSITORY_URL>>
-```
-
-Use this repository to walk through this guide and for your own experimentation.
+[Clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository). Use this repository to walk through this guide and for your own experimentation.
 
 ## Use Git Large File Storage (Optional)
 
@@ -129,7 +123,7 @@ Now, Custom Speech models can be quickly developed and versioned with commits, t
 
 Developing Custom Speech models with the CI/CD pipeline requires an Azure Resource Group, under which an Azure Speech Resource and an Azure Storage Account must be created. To create these resources, click the Deploy to Azure button below:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FSpeech-Service-DevOps-Samples%2Fmaster%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FKatieProchilo%2FDeployToAzure%2Fmaster%2Fazuredeploy.json)
 
 Enter the values as follows and save them for later use:
 
