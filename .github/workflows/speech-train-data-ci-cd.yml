@@ -165,14 +165,23 @@ jobs:
       - name: Delete Custom Speech training dataset after model is created
         run: |
           audio_trans_train_id=${{ env.AUDIO_TRANS_TRAIN_ID }}
-          if [[ ${audio_trans_train_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.AUDIO_TRANS_TRAIN_ID }}; fi
-          echo "audio trans train dataset deleted"
+          if [[ ${audio_trans_train_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          then
+            speech dataset delete ${{ env.AUDIO_TRANS_TRAIN_ID }};
+            echo "AUDIO TRANS TRAIN DATASET DELETED"
+          fi
           pronunciation_id=${{ env.PRONUNCIATION_ID }}
-          if [[ ${pronunciation_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.PRONUNCIATION_ID }}; fi
-          echo "pronunciation dataset deleted"
+          if [[ ${pronunciation_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          then
+            speech dataset delete ${{ env.PRONUNCIATION_ID }};
+            echo "PRONUNCIATION TRAIN DATASET DELETED"
+          fi
           language_id=${{ env.LANGUAGE_ID }}
-          if [[ ${language_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech dataset delete ${{ env.LANGUAGE_ID }}; fi
-          echo "language dataset deleted"
+          if [[ ${language_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          then
+            speech dataset delete ${{ env.LANGUAGE_ID }};
+            echo "LANGUAGE TRAIN DATASET DELETED"
+          fi
 
       #########################################################################
       # Test the Custom Speech model.
