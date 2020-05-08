@@ -11,7 +11,7 @@ on:
     # Execute on pushes to master.
     branches:
       - master
-    # The push must include updates to testing or training data.
+    # The push must include updates to testing data.
     paths:
       - "testing/audio-and-trans.zip"
 
