@@ -116,7 +116,7 @@ Ensure each of the following secrets have been set:
 
 ## Protect the Master Branch
 
-This solution uses [GitHub Flow](https://guides.github.com/introduction/flow/), which involves creating feature branches and merging them into **master**. This approach is lightweight, but illustrates the basics of protecting branches. To protect multiple or different branches like **master** and **develop** read about [Changing Branch Configurations](4-advanced-customization.md#Changing-Branch-Configurations).
+This solution uses [GitHub Flow](https://guides.github.com/introduction/flow/), which involves creating feature branches and merging them into **master**. This approach is lightweight, but illustrates the basics of protecting branches. To protect multiple or different branches like **master** and **develop** read about [changing branching strategies](4-advanced-customization.md#Configure-a-Clean-Master).
 
 Branch policies should be configured to prevent direct pushes to the master branch. They should require changes to be checked in by creating a Pull Request and getting these changes approved by collaborators in the repository.
 
