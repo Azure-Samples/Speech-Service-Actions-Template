@@ -11,7 +11,7 @@ on:
     # Execute on pushes to master.
     branches:
       - master
-    # The push must include updates to testing or training data.
+    # The push must include updates to training data.
     paths:
       - "training/audio-and-trans.zip"
       - "training/pronunciation.txt"
@@ -20,6 +20,7 @@ on:
 env:
   # If your repository is private, set this to `true`.
   IS_PRIVATE_REPOSITORY: false
+  SPEECH_LOCALE: "en-us"
   #############################################################################
   # Testing Data
   #############################################################################
@@ -138,7 +139,7 @@ jobs:
 
       # Upload language data to Speech. Fail if a GUID is not generated.
       - name: Upload language data
-        if: env.RELATED_TEXT_FILE_PATH && env.TRAIN_ZIP_SOURCE_PATH != ''
+        if: env.RELATED_TEXT_FILE_PATH && env.RELATED_TEXT_FILE_PATH != ''
         run: |
           speech dataset create -n language_${{ env.CURRENT_COMMIT_HASH }} -lng ${{ env.RELATED_TEXT_FILE_PATH }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/language-upload.txt
           language_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/language-upload.txt | sed -n '3p')
@@ -148,7 +149,7 @@ jobs:
 
       - name: Get latest baseline model
         run: |
-          speech model list-scenarios --locale en-us --simple > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/base-models.txt
+          speech model list-scenarios --locale ${{ env.SPEECH_LOCALE }} --simple > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/base-models.txt
           base_model_id=$(head -n 1 ${{ env.TRAIN_BUILD_FOLDER_PATH }}/base-models.txt)
           if ! [[ ${base_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
           echo "::set-env name=BASE_MODEL_ID::$(echo $base_model_id)"
@@ -157,7 +158,7 @@ jobs:
       # the user supplied. Fail if a GUID is not generated.
       - name: Create Custom Speech model with training data
         run: |
-          speech model create -l en-us ${{ env.CUSTOM_SPEECH_MODEL_DATA }} -s ${{ env.BASE_MODEL_ID }} -n custom_speech_model_${{ env.CURRENT_COMMIT_HASH }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/model-creation-output.txt
+          speech model create -l ${{ env.SPEECH_LOCALE }} ${{ env.CUSTOM_SPEECH_MODEL_DATA }} -s ${{ env.BASE_MODEL_ID }} -n custom_speech_model_${{ env.CURRENT_COMMIT_HASH }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/model-creation-output.txt
           custom_speech_model_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/model-creation-output.txt | sed -n '3p')
           if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
           echo "::set-env name=CUSTOM_SPEECH_MODEL_ID::$(echo $custom_speech_model_id)"
@@ -349,7 +350,7 @@ jobs:
 
       - name: Create Release Asset
         run: |
-          speech endpoint create -n endpoint_${{ env.CURRENT_COMMIT_HASH }} -l en-us -m ${{ env.CUSTOM_SPEECH_MODEL_ID }} -lm ${{ env.CUSTOM_SPEECH_MODEL_ID }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/endpoint-output.txt
+          speech endpoint create -n endpoint_${{ env.CURRENT_COMMIT_HASH }} -l ${{ env.SPEECH_LOCALE }} -m ${{ env.CUSTOM_SPEECH_MODEL_ID }} -lm ${{ env.CUSTOM_SPEECH_MODEL_ID }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/endpoint-output.txt
           endpoint_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/endpoint-output.txt | sed -n '3p')
           if ! [[ ${endpoint_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
           echo '{"ENDPOINT_ID":"'$endpoint_id'"}' > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/${{ env.RELEASE_FILE }}
