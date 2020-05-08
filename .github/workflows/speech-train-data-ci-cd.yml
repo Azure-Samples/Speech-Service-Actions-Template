@@ -286,7 +286,12 @@ jobs:
       - name: FAIL - Delete training uploads to Speech
         if: env.BENCHMARK_WER <= env.NEW_WER
         run: |
-          if [[ ${${{ env.CUSTOM_SPEECH_MODEL_ID }}//-/} =~ ^[[:xdigit:]]{32}$ ]]; then speech model delete ${{ env.CUSTOM_SPEECH_MODEL_ID }}; fi
+          custom_speech_model_id=${{ env.CUSTOM_SPEECH_MODEL_ID }}
+          if [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          then
+            speech model delete ${{ env.CUSTOM_SPEECH_MODEL_ID }};
+            echo "FAILED TO IMPROVE DELETING MODEL"
+          fi
           exit 1
 
   #############################################################################
