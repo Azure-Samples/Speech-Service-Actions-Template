@@ -23,6 +23,8 @@ The Custom Speech CI/CD workflow will run any time a Pull Request to master is m
 * **`training/pronunciation.txt`:** [Pronunciation data](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-pronunciation-file) is the second type of related text that also trains language models. It should be used in moderation to improve the recognition of words, phrases, and acronyms that are outside of a locale's typical vocabulary.
 * **`training/audio-and-trans.zip`:** This folder of [audio + human-labeled transcript data](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) is used in its entirety to train acoustic models.
 
+You may [exclude any or all training data](4-advanced-customization.md#Exclude-Training-Data), but testing data is required.
+
 This data was taken from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech/en-US).
 
 ### Update Training Data
