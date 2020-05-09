@@ -2,20 +2,101 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "STORAGE_ACCOUNT_NAME": {
-      "defaultValue": "stcustomspeech000",
-      "type": "String"
-    },
-    "STORAGE_ACCOUNT_REGION": {
-      "defaultValue": "westus",
+    "SPEECH_PRICING_TIER": {
+      "allowedValues": [
+        "F0",
+        "S0"
+      ],
+      "defaultValue": "F0",
+      "metadata": {
+        "description": "Choose a Free or Standard pricing tier for the Azure Speech resource."
+      },
       "type": "String"
     },
     "SPEECH_RESOURCE_NAME": {
       "defaultValue": "cog-customspeech",
+      "metadata": {
+        "description": "The name for the Azure Speech resource. 2-64 alphanumeric characters, underscores, and hyphens."
+      },
       "type": "String"
     },
     "SPEECH_RESOURCE_REGION": {
+      "allowedValues": [
+        "australiaeast",
+        "brazilsouth",
+        "canadacentral",
+        "centralindia",
+        "centralus",
+        "eastasia",
+        "eastus",
+        "eastus2",
+        "francecentral",
+        "japaneast",
+        "japanwest",
+        "koreacentral",
+        "northcentralus",
+        "northeurope",
+        "southcentralus",
+        "southeastasia",
+        "uksouth",
+        "westcentralus",
+        "westeurope",
+        "westus",
+        "westus2"
+      ],
       "defaultValue": "westus",
+      "metadata": {
+        "description": "The region for the Azure Speech resource."
+      },
+      "type": "String"
+    },
+    "STORAGE_ACCOUNT_NAME": {
+      "defaultValue": "stcustomspeech000",
+      "metadata": {
+        "description": "The name for the Azure Blob Storage account. 8-24 alphanumeric characters. Must be unique across Azure."
+      },
+      "type": "String"
+    },
+    "STORAGE_ACCOUNT_REGION": {
+      "allowedValues": [
+        "australiacentral",
+        "australiaeast",
+        "australiasoutheast",
+        "brazilsouth",
+        "canadacentral",
+        "canadaeast",
+        "centralindia",
+        "centralus",
+        "eastasia",
+        "eastus",
+        "eastus2",
+        "francecentral",
+        "germanywestcentral",
+        "japaneast",
+        "japanwest",
+        "koreacentral",
+        "koreasouth",
+        "northcentralus",
+        "northeurope",
+        "norwayeast",
+        "southafricanorth",
+        "southcentralus",
+        "southindia",
+        "southeastasia",
+        "switzerlandnorth",
+        "uaenorth",
+        "uksouth",
+        "ukwest",
+        "westcentralus",
+        "westeurope",
+        "westindia",
+        "westus",
+        "westus2"
+      ],
+      "defaultValue": "westus",
+      "metadata": {
+        "description": "The region for the Azure Blob Storage account."
+      },
       "type": "String"
     }
   },
@@ -28,7 +109,7 @@
       "name": "[parameters('SPEECH_RESOURCE_NAME')]",
       "location": "[parameters('SPEECH_RESOURCE_REGION')]",
       "sku": {
-        "name": "F0"
+        "name": "[parameters('SPEECH_PRICING_TIER')]"
       },
       "kind": "SpeechServices",
       "properties": {
