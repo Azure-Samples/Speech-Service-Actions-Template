@@ -162,6 +162,8 @@ jobs:
           if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
           echo "::set-env name=CUSTOM_SPEECH_MODEL_ID::$(echo $custom_speech_model_id)"
 
+      # Nuance: setting a local variable for env retrieved values.
+      # Working solution to text expansion within the "if [[]]; then fi", which results in a substitution error.
       - name: Delete Custom Speech training dataset after model is created
         run: |
           audio_trans_train_id=${{ env.AUDIO_TRANS_TRAIN_ID }}
@@ -281,8 +283,8 @@ jobs:
           echo ${{ env.TEST_SUMMARY_FILE }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt
           az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt --auth-mode login
 
-      # We do not delete AUDIO_TRANS_TEST_ID. If we did, the `resultsUrl` in the
-      # test results would not be accessible.
+      # Nuance: setting a local variable for env retrieved values.
+      # Working solution to text expansion within the "if [[]]; then fi", which results in a substitution error.
       - name: FAIL - Delete training uploads to Speech
         if: env.BENCHMARK_WER <= env.NEW_WER
         run: |
