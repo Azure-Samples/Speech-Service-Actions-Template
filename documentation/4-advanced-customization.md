@@ -1,6 +1,6 @@
 # 4. Advanced Customization
 
-The workflow will run without customization, but can be tailored to your project's needs. This guide will walk through the implementation for some possible alternatives approaches.
+Tailor the repository to your project's needs and optionally implement alternatives approaches.
 
 ### Table of Contents
 
@@ -18,7 +18,7 @@ The workflow will run without customization, but can be tailored to your project
 
 [GitHub Actions Environment Variables](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#env) are defined at the beginning of the workflow and are available to each job and step within the workflow.
 
-The following environment variables are set in at least one of `speech-test-data-ci.yml` or `speech-train-data-ci-cd.yml`. Paths should not contain anchors like `./foo.txt` and folders should not contain slashes at the end such as `var/`.
+The following environment variables are set in at least one of `speech-test-data-ci.yml` or `speech-train-data-ci-cd.yml`. Variable values that are paths should not contain anchors at the beginning or end like `./foo.txt` does, and folders should not contain slashes at the end such as `var/`.
 
 | Variable                    | Value |
 |-----------------------------|-------|
@@ -40,16 +40,7 @@ In `speech-train-data-ci-cd.yml`, the locale is defined to be `en-us`:
   SPEECH_LOCALE: "en-us"
 ```
 
-Change this value to be whatever locale works best with your project, but note its available customizations. Not all locales can have all three types of training data:
-
-| Customizations | Training data support          |
-|----------------|--------------------------------|
-| No             | Cannot use Custom Speech       |
-| Acoustic model | `training/audio-and-trans.zip` |
-| Language model | `training/related-text-txt`    |
-| Pronunciation  | `training/pronunciation.txt`   |
-
-If your locale does not support all three types of training data, you must [exclude the unsupported training data](#Exclude-Some-Training-Data) from the workflow.
+Change `en-us` to be whatever locale works best for your project, but note its available customizations. As seen on Language Support, not all locales can have all three types of training data. If your locale does not support all three types of training data, you must [exclude the unsupported training data](#Exclude-Some-Training-Data) from the workflow.
 
 If under **Customizations** it says "No" for your locale, that means Custom Speech is not supported and you must exclude all three types of training data. While this solution then cannot help with continuously improving Custom Speech models, it can still test baseline Azure Speech models against test data as the test data changes, or as new baseline models are released.
 
@@ -86,7 +77,7 @@ Add, commit, and push these changes so that both workflows trigger on pushes to 
 
 ### Protect the Master and Develop Branches
 
-During Project Setup, you [protected the **master** branch](1-project-setup.md#Protect-the-Master-Branch). Add another rule so that pushes to **develop** also require updates to be made via approved pull requests.
+During Setup, you [protected the **master** branch](1-setup.md#Protect-the-Master-Branch). Add another rule so that pushes to **develop** also require updates to be made via approved pull requests.
 
 ***Important:*** *Individual GitHub accounts must be public or have a GitHub Pro subscription to enforce branch protections. If you are using a private repository with a personal GitHub account, you will have to change your repository to be public in repository settings.*
 
@@ -105,7 +96,7 @@ With the branch protections and triggers in place, create pull requests from fea
 
 ## Exclude Training Data
 
-The three types of training data to use when building a Custom Speech model were [explained in more detail](2-create-the-initial-custom-speech-model.md#Pull-Request-Training-Data-Updates) previously, but it's possible to exclude any or all of the data if it is [unsupported by the locale](#Change-Locales), or if your project does not require it.
+The three types of training data to use when building a Custom Speech model were [explained in more detail](2-train-an-initial-model.md#Pull-Request-Training-Data-Updates) previously, but it's possible to exclude any or all of the data if it is [unsupported by the locale](#Change-Locales), or if your project does not require it.
 
 To exclude training data, find the following YAML in `speech-train-data-ci-cd.yml`:
 
@@ -225,4 +216,4 @@ Running `git lfs ls-files` in the above command should output two files that Git
 
 If needed, [purchase more large file storage](https://help.github.com/en/github/setting-up-and-managing-billing-and-payments-on-github/upgrading-git-large-file-storage) through GitHub.
 
-Now, Custom Speech models can be quickly developed and versioned with commits, tags, and releases in the same way that the rest of the repository is versioned.
+Now models can be developed quickly and versioned with commits, tags, and releases in the same way that the rest of the repository is versioned.
