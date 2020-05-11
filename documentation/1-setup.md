@@ -1,4 +1,4 @@
-# 1. Project Setup
+# 1. Setup
 
 Create the Azure resources and set up Git to begin developing Custom Speech models.
 
@@ -55,7 +55,7 @@ Navigate to the [Speech Studio](https://speech.microsoft.com/portal/) and click 
 
 ![Speech Studio Speech Resource](../images/SpeechStudioSpeechResources.png)
 
-Select the Speech Resource that was created in Project Setup, and then click the eye icon to see the Speech subscription key. [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `SPEECH_SUBSCRIPTION_KEY`, and set it to this value:
+Select the Speech Resource that was created in Setup, and then click the eye icon to see the Speech subscription key. [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `SPEECH_SUBSCRIPTION_KEY`, and set it to this value:
 
 ![Speech Studio Speech Subscription Key](../images/SpeechStudioSubscriptionKey.png)
 
@@ -118,7 +118,7 @@ Ensure each of the following secrets have been set:
 
 This solution uses [GitHub Flow](https://guides.github.com/introduction/flow/), which involves creating feature branches and merging them into **master**. This approach is lightweight, but illustrates the basics of protecting branches. To protect multiple or different branches like **master** and **develop** read about [changing branching strategies](4-advanced-customization.md#Configure-a-Clean-Master).
 
-Branch policies should be configured to prevent direct pushes to the master branch. They should require changes to be checked in by creating a Pull Request and getting these changes approved by collaborators in the repository.
+Branch policies should be configured to prevent direct pushes to the master branch. They should require changes to be checked in by creating a pull request and getting these changes approved by collaborators in the repository.
 
 ***Important:*** *Individual GitHub accounts must be public or have a GitHub Pro subscription to enforce branch protections. If you are using a private repository with a personal GitHub account, you will have to change your repository to be public in repository settings.*
 
@@ -135,4 +135,4 @@ To configure these protections:
 
 ## Next Steps
 
-The project has now been set up and you can move on to [Create the Initial Custom Speech Model](./2-create-the-initial-custom-speech-model.md).
+The repository has been initialized with branch protections and GitHub secrets for the Azure Service Principal and Azure resources. Now [create an initial custom speech model](./2-train-an-initial-model.md) using data stored in the `testing` and `training` folder of the repository.
