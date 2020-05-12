@@ -11,7 +11,7 @@ on:
     # Execute on pushes to master.
     branches:
       - master
-    # The push must include updates to testing or training data.
+    # The push must include updates to testing data.
     paths:
       - "testing/audio-and-trans.zip"
 
@@ -107,7 +107,11 @@ jobs:
           zip -r ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_AUDIO_ZIP_FILE }} ${{ env.TEST_BUILD_FOLDER_PATH }} -x "*.txt"
           speech dataset create -n audio_trans_test_${{ env.CURRENT_COMMIT_HASH }} -a ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_AUDIO_ZIP_FILE }} -t ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_TRANS_FILE }} --wait > ${{ env.TEST_BUILD_FOLDER_PATH }}/audio-trans-test-upload.txt
           audio_trans_test_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/audio-trans-test-upload.txt | sed -n '3p')
-          if ! [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          if ! [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            echo "::error ::Failed to upload audio and human-labeled transcript testing data. Check that the correct paths are defined in environment variables or re-run all jobs."
+            exit 1
+          fi
           echo "::set-env name=AUDIO_TRANS_TEST_ID::$(echo $audio_trans_test_id)"
 
       # Get the benchmark Speech model. Fail if a GUID is not generated.
@@ -115,7 +119,11 @@ jobs:
         run: |
           speech model list > ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt
           custom_speech_model_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt | tail -1 | awk '{print $1;}')
-          if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            echo "::error ::Failed to get the benchmark Custom Speech model. Possibly re-run all jobs."
+            exit 1
+          fi
           echo "::set-env name=CUSTOM_SPEECH_MODEL_ID::$(echo $custom_speech_model_id)"
 
       # Test with Speech. Fail if a GUID is not generated.
@@ -123,7 +131,11 @@ jobs:
         run: |
           speech test create -n test_from_test_data_update_${{ env.CURRENT_COMMIT_HASH }} -a ${{ env.AUDIO_TRANS_TEST_ID }} -m ${{ env.CUSTOM_SPEECH_MODEL_ID }} -lm ${{ env.CUSTOM_SPEECH_MODEL_ID }} --wait > ${{ env.TEST_BUILD_FOLDER_PATH }}/test-output.txt
           test_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/test-output.txt | sed -n '3p')
-          if ! [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]; then exit 1; fi
+          if ! [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            echo "::error ::Failed to test the Custom Speech model. Possibly re-run all jobs."
+            exit 1
+          fi
           echo "::set-env name=TEST_ID::$(echo $test_id)"
 
       # Get the content from the test and remove the first line, which is
@@ -135,6 +147,8 @@ jobs:
           speech test show ${{ env.TEST_ID }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
           sed -i '1d' ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
 
+      # Nuance: setting a local variable for env retrieved values.
+      # Working solution to text expansion within the "if [[]]; then fi", which results in a substitution error.
       - name: Delete Testing dataset after testing is complete
         run: |
           audio_trans_test_id=${{ env.AUDIO_TRANS_TEST_ID }}
