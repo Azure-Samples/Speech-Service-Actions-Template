@@ -129,7 +129,7 @@ That's it. The pipeline will continue to train Custom Speech models with the rem
 
 The solution stores testing and training data in the GitHub repository, and manages the data with Git. It is strongly recommended that you use [Git Large File Storage](https://git-lfs.github.com/) to manage the data. Git LFS optimizes operations for large files to occur only when the files are interacted with specifically. It is cheaper than Git, requires no additional tools, and its setup is outlined in its entirety below to manage .zip testing and training files.
 
-There are alternatives to managing the data with Git LFS, but Git LFS doesn't require additional tooling. This is at the cost of paying more for storage than using a solution with Azure Blob Storage for example, but with the amount of data typically used for Custom Speech models, this will probably not be a very high cost. [Customize this solution to use different storage](4-advanced-customization.md#Configure-Different-Data-Storage) options if you choose.
+There are alternatives to managing the data with Git LFS, but Git LFS doesn't require additional tooling. This is at the cost of paying more for storage than using a solution with Azure Blob Storage for example, but with the amount of data typically used for Custom Speech models, this will probably not be a very high cost.
 
 ### Edit the YAML
 
