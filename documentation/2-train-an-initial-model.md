@@ -16,20 +16,17 @@ Follow these steps to understand the workflow to contribute to models, understan
 
 ## Pull Request Training Data Updates
 
-Create a pull request with updates to the training data to trigger the **SpeechTrainDataCICD** workflow that will train an initial model.
+Create a pull request with updates to the training data to trigger the **SpeechTrainDataCICD** workflow which will train an initial model.
 
-The Custom Speech CI/CD workflow will run any time a pull request to master is merged that updates the data in the `testing` or `training` folder, which includes the following files:
+### Update Training Data
+
+An initial Custom Speech model is created when training data is updated for the first time, which includes the following files taken from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech/en-US):
+
 * **`training/related-text.txt`:** [Language, or sentences, data](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) is a type of [related text](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) that trains language models.
 * **`training/pronunciation.txt`:** [Pronunciation data](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-pronunciation-file) is the second type of related text that also trains language models. It should be used in moderation to improve the recognition of words, phrases, and acronyms that are outside of a locale's typical vocabulary.
 * **`training/audio-and-trans.zip`:** This folder of [audio + human-labeled transcript data](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) is used in its entirety to train acoustic models.
 
-You may [exclude any or all training data](4-advanced-customization.md#Exclude-Training-Data), but testing data is required.
-
-This data was taken from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech/en-US).
-
-### Update Training Data
-
-An initial Custom Speech model is created when training data is updated for the first time. So, to update the training data, navigate to the root of the repository and create a feature branch from master:
+To update the training data, navigate to the root of the repository and create a feature branch from master:
 
 ```bash
 git checkout -b initialSpeechModel
@@ -49,6 +46,8 @@ Add and commit the changes:
 git add .
 git commit -m "Changes to my Custom Speech model."
 ```
+
+You may [exclude any or all training data](4-advanced-customization.md#Exclude-Training-Data).
 
 #### Test Training Data Updates
 
@@ -90,13 +89,9 @@ Once Custom Speech models are created, it is no longer necessary to continue hos
 
 ### Test the New Model
 
-* **`testing/audio-and-trans.zip`:** A .zip of [audio + human-labeled transcript data](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) is used for testing model accuracy. Models attempt to recognize the .wav audio files from the `audio` folder in this .zip. Whatever text is recognized from an audio file is then compared to its text in `trans.txt`, which is also contained in this .zip. 
+Test the new model's accuracy with [audio + human-labeled transcripts](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) in `testing/audio-and-trans.zip`. Models attempt to recognize the .wav files from the `audio` folder, and the recognition is compared to its corresponding text in `trans.txt`.
 
-This new model is tested with data from the `testing` folder. The test will create a test summary file and a test results file.
-
-The test summary contains a value, [Word Error Rate](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER), which will be used to measure and benchmark a model's accuracy. WER is a common measure of performance in speech recognition. It is the sum of substitutions, deletions, and insertions divided by the number of words in a sentence. Essentially it's a measure of how many words were recognized incorrectly.
-
-In future runs, it matters that the WER improves and gets lower over time, but this initial run will simply set a baseline WER for future runs.
+The test will create a test summary and a test results file. The test summary contains the [Word Error Rate](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) for that test, which is an industry-standard metric to measure recognition accuracy. It is the sum of substitutions, deletions, and insertions divided by the number of words in a sentence. Essentially it's a measure of how many words were recognized incorrectly. In future runs, it matters that the WER improves and gets lower over time, but this initial run will simply set a baseline WER for future runs.
 
 The test summary and test results will be stored in an Azure Storage container called `test-results`. An Azure Storage container called `configuration` is also created. It stores a single file, `benchmark-test.txt`, which will point to the test summary file from the initial model. Visit the [Azure Portal](https://ms.portal.azure.com/#home) and navigate to your Azure Storage Account to view these additions.
 
@@ -108,9 +103,7 @@ To find the best-performing Custom Speech endpoint, navigate to the **Code** tab
 
 ![Latest Release](../images/LatestRelease.png)
 
-The repository was tagged with this new version, and like every tag in **master** it represents an improved Custom Speech model.
-
-On the releases page, click on the file **release-endpoints.json** to download it. It will contain the Custom Speech endpoint created in the workflow:
+The repository was tagged with this new version, and like every tag in **master** it represents an improved Custom Speech model. On the releases page, click on the file **release-endpoints.json** to download it. It will contain the Custom Speech endpoint created in the workflow:
 
 ```json
 {"ENDPOINT_ID":"########-####-####-####-############"}
