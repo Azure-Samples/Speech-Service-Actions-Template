@@ -255,8 +255,7 @@ jobs:
 
       - name: Save test results in Azure Blob
         run: |
-          file_location="'${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }}'"
-          results_url=$(node --eval "fs.readFile($file_location,'utf8',(err,data)=>console.log(JSON.parse(data).resultsUrl));")
+          results_url=$(jq '.resultsUrl' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs)
           curl $results_url -o "test-results.txt"
           az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-train-data-update-${{ env.CURRENT_COMMIT_HASH }}.txt --file test-results.txt --auth-mode login
 
@@ -266,8 +265,7 @@ jobs:
 
       - name: Verify the configuration file exists
         run: |
-          az storage blob exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --auth-mode login > verify-configuration-blob.json
-          config_blob_exists=$(node --eval "fs.readFile('verify-configuration-blob.json','utf8',(err,data)=>console.log(JSON.parse(data).exists))")
+          config_blob_exists=$(az storage blob exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --auth-mode login | jq '.exists' | xargs)
           echo "::set-env name=BENCHMARK_BLOB_EXISTS::$(echo $config_blob_exists)"
 
       - name: Get the benchmark word error rate (WER)
@@ -275,16 +273,14 @@ jobs:
         run: |
           az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file previous-benchmark-test.txt --auth-mode login
           benchmark_test_results_name=$(cat previous-benchmark-test.txt)
-          az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name $(echo $benchmark_test_results_name) --file benchmark-test-results.json --auth-mode login
-          benchmark_error_rate=$(node --eval "fs.readFile('benchmark-test-results.json','utf8',(err,data)=>console.log(JSON.parse(data).wordErrorRate))")
+          benchmark_error_rate=$(az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name $(echo $benchmark_test_results_name) --file benchmark-test-results.json --auth-mode login | jq '.wordErrorRate' | xargs)
           echo "::set-env name=BENCHMARK_WER::$(echo $benchmark_error_rate)"
 
       # Get NEW_WER from the newly-created test results file.
       - name: Get the new word error rate (WER)
         if: env.BENCHMARK_BLOB_EXISTS == 'true'
         run: |
-          file_location="'${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }}'"
-          new_error_rate=$(node --eval "fs.readFile($file_location,'utf8',(err,data)=>{if(err){console.log(err)};console.log(JSON.parse(data).wordErrorRate)})")
+          new_error_rate=$(jq '.wordErrorRate' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs)
           echo "::set-env name=NEW_WER::$(echo $new_error_rate)"
 
       - name: PASS - Update benchmark in configuration file
