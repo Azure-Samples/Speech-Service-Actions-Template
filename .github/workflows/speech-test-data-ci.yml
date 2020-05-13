@@ -7,6 +7,7 @@
 name: SpeechTestDataCI
 
 on:
+
   push:
     # Execute on pushes to master.
     branches:
@@ -42,8 +43,7 @@ jobs:
 
       - name: Create the test-results container if needed
         run: |
-          az storage container exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name test-results --auth-mode login > verify-test-results-container.json
-          results_container_exists=$(node --eval "fs.readFile('verify-test-results-container.json','utf8',(err,data)=>console.log(JSON.parse(data).exists))")
+          results_container_exists=$(az storage container exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name test-results --auth-mode login | jq '.exists')
           if [ $results_container_exists != 'true' ]
           then
             echo CREATING TEST RESULTS CONTAINER...
@@ -52,14 +52,12 @@ jobs:
 
       - name: Create the configuration container if needed
         run: |
-          az storage container exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name configuration --auth-mode login > verify-configuration-container.json
-          config_container_exists=$(node --eval "fs.readFile('verify-configuration-container.json','utf8',(err,data)=>console.log(JSON.parse(data).exists))")
+          config_container_exists=$(az storage container exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name configuration --auth-mode login | jq '.exists')
           if [ $config_container_exists != 'true' ]
           then
             echo CREATING CONFIGURATION CONTAINER...
             az storage container create --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name configuration --public-access blob --auth-mode login
           fi
-
   #############################################################################
   #
   #   Continuous Integration - handle updates to testing data.
@@ -173,10 +171,10 @@ jobs:
         with:
           inlineScript: az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name ${{ env.TEST_SUMMARY_FILE }} --file ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} --auth-mode login
 
+        # jq optimization
       - name: Save test results in Azure Blob
         run: |
-          file_location="'${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }}'"
-          results_url=$(node --eval "fs.readFile($file_location,'utf8',(err,data)=>console.log(JSON.parse(data).resultsUrl));")
+          results_url=$(jq '.resultsUrl' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs)
           curl $results_url -o "test-results.txt"
           az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-test-data-update-${{ env.CURRENT_COMMIT_HASH }}.txt --file test-results.txt --auth-mode login
 
