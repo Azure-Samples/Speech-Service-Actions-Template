@@ -193,6 +193,7 @@ git lfs install
 Track the testing and training data, and add them as Git LFS objects:
 
 ```bash
+git checkout -b gitLFS master
 git lfs track "*.zip"
 git add .gitattributes
 git commit -m "Track large files with LFS."
@@ -204,7 +205,7 @@ The testing and training data is currently stored as Git objects and needs to be
 git rm --cached "*.zip"
 git add "*.zip"
 git commit -m "Convert large files from last commit to LFS."
-git push
+git push -u origin gitLFS
 git lfs ls-files
 ```
 
@@ -215,6 +216,6 @@ Running `git lfs ls-files` in the above command should output two files that Git
 3a7ddef774 - training/audio-and-trans.zip
 ```
 
-If needed, [purchase more large file storage](https://help.github.com/en/github/setting-up-and-managing-billing-and-payments-on-github/upgrading-git-large-file-storage) through GitHub.
+Merge the changes into **master** and if needed, [purchase more large file storage](https://help.github.com/en/github/setting-up-and-managing-billing-and-payments-on-github/upgrading-git-large-file-storage) through GitHub.
 
 Now models can be developed quickly and versioned with commits, tags, and releases in the same way that the rest of the repository is versioned.
