@@ -22,6 +22,7 @@ The following environment variables are set in at least one of `speech-test-data
 
 | Variable                    | Value |
 |-----------------------------|-------|
+| **IS_PRIVATE_REPOSITORY**   | `true` if the repository is private and `false` otherwise. |
 | **PRONUNCIATION_FILE_PATH** | The path from the root of the repository to the pronunciation data file.<br><br>***Note:** This should be the same value as one of the three entries for `on.push.paths`.* |
 | **RELATED_TEXT_FILE_PATH**  | The path from the root of the repository to the related text data file.<br><br>***Note:** This should be the same value as one of the three entries for `on.push.paths`.* |
 | **SPEECH_LOCALE**           | See [Language Support](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support) for available locales. |

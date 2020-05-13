@@ -17,8 +17,9 @@ Create the Azure resources and set up Git to begin developing Custom Speech mode
 [Generate a copy of this template repository](https://github.com/KatieProchilo/CustomSpeechDevOpsSample/generate) to hold the code and the GitHub Actions pipelines:
 
 1. Enter a name for the repository where prompted.
-2. Leave **Include all branches** unchecked. You only need to copy the master branch of this repository.
-3. Click **Create repository from template** to create your copy.
+2. The solution works with public repositories by default. To create a private repository, select **Private** and [change the `IS_PRIVATE_REPOSITORY` environment variable](4-advanced-customization.md##Change-Environment-Variables) to `true`.
+3. Leave **Include all branches** unchecked. You only need to copy the master branch of this repository.
+4. Click **Create repository from template** to create your copy.
 
 [Clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository). Use this repository to walk through this guide and for your own experimentation.
 
