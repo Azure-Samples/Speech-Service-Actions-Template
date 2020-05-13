@@ -48,7 +48,7 @@ Enter the values as follows and save them for later use:
 * **SPEECH_RESOURCE_REGION:** Select the region from the dropdown that's best for your project.
     * [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `SPEECH_RESOURCE_REGION` and set it to this value.
 
-Agree to the terms and click **Purchase** to create the Resource Group and Resources. Fix any validation errors if necessary.
+Agree to the terms and click **Review + create** to create the Resource Group and Resources. Fix any validation errors if necessary and then click **Create**.
 
 ## Create the Speech Project
 
