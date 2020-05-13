@@ -71,9 +71,9 @@ Push the changes to the remote repository once you are satisfied with how the mo
 git push -u origin initialSpeechModel
 ```
 
-Click the **Merge pull request** button to merge the pull request into **master**. If you have set up the branch protection policies, it will be necessary to check **Use your administrator privileges** to merge this pull request to complete the merge.
+Create a pull request from **initialSpeechModel** to **master**. Click the **Merge pull request** button to merge the pull request into **master**. If you have set up the branch protection policies, it will be necessary to check **Use your administrator privileges** to merge this pull request to complete the merge.
 
-Merge or rebase the pull request into **master**. If everything has been set up properly, the workflow will automatically execute after a few seconds. Navigate to the **Actions** tab of the repository to see the workflow called **SpeechTrainDataCICD** in progress:
+If everything has been set up properly, the **SpeechTrainDataCICD** workflow will automatically execute after a few seconds. Navigate to the **Actions** tab of the repository to see the workflow called the workflow in progress:
 
 ![Actions tab showing that the workflow is running](../images/WorkflowRunning.png)
 
