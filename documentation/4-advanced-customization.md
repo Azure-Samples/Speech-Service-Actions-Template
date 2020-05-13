@@ -1,6 +1,6 @@
 # 4. Advanced Customization
 
-Tailor the repository to your project's needs and optionally implement alternatives approaches.
+Tailor the repository to your project's needs and optionally implement alternative approaches.
 
 ### Table of Contents
 
