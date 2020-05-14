@@ -135,6 +135,7 @@ jobs:
       - name: Upload pronunciation data
         if: env.PRONUNCIATION_FILE_PATH && env.PRONUNCIATION_FILE_PATH != ''
         run: |
+          mkdir ${{ env.TRAIN_BUILD_FOLDER_PATH }}
           speech dataset create -n pronunciation_${{ env.CURRENT_COMMIT_HASH }} -pro ${{ env.PRONUNCIATION_FILE_PATH }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/pronunciation-upload.txt
           pronunciation_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/pronunciation-upload.txt | sed -n '3p' )
           if ! [[ ${pronunciation_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
@@ -149,6 +150,7 @@ jobs:
       - name: Upload language data
         if: env.RELATED_TEXT_FILE_PATH && env.RELATED_TEXT_FILE_PATH != ''
         run: |
+          mkdir ${{ env.TRAIN_BUILD_FOLDER_PATH }}
           speech dataset create -n language_${{ env.CURRENT_COMMIT_HASH }} -lng ${{ env.RELATED_TEXT_FILE_PATH }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/language-upload.txt
           language_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/language-upload.txt | sed -n '3p')
           if ! [[ ${language_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
