@@ -31,8 +31,8 @@ env:
   #############################################################################
   PRONUNCIATION_FILE_PATH: "training/pronunciation.txt"
   RELATED_TEXT_FILE_PATH: "training/related-text.txt"
-  TRAIN_TRANS_FILE: "trans.txt"
-  TRAIN_ZIP_SOURCE_PATH: "training/audio-and-trans.zip"
+  TRAIN_TRANS_FILE: ""
+  TRAIN_ZIP_SOURCE_PATH: ""
 
 jobs:
   #############################################################################
@@ -104,6 +104,34 @@ jobs:
           echo "::set-env name=TRAIN_AUDIO_ZIP_FILE::train-audio.zip"
           echo "::set-env name=TRAIN_BUILD_FOLDER_PATH::build-speech-train"
 
+      # Custom Speech models trained with the V2 SDK must have either
+      # TRAIN_ZIP_SOURCE_PATH or both PRONUNCIATION_FILE_PATH and
+      # RELATED_TEXT_FILE_PATH so that only a language model or acoustic model
+      # will be trained.
+      - name: Prepare for an Acoustic or Language model
+        run: |
+          if [[ "${{ env.PRONUNCIATION_FILE_PATH }}" == "" ]] && [[ "${{ env.RELATED_TEXT_FILE_PATH }}" == "" ]]
+          then
+            if [[ "${{ env.TRAIN_ZIP_SOURCE_PATH }}" == "" ]]
+            then
+              echo "::error ::Define both PRONUNCIATION_FILE_PATH and RELATED_TEXT_FILE_PATH to train language models. Or define TRAIN_ZIP_SOURCE_PATH to train acoustic models."
+              exit 1
+            fi
+            echo CONFIGURED REPOSITORY FOR ACOUSTIC MODELS.
+          elif [[ "${{ env.TRAIN_ZIP_SOURCE_PATH }}" == "" ]]
+          then
+            if [[ "${{ env.PRONUNCIATION_FILE_PATH }}" == "" ]] || [[ "${{ env.RELATED_TEXT_FILE_PATH }}" == "" ]]
+            then
+              echo "::error ::If TRAIN_ZIP_SOURCE_PATH is not defined, then PRONUNCIATION_FILE_PATH and RELATED_TEXT_FILE_PATH must both be defined to train language models."
+              exit 1
+            fi
+            mkdir "${{ env.TRAIN_BUILD_FOLDER_PATH }}"
+            echo CONFIGURED REPOSITORY FOR LANGUAGE MODELS.
+          else
+            echo "::error ::Define both PRONUNCIATION_FILE_PATH and RELATED_TEXT_FILE_PATH to train language models. Or define TRAIN_ZIP_SOURCE_PATH to train acoustic models."
+            exit 1
+          fi
+
       # https://github.com/msimecek/Azure-Speech-CLI
       - name: Install and configure Azure Speech CLI
         run: |
@@ -147,7 +175,7 @@ jobs:
             exit 1
           fi
           echo "::set-env name=PRONUNCIATION_ID::$(echo $pronunciation_id)"
-          echo "::set-env name=CUSTOM_SPEECH_MODEL_DATA::${{ env.CUSTOM_SPEECH_MODEL_DATA }} -pro $pronunciation_id"
+          echo "::set-env name=CUSTOM_SPEECH_MODEL_DATA::-pro $pronunciation_id"
 
       # Upload language data to Speech. Fail if a GUID is not generated.
       - name: Upload language data
@@ -369,10 +397,22 @@ jobs:
           dotnet tool install -g azurespeechcli --version 1.5.2
           speech config set -n ${{ secrets.SPEECH_PROJECT_NAME }} -k ${{ secrets.SPEECH_SUBSCRIPTION_KEY }} -r ${{ secrets.SPEECH_RESOURCE_REGION }} -s
 
+      # Custom Speech models trained with the V2 SDK must be trained with either
+      # a language model or acoustic model. `custom_speech_model_kind` will be
+      # used to filter results from the `speech model list` command to get the
+      # benchmark Speech model. From similar checks in the `setup` job, we know
+      # the repository is properly configured and only have to do minimal
+      # checking here.
       - name: Get the benchmark Speech model
         run: |
+          custom_speech_model_kind="Acoustic"
+          if [[ -z "${{ env.TRAIN_ZIP_SOURCE_PATH }}" ]]
+          then
+            custom_speech_model_kind="Language"
+          fi
           mkdir ${{ env.TRAIN_BUILD_FOLDER_PATH }}
           speech model list > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/speech-model-list.txt
+          sed -i "/$custom_speech_model_kind/!d" ${{ env.TRAIN_BUILD_FOLDER_PATH }}/speech-model-list.txt
           custom_speech_model_id=$(cat ${{ env.TRAIN_BUILD_FOLDER_PATH }}/speech-model-list.txt | tail -1 | awk '{print $1;}')
           if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
