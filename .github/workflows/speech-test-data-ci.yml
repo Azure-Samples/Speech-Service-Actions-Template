@@ -114,10 +114,22 @@ jobs:
           fi
           echo "::set-env name=AUDIO_TRANS_TEST_ID::$(echo $audio_trans_test_id)"
 
-      # Get the benchmark Speech model. Fail if a GUID is not generated.
+      # Get the benchmark Speech model. Fail if a GUID is not generated. Custom
+      # Speech models trained with the V2 SDK must be trained with either a
+      # language model or acoustic model. `custom_speech_model_kind` will be
+      # used to filter results from the `speech model list` command to get the
+      # benchmark Speech model. From similar checks in the `setup` job, we know
+      # the repository is properly configured and only have to do minimal
+      # checking here.
       - name: Get the benchmark Speech model
         run: |
+          custom_speech_model_kind="Acoustic"
+          if [[ -z "${{ env.TEST_AUDIO_ZIP_FILE }}" ]]
+          then
+            custom_speech_model_kind="Language"
+          fi
           speech model list > ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt
+          sed -i "/$custom_speech_model_kind/!d" ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt
           custom_speech_model_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt | tail -1 | awk '{print $1;}')
           if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
