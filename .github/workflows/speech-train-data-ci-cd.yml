@@ -265,23 +265,20 @@ jobs:
 
       - name: Verify the configuration file exists
         run: |
-          config_blob_exists=$(az storage blob exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --auth-mode login | jq '.exists' | xargs)
-          echo "::set-env name=BENCHMARK_BLOB_EXISTS::$(echo $config_blob_exists)"
+          az storage blob exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --auth-mode login | jq '.exists' | xargs -I {} echo "::set-env name=BENCHMARK_BLOB_EXISTS::{}"
 
       - name: Get the benchmark word error rate (WER)
         if: env.BENCHMARK_BLOB_EXISTS == 'true'
         run: |
           az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file previous-benchmark-test.txt --auth-mode login
           benchmark_test_results_name=$(cat previous-benchmark-test.txt)
-          benchmark_error_rate=$(az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name $(echo $benchmark_test_results_name) --file benchmark-test-results.json --auth-mode login | jq '.wordErrorRate' | xargs)
-          echo "::set-env name=BENCHMARK_WER::$(echo $benchmark_error_rate)"
+          az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name $(echo $benchmark_test_results_name) --file benchmark-test-results.json --auth-mode login | jq '.wordErrorRate' | xargs -I {} echo "::set-env name=BENCHMARK_WER::{}"
 
       # Get NEW_WER from the newly-created test results file.
       - name: Get the new word error rate (WER)
         if: env.BENCHMARK_BLOB_EXISTS == 'true'
         run: |
-          new_error_rate=$(jq '.wordErrorRate' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs)
-          echo "::set-env name=NEW_WER::$(echo $new_error_rate)"
+          jq '.wordErrorRate' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs -I {} echo "::set-env name=NEW_WER::{}"
 
       - name: PASS - Update benchmark in configuration file
         if: env.BENCHMARK_BLOB_EXISTS == 'false' || env.BENCHMARK_WER > env.NEW_WER
