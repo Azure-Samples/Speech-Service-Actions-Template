@@ -470,21 +470,21 @@ jobs:
 
       - name: Delete all but the 5 latest models
         run: |
-          file="speech-model-list.txt"
-          speech model list > $file
-          sed -i '1d' $file
-          sed -i '$d' $file
-          number_of_models_to_delete=`expr $(cat $file | wc -l) - 5`
+          speech_model_list_file="speech-model-list.txt"
+          speech model list > $speech_model_list_file
+          sed -i '1d' $speech_model_list_file
+          sed -i '/^$/d' $speech_model_list_file
+          number_of_models_to_delete=$(($( wc -l < "$speech_model_list_file") - 5))
           if [[ $number_of_models_to_delete -gt 0 ]]
           then
             while read -a line
             do
               if [[ ${line//-/} =~ ^[[:xdigit:]]{32}$ ]];
               then
-                speech model delete "$line"
-                echo DELETED CUSTOM SPEECH MODEL WITH GUID: $line
+                speech model delete $line
+                echo DELETED CUSTOM SPEECH MODEL WITH GUID: "$line"
               fi
-            done <"$file" | head -$number_of_models_to_delete
+            done < "$speech_model_list_file" | head -$number_of_models_to_delete
           fi
 
       - name: Create Release Asset
