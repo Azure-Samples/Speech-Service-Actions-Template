@@ -4,28 +4,43 @@ Create the Azure resources and set up Git to begin developing Custom Speech mode
 
 ### Table of Contents
 
-* [Use this Template](#Use-this-Template)
-* [Create the Resource Group and Resources](#Create-the-Resource-Group-and-Resources)
-* [Create the Speech Project](#Create-the-Speech-Project)
-* [Create the Service Principal](#Create-the-Service-Principal)
-* [Validate GitHub Secrets](#Validate-GitHub-Secrets)
-* [Protect the Master Branch](#Protect-the-Master-Branch)
-* [Next Steps](#Next-Steps)
+- [1. Setup](#1-setup)
+    - [Table of Contents](#table-of-contents)
+  - [Get the code](#get-the-code)
+  - [Clone your repository](#clone-your-repository)
+  - [Create an Azure Resource Group and a set of Azure Resources](#create-an-azure-resource-group-and-a-set-of-azure-resources)
+  - [Create the Speech Project](#create-the-speech-project)
+  - [Create the Service Principal](#create-the-service-principal)
+  - [Validate GitHub Secrets](#validate-github-secrets)
+  - [Protect the Master Branch](#protect-the-master-branch)
+  - [Next Steps](#next-steps)
 
-## Use this Template
+## Get the code
 
-[Generate a copy of this template repository](https://github.com/KatieProchilo/CustomSpeechDevOpsSample/generate) to hold the code and the GitHub Actions pipelines:
+You'll use a GitHub repository and GitHub Actions for running the multi-stage pipeline with build, testing, and release stages.
 
-1. Enter a name for the repository where prompted.
-2. The solution works with public repositories by default. To create a private repository, select **Private** and [change the `IS_PRIVATE_REPOSITORY` environment variable](4-advanced-customization.md##Change-Environment-Variables) to `true`.
-3. Leave **Include all branches** unchecked. You only need to copy the master branch of this repository.
-4. Click **Create repository from template** to create your copy.
+To create your repository:
 
-[Clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository). Use this repository to walk through this guide and for your own experimentation.
+* If you don't already have a GitHub account, create one by following the instructions at [Join GitHub: Create your account](https://github.com/join).
+* Click the green **Use this template** button near the top of the [Speech-Service-DevOps-Samples](https://github.com/Azure-Samples/Speech-Service-DevOps-Samples) home page for this GitHub repo. This will copy this repository to a GitHub repository of your own that it will create.
 
-If you are using this solution as the starting point for a Custom Speech project with a lot of data, consider [using Git Large File Storage](4-advanced-customization.md#Use-Git-Large-File-Storage) to manage large files in this repository. This will cost less compared to storing large files with Git.
+   ![Use this template](../images/template_button.png?raw=true "Cloning the template repo")
 
-## Create the Resource Group and Resources
+  * Enter your own repository name where prompted.
+  * Leave **Include all branches** unchecked as you only need the master branch of the source repo copied.
+  * Click **Create repository from template** to create your copy of this repository.
+
+The solution works with public repositories by default. To create a private repository, select **Private** and [change the `IS_PRIVATE_REPOSITORY` environment variable](4-advanced-customization.md##Change-Environment-Variables) to `true`.
+
+## Clone your repository
+
+After your repository is created, clone it to your own machine.
+
+- Follow these steps to [clone your repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository) to your own machine.
+
+If you are using this solution as the starting point for a Custom Speech project with a lot of data, consider [using Git Large File Storage](4-advanced-customization.md#Use-Git-Large-File-Storage) to manage large files in this repository. This will cost less compared to storing large files within Git itself.
+
+## Create an Azure Resource Group and a set of Azure Resources
 
 Developing Custom Speech models with the CI/CD pipeline requires an Azure Resource Group, under which an Azure Speech Resource and an Azure Storage Account must be created. To create these resources, click the Deploy to Azure button below:
 
