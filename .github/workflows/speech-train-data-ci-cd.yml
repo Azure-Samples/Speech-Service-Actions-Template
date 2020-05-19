@@ -379,10 +379,13 @@ jobs:
           git fetch --prune --unshallow
 
       # https://github.com/GitTools/GitVersion
-      - name: GitVersion
-        uses: docker://gittools/gitversion:5.2.5-linux-ubuntu-16.04-netcoreapp2.1
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.3
         with:
-          args: /github/workspace /nofetch /output buildserver
+            versionSpec: '5.2.x'
+      - name: Use GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.3
 
       - name: Set environment variables
         run: |
