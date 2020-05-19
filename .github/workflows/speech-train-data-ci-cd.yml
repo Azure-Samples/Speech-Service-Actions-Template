@@ -159,10 +159,6 @@ jobs:
           echo "::set-env name=AUDIO_TRANS_TRAIN_ID::$(echo $audio_trans_train_id)"
           echo "::set-env name=CUSTOM_SPEECH_MODEL_DATA::--audio-dataset $audio_trans_train_id"
 
-      - name: Create the build directory
-        if: env.TRAIN_ZIP_SOURCE_PATH == ''
-        run: mkdir ${{ env.TRAIN_BUILD_FOLDER_PATH }}
-
       # Upload pronunciation data to Speech. Fail if a GUID is not generated.
       - name: Upload pronunciation data
         if: env.PRONUNCIATION_FILE_PATH && env.PRONUNCIATION_FILE_PATH != ''
