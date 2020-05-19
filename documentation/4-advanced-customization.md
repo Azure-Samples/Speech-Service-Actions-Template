@@ -41,7 +41,7 @@ In `speech-train-data-ci-cd.yml`, the locale is defined to be `en-us`:
   SPEECH_LOCALE: "en-us"
 ```
 
-Change `en-us` to be whatever locale works best for your project, but note its available customizations. As seen on Language Support, not all locales can have all three types of training data. If your locale does not support all three types of training data, you must [exclude the unsupported training data](#Exclude-Some-Training-Data) from the workflow.
+Change `en-us` to the locale that works best for your project, but note its available customizations. As seen on Language Support, not all locales can have all three types of training data. If your locale does not support all three types of training data, you must [exclude the unsupported training data](#Exclude-Some-Training-Data) from the workflow.
 
 If under **Customizations** it says "No" for your locale, that means Custom Speech is not supported and you must exclude all three types of training data. While this solution then cannot help with continuously improving Custom Speech models, it can still test baseline Azure Speech models against test data as the test data changes, or as new baseline models are released.
 
@@ -78,7 +78,7 @@ Add, commit, and push these changes so that both workflows trigger on pushes to 
 
 ### Protect the master and develop branches
 
-During Setup, you [protected the **master** branch](1-setup.md#Protect-the-master-branch). Add another rule so that pushes to **develop** also require updates to be made via approved pull requests.
+During Setup, you [protected the **master** branch](1-setup.md#Protect-the-master-branch). Add another rule so that pushes to the **develop** branch also require updates to be made via approved pull requests.
 
 ***Important:*** *Individual GitHub accounts must be public or have a GitHub Pro subscription to enforce branch protections. If you are using a private repository with a personal GitHub account, you will have to change your repository to be public in repository settings.*
 
