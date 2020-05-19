@@ -166,7 +166,7 @@ jobs:
           audio_trans_test_id=${{ env.AUDIO_TRANS_TEST_ID }}
           if [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
           then
-            speech test delete ${{ env.AUDIO_TRANS_TEST_ID }};
+            speech dataset delete ${{ env.AUDIO_TRANS_TEST_ID }};
             echo "AUDIO TRANS TEST DATASET DELETED"
           fi
 
@@ -185,7 +185,6 @@ jobs:
         with:
           inlineScript: az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name ${{ env.TEST_SUMMARY_FILE }} --file ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} --auth-mode login
 
-        # jq optimization
       - name: Save test results in Azure Blob
         run: |
           results_url=$(jq '.resultsUrl' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs)
@@ -196,3 +195,12 @@ jobs:
         run: |
           echo ${{ env.TEST_SUMMARY_FILE }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt
           az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt --auth-mode login
+
+      - name: Delete Test after testing is complete
+        run: |
+          test_id=${{ env.TEST_ID }}
+          if [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          then
+            speech test delete ${{ env.TEST_ID }};
+            echo "TEST DELETED"
+          fi
