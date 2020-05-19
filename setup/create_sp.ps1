@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 # Get the Service Principal name
-$SP_DEFAULT="myLUISDevOpsApp-" + (-join ((65..90) + (97..122) | Get-Random -Count 5 | % {[char]$_}))
+$SP_DEFAULT="mySpeech>Speech in scriptDevOpsApp-" + (-join ((65..90) + (97..122) | Get-Random -Count 5 | % {[char]$_}))
 $spname = Read-Host "Enter the Service Principal name [$($SP_DEFAULT)]: "
 $spname = ($SP_DEFAULT,$spname)[[bool]$spname]
 
