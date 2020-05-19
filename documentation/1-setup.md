@@ -2,22 +2,22 @@
 
 Create the Azure resources and set up Git to begin developing Custom Speech models.
 
-### Table of Contents
+### Table of contents
 
-* [Use this Template](#Use-this-Template)
-* [Create the Resource Group and Resources](#Create-the-Resource-Group-and-Resources)
-* [Create the Speech Project](#Create-the-Speech-Project)
-* [Create the Service Principal](#Create-the-Service-Principal)
+* [Use this template](#Use-this-template)
+* [Create the resource group and resources](#Create-the-resource-group-and-resources)
+* [Create the Speech project](#Create-the-Speech-project)
+* [Create the Azure Service Principal](#Create-the-Azure-Service-Principal)
 * [Validate GitHub Secrets](#Validate-GitHub-Secrets)
-* [Protect the Master Branch](#Protect-the-Master-Branch)
-* [Next Steps](#Next-Steps)
+* [Protect the master branch](#Protect-the-master-branch)
+* [Next steps](#Next-steps)
 
-## Use this Template
+## Use this template
 
 [Generate a copy of this template repository](https://github.com/KatieProchilo/CustomSpeechDevOpsSample/generate) to hold the code and the GitHub Actions pipelines:
 
 1. Enter a name for the repository where prompted.
-2. The solution works with public repositories by default. To create a private repository, select **Private** and [change the `IS_PRIVATE_REPOSITORY` environment variable](4-advanced-customization.md##Change-Environment-Variables) to `true`.
+2. The solution works with public repositories by default. To create a private repository, select **Private** and [change the `IS_PRIVATE_REPOSITORY` environment variable](4-advanced-customization.md##Change-environment-variables) to `true`.
 3. Leave **Include all branches** unchecked. You only need to copy the master branch of this repository.
 4. Click **Create repository from template** to create your copy.
 
@@ -25,7 +25,7 @@ Create the Azure resources and set up Git to begin developing Custom Speech mode
 
 If you are using this solution as the starting point for a Custom Speech project with a lot of data, consider [using Git Large File Storage](4-advanced-customization.md#Use-Git-Large-File-Storage) to manage large files in this repository. This will cost less compared to storing large files with Git.
 
-## Create the Resource Group and Resources
+## Create the resource group and resources
 
 Developing Custom Speech models with the CI/CD pipeline requires an Azure Resource Group, under which an Azure Speech Resource and an Azure Storage Account must be created. To create these resources, click the Deploy to Azure button below:
 
@@ -50,7 +50,7 @@ Enter the values as follows and save them for later use:
 
 Agree to the terms and click **Review + create** to create the Resource Group and Resources. Fix any validation errors if necessary and then click **Create**.
 
-## Create the Speech Project
+## Create the Speech project
 
 Navigate to the [Speech Studio](https://speech.microsoft.com/portal/) and click the cog in the upper right corner, then click **Speech resources**:
 
@@ -63,9 +63,9 @@ Select the Speech Resource that was created in Setup, and then click the eye ico
 Click **Go to Studio** and [create a Speech project](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this Speech Resource:
 
 * [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `SPEECH_PROJECT_NAME` and set it to the name of the project.
-* Under **Language**, select the language you will use for testing and training models. The project is configured for **English (United States)**. To use other languages, [change locales](4-advanced-customization.md#Change-Locales).
+* Under **Language**, select the language you will use for testing and training models. The project is configured for **English (United States)**. To use other languages, [change locales](4-advanced-customization.md#Change-locales).
 
-## Create the Service Principal
+## Create the Azure Service Principal
 
 [Azure Service Principals](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?toc=%2Fazure%2Fazure-resource-manager%2Ftoc.json&view=azure-cli-latest) give role-restricted access to Azure Resources. The service principal you will create will be used to log in to Azure in the workflow.
 
@@ -118,9 +118,9 @@ Ensure each of the following secrets have been set:
 
 ![GitHub Secrets](../images/GitHubSecrets.png)
 
-## Protect the Master Branch
+## Protect the master branch
 
-This solution uses [GitHub Flow](https://guides.github.com/introduction/flow/), which involves creating feature branches and merging them into **master**. This approach is lightweight, but illustrates the basics of protecting branches. To protect multiple or different branches like **master** and **develop** read about [changing branching strategies](4-advanced-customization.md#Configure-a-Clean-Master).
+This solution uses [GitHub Flow](https://guides.github.com/introduction/flow/), which involves creating feature branches and merging them into **master**. This approach is lightweight, but illustrates the basics of protecting branches. To protect multiple or different branches like **master** and **develop** read about [changing branching strategies](4-advanced-customization.md#Configure-a-clean-master).
 
 Branch policies should be configured to prevent direct pushes to the master branch. They should require changes to be checked in by creating a pull request and getting these changes approved by collaborators in the repository.
 
@@ -137,6 +137,6 @@ To configure these protections:
     3. Do **not** check **Include administrators**. Later you will need to use your administrator privileges to bypass merging restrictions. Once multiple people are contributing to the project, consider configuring these restrictions for administrators as well.
     4. Click the **Create** button at the bottom of the page.
 
-## Next Steps
+## Next steps
 
 The repository has been initialized with branch protections and GitHub secrets for the Azure Service Principal and Azure resources. Now [create an initial custom speech model](./2-train-an-initial-model.md) using data stored in the `testing` and `training` folder of the repository.

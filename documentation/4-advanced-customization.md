@@ -1,18 +1,18 @@
-# 4. Advanced Customization
+# 4. Advanced customization
 
 Tailor the repository to your project's needs and optionally implement alternative approaches.
 
-### Table of Contents
+### Table of contents
 
-* [Change Environment Variables](#Change-Environment-Variables)
-* [Change Locales](#Change-Locales)
-* [Configure a Clean Master](#Configure-a-Clean-Master)
+* [Change Environment Variables](#Change-environment-variables)
+* [Change locales](#Change-locales)
+* [Configure a clean master](#Configure-a-clean-master)
     * [Edit the YAML](#Edit-the-YAML)
-    * [Protect the Master and Develop Branches](#Protect-the-Master-and-Develop-Branches)
-* [Exclude Training Data](#Exclude-Training-Data)
+    * [Protect the master and develop branches](#Protect-the-master-and-develop-branches)
+* [Exclude training data](#Exclude-training-data)
 * [Use Git Large File Storage](#Use-Git-Large-File-Storage)
     * [Edit the YAML](#Edit-the-YAML-1)
-    * [Convert Files to Git LFS](#Convert-Files-to-Git-LFS)
+    * [Convert files to Git LFS](#Convert-files-to-Git-LFS)
 
 ## Change Environment Variables
 
@@ -31,7 +31,7 @@ The following environment variables are set in at least one of `speech-test-data
 | **TRAIN_TRANS_FILE**        | The name and extension of the .txt transcript file that will be extracted from `trainZipSourcePath`. |
 | **TRAIN_ZIP_SOURCE_PATH**   | The path from the root of the repository to a .zip with .wav files and a .txt transcript used for training.<br><br>***Note:** This should be the same value as one of the three entries for `on.push.paths`.* |
 
-## Change Locales
+## Change locales
 
 Custom Speech supports different features depending on the locale the project is built with. See [Language Support](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support) for a list of possible locales, along with which features the locales support.
 
@@ -45,7 +45,7 @@ Change `en-us` to be whatever locale works best for your project, but note its a
 
 If under **Customizations** it says "No" for your locale, that means Custom Speech is not supported and you must exclude all three types of training data. While this solution then cannot help with continuously improving Custom Speech models, it can still test baseline Azure Speech models against test data as the test data changes, or as new baseline models are released.
 
-## Configure a Clean Master
+## Configure a clean master
 
 The training data in **master** does not always represent an improved Custom Speech model because the workflows execute *after* a pull request has already been merged, meaning there is no way to guarantee that model is better. This is not necessarily a problem because there is special behavior when models improve - a Custom Speech endpoint is created, a GitHub release is created containing that endpoint, and the repository is tagged with a new version. This approach is also great because training Custom Speech models and testing them against a large data set will take a long time, and is only done once for each commit to master.
 
@@ -76,9 +76,9 @@ on:
 
 Add, commit, and push these changes so that both workflows trigger on pushes to **master** and **develop**. For more information, read about [GitHub events that trigger workflows](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#on).
 
-### Protect the Master and Develop Branches
+### Protect the master and develop branches
 
-During Setup, you [protected the **master** branch](1-setup.md#Protect-the-Master-Branch). Add another rule so that pushes to **develop** also require updates to be made via approved pull requests.
+During Setup, you [protected the **master** branch](1-setup.md#Protect-the-master-branch). Add another rule so that pushes to **develop** also require updates to be made via approved pull requests.
 
 ***Important:*** *Individual GitHub accounts must be public or have a GitHub Pro subscription to enforce branch protections. If you are using a private repository with a personal GitHub account, you will have to change your repository to be public in repository settings.*
 
@@ -95,9 +95,9 @@ To configure these protections:
 
 With the branch protections and triggers in place, create pull requests from feature branches to **develop**. If the models in **develop** improve, create pull requests from **develop** to **master** so that every commit in **master** represents an improved Custom Speech model.
 
-## Exclude Training Data
+## Exclude training data
 
-The three types of training data to use when building a Custom Speech model were [explained in more detail](2-train-an-initial-model.md#Pull-Request-Training-Data-Updates) previously, but it's possible to exclude any or all of the data if it is [unsupported by the locale](#Change-Locales), or if your project does not require it.
+The three types of training data to use when building a Custom Speech model were [explained in more detail](2-train-an-initial-model.md#Create-pull-request-for-training-data-updates) previously, but it's possible to exclude any or all of the data if it is [unsupported by the locale](#Change-locales), or if your project does not require it.
 
 To exclude training data, find the following YAML in `speech-train-data-ci-cd.yml`:
 
@@ -180,7 +180,7 @@ git add .
 git commit -m "Checkout with LFS."
 ```
 
-### Convert Files to Git LFS
+### Convert files to Git LFS
 
 Download the [Git LFS command line extension for Windows](https://github.com/git-lfs/git-lfs/releases/download/v2.10.0/git-lfs-windows-v2.10.0.exe) or find [OS-specific guidance](https://github.com/git-lfs/git-lfs/wiki/Installation).
 

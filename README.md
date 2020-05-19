@@ -48,15 +48,15 @@ Train, test, and release new Custom Speech models automatically as training data
     * See here for [OS-specific guidance](https://github.com/git-lfs/git-lfs/wiki/Installation)
 * [GitHub account](https://github.com/join)
 
-## Use this Solution
+## Use this solution
 
 ***Required:*** Follow the steps below to create and configure a personal repository to deploy models to your Azure Subscription, use the provided sample data to understand the development process, and a create a model for your project by replacing the sample data with your own:
 
 1. [Setup](./documentation/1-setup.md)
-2. [Train an Initial Model](./documentation/2-train-an-initial-model.md)
+2. [Train an initial model](./documentation/2-train-an-initial-model.md)
 3. [Improve the Model](./documentation/3-improve-the-model.md)
 
-***Customization:*** Visit [Advanced Customization](./documentation/4-advanced-customization.md) to change the folder structure, use an alternative branching strategy, and more.
+***Customization:*** Visit [Advanced customization](./documentation/4-advanced-customization.md) to change the folder structure, use an alternative branching strategy, and more.
 
 ## Contributing
 
