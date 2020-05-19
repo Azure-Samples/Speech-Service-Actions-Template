@@ -313,35 +313,16 @@ jobs:
           echo ${{ env.TEST_SUMMARY_FILE }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt
           az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt --auth-mode login
 
-      - name: Delete Testing dataset after testing is complete
+      # Nuance: setting a local variable for env retrieved values. Working
+      # solution to text expansion within the "if [[]]; then fi", which results
+      # in a substitution error.
+      - name: Delete datasets after testing is complete. Pass or FAIL.
         run: |
           audio_trans_test_id=${{ env.AUDIO_TRANS_TEST_ID }}
           if [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
           then
             speech dataset delete ${{ env.AUDIO_TRANS_TEST_ID }};
             echo "AUDIO TRANS TEST DATASET DELETED"
-          fi
-
-      - name: Delete Test after testing is complete
-        run: |
-          test_id=${{ env.TEST_ID }}
-          if [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
-          then
-            speech test delete ${{ env.TEST_ID }};
-            echo "TEST DELETED"
-          fi
-
-      # Nuance: setting a local variable for env retrieved values. Working
-      # solution to text expansion within the "if [[]]; then fi", which results
-      # in a substitution error.
-      - name: FAIL - Delete training uploads to Speech
-        if: env.BENCHMARK_WER <= env.NEW_WER
-        run: |
-          custom_speech_model_id=${{ env.CUSTOM_SPEECH_MODEL_ID }}
-          if [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-          then
-            speech model delete ${{ env.CUSTOM_SPEECH_MODEL_ID }}
-            echo DELETED CUSTOM SPEECH MODEL.
           fi
           audio_trans_train_id=${{ env.AUDIO_TRANS_TRAIN_ID }}
           if [[ ${audio_trans_train_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
@@ -360,6 +341,31 @@ jobs:
           then
             speech dataset delete ${{ env.LANGUAGE_ID }}
             echo DELETED LANGUAGE DATA.
+          fi
+
+      # Nuance: setting a local variable for env retrieved values. Working
+      # solution to text expansion within the "if [[]]; then fi", which results
+      # in a substitution error.
+      - name: Delete Test after testing is complete
+        run: |
+          test_id=${{ env.TEST_ID }}
+          if [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          then
+            speech test delete ${{ env.TEST_ID }};
+            echo "TEST DELETED"
+          fi
+
+      # Nuance: setting a local variable for env retrieved values. Working
+      # solution to text expansion within the "if [[]]; then fi", which results
+      # in a substitution error.
+      - name: FAIL - Delete model uploads to Speech
+        if: env.BENCHMARK_WER <= env.NEW_WER
+        run: |
+          custom_speech_model_id=${{ env.CUSTOM_SPEECH_MODEL_ID }}
+          if [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            speech model delete ${{ env.CUSTOM_SPEECH_MODEL_ID }}
+            echo DELETED CUSTOM SPEECH MODEL.
           fi
           exit 1
 
