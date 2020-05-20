@@ -3,11 +3,11 @@
 
 # Get the Service Principal name
 $SP_DEFAULT="mySpeechDevOpsApp-" + (-join ((65..90) + (97..122) | Get-Random -Count 5 | % {[char]$_}))
-$spname = Read-Host "Enter the Service Principal name [$($SP_DEFAULT)] "
+$spname = Read-Host "Enter the Service Principal name [$($SP_DEFAULT)]"
 $spname = ($SP_DEFAULT,$spname)[[bool]$spname]
 
 # Get the resource group name
-$resourceGroup = Read-Host "Enter the Azure Resource Group name "
+$resourceGroup = Read-Host "Enter the Azure Resource Group name"
 
 # get our subscriptionId
 $subscriptionId=$(az account show --query id -o tsv)
