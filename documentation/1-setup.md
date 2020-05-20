@@ -1,8 +1,8 @@
 # 1. Setup
 
-Create the Azure resources and set up Git to begin developing Custom Speech models.
+This document shows how to create your GitHub repository, create your Azure resources, and configure the [GitHub Actions](https://help.github.com/en/actions) workflows so you can begin developing Custom Speech models using this template.
 
-### Table of contents
+## Table of contents
 
 - [1. Setup](#1-setup)
   - [Table of Contents](#table-of-contents)
