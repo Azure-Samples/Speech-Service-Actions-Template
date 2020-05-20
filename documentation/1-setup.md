@@ -66,7 +66,7 @@ You must create a Speech Project in [Speech Studio](https://speech.microsoft.com
 
 ## Create the Service Principal
 
-You need to configure an [Azure Service Principal](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli) to allow the pipeline to login using your identity and to work with Azure resources in a role-restricted fashion on your behalf. You will save the access token for the service principal in the GitHub Secrets for your repository.
+Configure an [Azure Service Principal](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli) to allow the pipeline to login using your identity and to work with Azure resources using role-restricted access. Save the access token for the service principal in the GitHub Secrets for your repository.
 
 A Powershell script [./setup/create_sp.ps1](./setup/create_sp.ps1) is provided in this repo to make this simple and the easiest way to run the script is to use [Azure Cloud Shell](https://shell.azure.com).
 
@@ -75,7 +75,7 @@ To launch Azure Cloud Shell:
 * Go to [https://shell.azure.com](https://shell.azure.com), or click  this button to open Cloud Shell in your browser: [![Launch Cloud Shell in a new window](./images/hdi-launch-cloud-shell.png)](https://shell.azure.com)
 * Or select the **Cloud Shell** button on the menu bar at the upper right in the [Azure portal](https://portal.azure.com).
 
-When Cloud shell launches, select the Azure subscription you used before to create the Azure resources, and if this is the first time of use, complete the initialization procedure.
+When Cloud Shell launches, select the Azure subscription you used before to create the Azure resources, and if this is the first time of use, complete the initialization procedure.
 
 To run the script:
 
@@ -156,7 +156,7 @@ You should configure the specific workflows that you require for your software e
 
 ## Next Steps
 
-For the next steps, find out how to [create an initial custom speech model](./2-train-an-initial-model.md) using data stored in the `testing` and `training` folder of the repository.
+At this point the repository has been initialized with branch protections and GitHub secrets for the Azure Service Principal and Azure resources. For the next steps, find out how to [create an initial custom speech model](./2-train-an-initial-model.md) using data stored in the `testing` and `training` folder of the repository.
 
 ## Further Reading
 
