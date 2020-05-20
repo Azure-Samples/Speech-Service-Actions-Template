@@ -4,17 +4,16 @@ Follow these steps to understand the developer workflow to contribute to models,
 
 ### Table of contents
 
-* [2. Train an initial model](#2-train-an-initial-model)
-  * [Create pull request for training data updates](#Create-pull-request-for-training-data-updates)
-    * [Update training data](#Update-training-data)
-      * [Test training data updates](#Test-training-data-updates)
-    * [Create and merge the pull request](#Create-and-merge-the-pull-request)
-  * [What the SpeechTrainDataCICD pipeline does](#what-the-speechtraindatacicd-pipeline-does)
-    * [Train a new model](#Train-a-new-model)
-    * [Test the new model](#Test-the-new-model)
-    * [Release an endpoint](#Release-an-endpoint)
-  * [Next steps](#Next-steps)
-  * [Further Reading](#further-reading)
+* [Create pull request for training data updates](#Create-pull-request-for-training-data-updates)
+  * [Update training data](#Update-training-data)
+    * [Test training data updates](#Test-training-data-updates)
+  * [Create and merge the pull request](#Create-and-merge-the-pull-request)
+* [What the SpeechTrainDataCICD workflow does](#what-the-speechtraindatacicd-workflow-does)
+  * [Train a new model](#Train-a-new-model)
+  * [Test the new model](#Test-the-new-model)
+  * [Release an endpoint](#Release-an-endpoint)
+* [Next steps](#Next-steps)
+* [Further Reading](#further-reading)
 
 ## Create pull request for training data updates
 
@@ -23,7 +22,7 @@ In this workflow, you will create a pull request with updates to the training da
 * [Update the speech model training data](#update-training-data)
 * [Test the training data updates](#test-training-data-updates)
 * [Create and merge the pull request](#create-and-merge-the-pull-request)
-* [Understand the operation of the SpeechTrainDataCICD pipeline](#what-the-speechtraindatacicd-pipeline-does)
+* [Understand the operation of the SpeechTrainDataCICD workflow](#what-the-speechtraindatacicd-workflow-does)
 
 ### Update training data
 
@@ -80,13 +79,13 @@ git push -u origin initialSpeechModel
 
 Create a pull request from **initialSpeechModel** to **master**. Click the **Merge pull request** button to merge the pull request into **master**. If you have set up the branch protection policies, it will be necessary to check **Use your administrator privileges** to merge this pull request to complete the merge.
 
-If everything has been set up properly, the **SpeechTrainDataCICD** pipeline will automatically execute after a few seconds. Navigate to the **Actions** tab of the repository to see the workflow called the workflow in progress:
+If everything has been set up properly, the **SpeechTrainDataCICD** workflow will automatically execute after a few seconds. Navigate to the **Actions** tab of the repository to see the workflow called the workflow in progress:
 
 ![Actions tab showing that the workflow is running](../images/WorkflowRunning.png)
 
-## What the SpeechTrainDataCICD pipeline does
+## What the SpeechTrainDataCICD workflow does
 
-The **SpeechTrainDataCICD** pipeline is configured to trigger on a merge to master of changes to any of the training data files, which are in the `training` folder in this repo. In outline, this pipeline:
+The **SpeechTrainDataCICD** workflow is configured to trigger on a merge to master of changes to any of the training data files, which are in the `training` folder in this repo. In outline, this workflow:
 
 * [Trains a new model](#train-a-new-model)
 * [Tests the new model](#test-the-new-model)
@@ -100,19 +99,19 @@ Any time training data is updated, the **SpeechTrainDataCICD** workflow will run
 
 ### Test the new model
 
-Once the new speech model is built, the pipeline tests the new model's accuracy using [audio + human-labeled transcripts](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) which are in `testing/audio-and-trans.zip` in this repo. Models attempt to recognize the .wav files from the `audio` folder in this zip archive, and the recognition is compared to its corresponding text in the `trans.txt` file from the same zip archive.
+Once the new speech model is built, the workflow tests the new model's accuracy using [audio + human-labeled transcripts](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) which are in `testing/audio-and-trans.zip` in this repo. Models attempt to recognize the .wav files from the `audio` folder in this zip archive, and the recognition is compared to its corresponding text in the `trans.txt` file from the same zip archive.
 
 The test creates a test summary and a test results file. The test summary contains the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) for that test, which is an industry-standard metric to measure recognition accuracy. It is the sum of substitutions, deletions, and insertions divided by the number of words in a sentence. Essentially it's a measure of how many words were recognized incorrectly. In future runs, it matters that the WER improves and gets lower over time, but this initial run will simply set a baseline WER for future runs.
 
-The pipeline stores the test summary and test results in an Azure Storage container called `test-results`. The pipeline also creates an Azure Storage container called `configuration` in which it stores a single file, `benchmark-test.txt`, which contains the name of the test summary file from the initial model. On future runs of this pipeline, when a new speech model is tested that improves the Word Error Rate, the pipeline updates this file to point at the test summary file for the new model, thus establishing a new improved baseline for future runs.
+The workflow stores the test summary and test results in an Azure Storage container called `test-results`. The workflow also creates an Azure Storage container called `configuration` in which it stores a single file, `benchmark-test.txt`, which contains the name of the test summary file from the initial model. On future runs of this workflow, when a new speech model is tested that improves the Word Error Rate, the workflow updates this file to point at the test summary file for the new model, thus establishing a new improved baseline for future runs.
 
-After the pipeline has completed, visit the [Azure Portal](https://ms.portal.azure.com/#home) and navigate to your Azure Storage Account to view these additions.
+After the workflow has completed, visit the [Azure Portal](https://ms.portal.azure.com/#home) and navigate to your Azure Storage Account to view these additions.
 
 ### Release an endpoint
 
-Finally, the pipeline creates a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) for this initial model, and a GitHub Release is created that contains a JSON file with data about this endpoint and a copy of the repository contents at the time the release was created.
+Finally, the workflow creates a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) for this initial model, and a GitHub Release is created that contains a JSON file with data about this endpoint and a copy of the repository contents at the time the release was created.
 
-Each time the pipeline runs and the Word Error rate improves, a new endpoint is released and the repository is tagged with a new version. To find the best-performing Custom Speech endpoint, navigate to the **Code** tab in the repository, then click the **Releases** sub-tab. At the top of the releases page will be a release with an icon next to it that says **Latest release**, the commit hash the model was built from, and the Custom Speech model's version:
+Each time the workflow runs and the Word Error rate improves, a new endpoint is released and the repository is tagged with a new version. To find the best-performing Custom Speech endpoint, navigate to the **Code** tab in the repository, then click the **Releases** sub-tab. At the top of the releases page will be a release with an icon next to it that says **Latest release**, the commit hash the model was built from, and the Custom Speech model's version:
 
 ![Latest Release](../images/LatestRelease.png)
 
