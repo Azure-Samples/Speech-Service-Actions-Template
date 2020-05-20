@@ -14,7 +14,7 @@ After you've completed this walk through, replace the data in the repo with your
 
 ## Table of contents
 
-* [Create pull request for training data updates](#Create-pull-request-for-training-data-updates)
+* [Update the training data](#Update-the-training-data)
   * [Update training data](#Update-training-data)
     * [Test training data updates](#Test-training-data-updates)
   * [Create and merge the pull request](#Create-and-merge-the-pull-request)
@@ -25,45 +25,46 @@ After you've completed this walk through, replace the data in the repo with your
 * [Next steps](#Next-steps)
 * [Further Reading](#further-reading)
 
-## Create pull request for training data updates
+## Update the training data
 
-Create a pull request with updates to the training data, triggering the **SpeechTrainDataCICD** workflow and creating the initial model.
+Update to the training so you can use that data to create the initial model.
 
-To create your pull request:
+To update the training data:
 
-* [Update the speech model training data](#update-training-data)
-* [Test the training data updates](#test-training-data-updates)
-* [Create and merge the pull request](#create-and-merge-the-pull-request)
-* [Understand the operation of the SpeechTrainDataCICD workflow](#what-the-speechtraindatacicd-workflow-does)
+1. Navigate to the root of the repository and create a feature branch from master:
 
-### Update training data
+    ```bash
+    git checkout -b initialSpeechModel
+    ```
 
-An initial Custom Speech model is created when training data is updated for the first time, which includes the following files taken from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech):
+1. Change the file `training/related-text.txt` by adding the line:
 
-* **`training/related-text.txt`:** [Language, or sentences, data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) is a type of [related text](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) that trains language models.
-* **`training/pronunciation.txt`:** [Pronunciation data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-pronunciation-file) is the second type of related text that also trains language models. It should be used in moderation to improve the recognition of words, phrases, and acronyms that are outside of a locale's typical vocabulary.
-* **`training/audio-and-trans.zip`:** This folder of [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) is used in its entirety to train acoustic models.
+    ```xml
+    This is language data for my initial model.
+    ```
 
-To update the training data, navigate to the root of the repository and create a feature branch from master:
+    This change illustrates a training data change that will trigger the GitHub Actions workflow from a pull request. After this walk through, you'll make updates that [attempt to improve the model's recognition](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-sentences-file).
 
-```bash
-git checkout -b initialSpeechModel
-```
+1. Add and commit the changes:
 
-Make a change to the file `training/related-text.txt` such as adding the line:
+    ```bash
+    git add .
+    git commit -m "Changes to my Custom Speech model."
+    ```
 
-```xml
-This is language data for my initial model.
-```
+#### Test training data updates
 
-This change is sufficient to cause the **SpeechTrainDataCICD** workflow to trigger once the PR is merged.
+The changes to `training/related-text.txt` demonstrate the workflow to update training data. They weren't meant to improve the model and don't need to be tested, but meaningful changes should be tested before a pull request is created. To do so, [create an Azure Speech resource](https://docs.microsoft.com/azure/cognitive-services/speech-service/get-started#new-resource) for personal use. [Create a Speech project](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this resource to test changes you make to training data before they are submitted to a greater audience.
 
-Add and commit the changes:
+Now you can begin the testing loop. Each of the following three steps should be done in the [Speech Studio](https://speech.microsoft.com/portal/) until it seems that the updates to the training data have improved the model:
 
-```bash
-git add .
-git commit -m "Changes to my Custom Speech model."
-```
+1. [Upload training and testing data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#upload-data)
+2. [Train a model for Custom Speech](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-train-model)
+3. [Evaluate Custom Speech accuracy](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test)
+
+Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) which can be used to gauge whether or not the changes have generally improved the model. If so, the updates can be submitted in a pull request.
+
+If the model did not improve, more training data should be updated and the testing loop should start over.
 
 ### Create and merge the pull request
 
