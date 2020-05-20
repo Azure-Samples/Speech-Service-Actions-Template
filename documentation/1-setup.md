@@ -4,7 +4,7 @@ This document shows how to create your GitHub repository, create your Azure reso
 
 ## Table of contents
 
-- [Get the code](#get-the-code)
+- [Create your repo](#create-your-repo)
 - [Clone your repository](#clone-your-repository)
 - [Create the resource group and resources](#Create-the-resource-group-and-resources)
 - [Create the Speech project](#create-the-speech-project)
@@ -13,9 +13,9 @@ This document shows how to create your GitHub repository, create your Azure reso
 - [Protect the master branch](#protect-the-master-branch)
 - [Next steps](#next-steps)
 
-## Get the code
+## Create your repo
 
-You'll use a GitHub repository and GitHub Actions for running the multi-stage pipeline with build, testing, and release stages.
+Use this template to create a GitHub repository with the same files and folders for your development.
 
 To create your repository:
 
