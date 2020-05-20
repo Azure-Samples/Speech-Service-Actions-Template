@@ -1,8 +1,18 @@
 # 2. Train an initial model
 
-Follow these steps to understand the developer workflow to contribute to models, understand the data used to train and test models, and to create the first speech model by making a change to the training data. This initial Custom Speech model that you create will be used as a benchmark to which future models can compare their accuracy.
+Follow these steps to understand the developer workflow, the data used to train and test models, and to create the initial Custom Speech model by making a change to the training data.
 
-### Table of contents
+The initial Custom Speech model will be used as an accuracy benchmark to compare against future models.
+
+This template includes sample data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of this walk through, including:
+
+* **`training/related-text.txt`:** [Language, or sentences, data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) is a type of [related text](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) that trains language models.
+* **`training/pronunciation.txt`:** [Pronunciation data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-pronunciation-file) is the second type of related text that also trains language models. It should be used in moderation to improve the recognition of words, phrases, and acronyms that are outside of a locale's typical vocabulary.
+* **`training/audio-and-trans.zip`:** This folder of [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) is used in its entirety to train acoustic models.
+
+After you've completed this walk through, replace the data in the repo with your project data to start creating a model specific to your project.
+
+## Table of contents
 
 * [Create pull request for training data updates](#Create-pull-request-for-training-data-updates)
   * [Update training data](#Update-training-data)
@@ -17,7 +27,9 @@ Follow these steps to understand the developer workflow to contribute to models,
 
 ## Create pull request for training data updates
 
-In this workflow, you will create a pull request with updates to the training data to trigger the **SpeechTrainDataCICD** workflow which will train an initial model. to do this, you will:
+Create a pull request with updates to the training data, triggering the **SpeechTrainDataCICD** workflow and creating the initial model.
+
+To create your pull request:
 
 * [Update the speech model training data](#update-training-data)
 * [Test the training data updates](#test-training-data-updates)
