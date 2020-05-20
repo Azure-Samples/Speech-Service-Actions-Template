@@ -85,7 +85,7 @@ Create a Speech Project in [Speech Studio](https://speech.microsoft.com/portal/)
 
 [GitHub Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) serve as parameters to the GitHub Actions workflow while keeping those values secret. When viewing the workflow logs, secrets will appear as `***`.
 
-To create your GitHub Secretes:
+To create your GitHub Secrets:
 
 1. Click the **Settings** tab on the home page of your repository.
 1. Select **Options** in the left menu.
@@ -93,7 +93,6 @@ To create your GitHub Secretes:
 
    | Name | Value |
    |-------------|-------|
-   | **AZURE_CREDENTIALS** | The output from the `create_sp.ps1` script from the previous step |
    | **SPEECH_RESOURCE_REGION** | The region you selected when configuring the Azure resources |
    | **SPEECH_SUBSCRIPTION_KEY** | The speech subscription key |
    | **SPEECH_PROJECT_NAME** | The speech project name |
@@ -103,40 +102,36 @@ To create your GitHub Secretes:
 
 ## Create the Azure Service Principal
 
-Configure an [Azure Service Principal](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli) to allow the pipeline to login using your identity and to work with Azure resources using role-restricted access. Save the access token for the service principal in the GitHub Secrets for your repository.
+Create an [Azure Service Principal](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli) to allow the pipeline to login using that identity and work with Azure resources using role-restricted access.
 
-A Powershell script [./setup/create_sp.ps1](./setup/create_sp.ps1) is provided in this repo to make this simple and the easiest way to run the script is to use [Azure Cloud Shell](https://shell.azure.com).
+A Powershell script [./setup/create_sp.ps1](./setup/create_sp.ps1) is provided to create the Azure Service Principal.
 
-To launch Azure Cloud Shell:
+To create the Azure Service Principal:
 
-- Go to [https://shell.azure.com](https://shell.azure.com), or click  this button to open Cloud Shell in your browser: [![Launch Cloud Shell in a new window](../images/hdi-launch-cloud-shell.png)](https://shell.azure.com)
-- Or select the **Cloud Shell** button on the menu bar at the upper right in the [Azure portal](https://portal.azure.com).
-
-When Cloud Shell launches, select the Azure subscription you used before to create the Azure resources, and if this is the first time of use, complete the initialization procedure.
-
-To run the script:
-
+1. Go to [Azure Cloud Shell](https://shell.azure.com).
+   - Complete the initialization procedure if this is the first time you've used Azure Cloud Shell.
+1. Select the **Azure subscription** used to create the Azure resources above.
 1. Select **Powershell** at the top left of the terminal taskbar.
 
 1. Click the **Upload/Download** button on the taskbar.
 
    ![Azure CloudShell Upload button](../images/cloudshell.png?raw=true "Uploading in Azure Cloud Shell")
 
-1. Click **Upload** and navigate to the **/setup/create_sp.ps1** file in the cloned copy of this repo on your computer.
+1. Select **Upload** and navigate to the **/setup/create_sp.ps1** file in your repo.
 
-1. After the file has finished uploading, execute it:
+1. After the file has finished uploading, execute it in the terminal by entering the following command:
 
    ```powershell
    ./create_sp.ps1
    ```
 
-1. Enter the  requested input as prompted.
+1. Enter a **Service Principal name** and your **Azure Resource Group** (from above):
 
-   > **IMPORTANT:** The Service Principal name you use must be unique within your Active Directory. When prompted enter your own unique name or hit *Enter* to use the auto-generated unique name. Also enter the **Resource Group** name you created when you configured the Azure resources:
+   > **IMPORTANT:** The Service Principal name you use must be unique within your Active Directory. When prompted enter your own unique name or hit **Enter** to use the auto-generated unique name.
 
    ![Azure create-for-rbac](../images/rbac.png?raw=true "Saving output from az ad sp create-for-rbac")
 
-1. As prompted, copy the JSON that is returned. 
+1. As prompted, copy the JSON that is returned.
 
 ```json
 {
@@ -146,7 +141,7 @@ To run the script:
 }
 ```
 
-In the next step, you will save this value in a [GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `AZURE_CREDENTIALS`.
+Using the process above, create a GitHub Secret named `AZURE_CREDENTIALS` with a value of the JSON above.
 
 ## Protect the master branch
 
