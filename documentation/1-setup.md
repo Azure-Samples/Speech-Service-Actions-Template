@@ -68,15 +68,18 @@ Create a Speech Project in [Speech Studio](https://speech.microsoft.com/portal/)
 
    ![Speech Studio Speech Resource](../images/SpeechStudioSpeechResources.png)
 
-1. Select the Speech Resource that was created in Setup, and then click the eye icon to reveal the Speech subscription key. Record this value for use later on.
+1. Select the Speech Resource that was created in Setup, and then click the eye icon to reveal the Speech subscription key. 
+   >Note: Take note of this key for use later on.
 
    ![Speech Studio Speech Subscription Key](../images/SpeechStudioSubscriptionKey.png)
 
-1. Click **Go to Studio** and select [_Custom Speech_](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this Speech Resource:
+1. Click **Go to Studio** and select **Custom Speech**.
 
-   1. Click to create a new _Speech Project_ and enter a suitable name for the project. Use _English (United States)_ as the language.
-
-   1. Save the name of the speech project for use later on.
+1. Click **New project** to create a new [Speech Project](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project). Fill out the dialog:
+   1. **Name**: Enter a name for the project.
+      >Note: Take note of the name of your project for use later on.
+   1. **Description**: Enter a description.
+   1. **Language**: Select _English (United States)_.
 
 ## Create the Azure Service Principal
 
