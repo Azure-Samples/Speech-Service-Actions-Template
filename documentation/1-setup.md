@@ -5,7 +5,7 @@ This document shows how to create your GitHub repository, create your Azure reso
 ## Table of contents
 
 - [Create your repo](#create-your-repo)
-- [Create the resource group and resources](#Create-the-resource-group-and-resources)
+- [Provision Azure resources](#Provision-Azure-resources)
 - [Create the Speech project](#create-the-speech-project)
 - [Create the Azure Service Principal](#Create-the-Azure-Service-Principal)
 - [Set GitHub Secrets](#set-github-secrets)
@@ -30,12 +30,12 @@ To create your repository:
   - Click **Create repository from template** to create your copy of this repository.
 
 After your repository is created, [clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository).
-
+  
 >Note: If you are using this solution as the starting point for a Custom Speech project with a lot of data, consider [configuring Git Large File Storage](4-advanced-customization.md#Use-Git-Large-File-Storage) to manage large files.
 
-## Create the resource group and resources
+## Provision Azure resources
 
-Developing Custom Speech models with the CI/CD pipeline requires an Azure Resource Group, under which an Azure Speech Resource and an Azure Storage Account must be created. To create these resources, click the Deploy to Azure button below:
+Developing Custom Speech models requires an Azure Resource Group with an Azure Speech Resource and an Azure Storage Account. To create these resources, click the Deploy to Azure button below:
 
 **TEMPORARY:** URL behind this button is temporary while the repo is private. REMOVE THIS MESSAGE and change URL to correct target when this goes public.
 
@@ -45,16 +45,18 @@ Developing Custom Speech models with the CI/CD pipeline requires an Azure Resour
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FSpeech-Services-DevOps-Samples%2Fmaster%2Fazuredeploy.json)
 -->
 
-Enter the values as prompted. Take a note of the values you enter for the `STORAGE_ACCOUNT_NAME` and for `SPEECH_RESOURCE_REGION`, as you will need them later on when we configure the CI/CD pipelines:
+Enter the values in the template, including:
 
 - **Resource Group:** Up to 90 alphanumeric characters, periods, underscores, hyphens and parenthesis. Cannot end in a period.
-- **Location:** Select the region from the dropdown that's best for your project.
-- **STORAGE_ACCOUNT_NAME:** 8-24 alphanumeric characters. Must be unique across Azure. Record your name for later.
+- **Region:** Select the region from the dropdown that's best for your project.
+- **STORAGE_ACCOUNT_NAME:** 8-24 alphanumeric characters. Must be unique across Azure.
 - **STORAGE_ACCOUNT_REGION:** Select the region from the dropdown that's best for your project.
 - **SPEECH_RESOURCE_NAME:** 2-64 alphanumeric characters, underscores, and hyphens.
-- **SPEECH_RESOURCE_REGION:** Select the region from the dropdown that's best for your project. Record your choice for later.
+- **SPEECH_RESOURCE_REGION:** Select the region from the dropdown that's best for your project.
 
-Agree to the terms and click **Review + create** to create the Resource Group and Resources. Fix any validation errors if necessary and then click **Create**.
+  >Note: Take note of the `STORAGE_ACCOUNT_NAME` and  `SPEECH_RESOURCE_REGION`. You will need them when you configure the CI/CD pipelines.
+
+Click **Review + create**, agree to the terms, and click **Create**  to create the Azure Resource Group and Resources.
 
 ## Create the Speech project
 
