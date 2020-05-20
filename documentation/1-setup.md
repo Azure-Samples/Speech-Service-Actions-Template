@@ -18,18 +18,20 @@ Use this template to create a GitHub repository with the same files and folders 
 
 To create your repository:
 
-- If you don't already have a GitHub account, create one by following the instructions at [Join GitHub: Create your account](https://github.com/join).
-- Click the green **Use this template** button near the top of the [Speech-Service-DevOps-Samples](https://github.com/Azure-Samples/Speech-Service-DevOps-Samples) home page for this GitHub repo. This will create a new GitHub repository with the same files and folders as the template.
+1. If you don't already have a GitHub account, create one by following the instructions at [Join GitHub: Create your account](https://github.com/join).
+1. Click the green **Use this template** button near the top of the [Speech-Service-DevOps-Samples](https://github.com/Azure-Samples/Speech-Service-DevOps-Samples) home page for this GitHub repo. This will create a new GitHub repository with the same files and folders as the template.
 
    ![Use this template](../images/template_button.png?raw=true "Cloning the template repo")
+  
+   1. Enter your own **Repository name** where prompted.
+   1. Select **Private** if you want to create a private repository.
 
-  - Enter your own **Repository name** where prompted.
-  - Select **Private** if you want to create a private repository.
-    >Note: The template works with public repositories by default. If you create a private repository, you will need to [configure the workflows](4-advanced-customization.md##Change-Environment-Variables) for use with a  private repository.
-  - Leave **Include all branches** unchecked as you only need the master branch.
-  - Click **Create repository from template** to create your copy of this repository.
+      >Note: The template works with public repositories by default. If you create a private repository, you will need to [configure the workflows](4-advanced-customization.md##Change-Environment-Variables) for use with a  private repository.
 
-After your repository is created, [clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository).
+   1. Leave **Include all branches** unchecked as you only need the master branch.
+   1. Click **Create repository from template** to create your copy of this repository.
+
+1. After your repository is created, [clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository).
   
 >Note: If you are using this solution as the starting point for a Custom Speech project with a lot of data, consider [configuring Git Large File Storage](4-advanced-customization.md#Use-Git-Large-File-Storage) to manage large files.
 
@@ -60,7 +62,7 @@ Click **Review + create**, agree to the terms, and click **Create**  to create t
 
 ## Create the Speech project
 
-You must create a Speech Project in [Speech Studio](https://speech.microsoft.com/portal/) for your project. To create the project:
+Create a Speech Project in [Speech Studio](https://speech.microsoft.com/portal/) for your project. To create the project:
 
 1. Open [Speech Studio](https://speech.microsoft.com/portal/) and click the cog in the upper right corner, then click **Speech resources**:
 
