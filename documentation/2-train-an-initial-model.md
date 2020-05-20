@@ -38,7 +38,7 @@ Make a change to the file `training/related-text.txt` such as adding the line:
 This is language data for my initial model.
 ```
 
-This change is meant to illustrate how to trigger the **SpeechTrainDataCICD** workflow, but after you have walked through this solution, the updates should be meaningful and [attempt to improve the model's recognition](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-sentences-file).
+This change is sufficient to cause the **SpeechTrainDataCICD** pipeline to trigger once the PR is merged.
 
 Add and commit the changes:
 
@@ -46,22 +46,6 @@ Add and commit the changes:
 git add .
 git commit -m "Changes to my Custom Speech model."
 ```
-
-You may [exclude any or all training data](4-advanced-customization.md#Exclude-training-data).
-
-#### Test training data updates
-
-The changes to `training/related-text.txt` demonstrate the workflow to update training data. They weren't meant to improve the model and don't need to be tested, but meaningful changes should be tested before a pull request is created. To do so, [create an Azure Speech resource](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/get-started#new-resource) for personal use. [Create a Speech project](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this resource to test changes you make to training data before they are submitted to a greater audience.
-
-Now you can begin the testing loop. Each of the following three steps should be done in the [Speech Studio](https://speech.microsoft.com/portal/) until it seems that the updates to the training data have improved the model:
-
-1. [Upload training and testing data](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#upload-data)
-2. [Train a model for Custom Speech](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-train-model)
-3. [Evaluate Custom Speech accuracy](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test)
-
-Tests will output a [Word Error Rate](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) which can be used to gauge whether or not the changes have generally improved the model. If so, the updates can be submitted in a pull request.
-
-If the model did not improve, more training data should be updated and the testing loop should start over.
 
 ### Create and merge the pull request
 
@@ -97,19 +81,7 @@ The test summary and test results will be stored in an Azure Storage container c
 
 ### Release an endpoint
 
-Finally, a [Custom Speech endpoint](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) is created from this initial model, and a GitHub Release is created that will contain this endpoint and a copy of the repository contents at the time the release was created. Each time an endpoint is released, the repository is tagged with a new version.
-
-To find the best-performing Custom Speech endpoint, navigate to the **Code** tab in the repository, then click the **Releases** sub-tab. At the top of the releases page will be a release with an icon next to it that says **Latest release**, the commit hash the model was built from, and the Custom Speech model's version:
-
-![Latest Release](../images/LatestRelease.png)
-
-The repository was tagged with this new version, and like every tag in **master** it represents an improved Custom Speech model. On the releases page, click on the file **release-endpoints.json** to download it. It will contain the Custom Speech endpoint created in the workflow:
-
-```json
-{"ENDPOINT_ID":"########-####-####-####-############"}
-```
-
-The latest release will always contain the best-performing Custom Speech endpoint. Users can update endpoints in their client applications to use the latest release at their own discretion.
+Finally, a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) is created from this initial model, and a GitHub Release is created that will contain this endpoint and a copy of the repository contents at the time the release was created. Each time an endpoint is released, the repository is tagged with a new version.
 
 ## Next steps
 
