@@ -20,15 +20,15 @@ You'll use a GitHub repository and GitHub Actions for running the multi-stage pi
 To create your repository:
 
 - If you don't already have a GitHub account, create one by following the instructions at [Join GitHub: Create your account](https://github.com/join).
-- Click the green **Use this template** button near the top of the [Speech-Service-DevOps-Samples](https://github.com/Azure-Samples/Speech-Service-DevOps-Samples) home page for this GitHub repo. This will copy this repository to a GitHub repository of your own that it will create.
+- Click the green **Use this template** button near the top of the [Speech-Service-DevOps-Samples](https://github.com/Azure-Samples/Speech-Service-DevOps-Samples) home page for this GitHub repo. This will create a new GitHub repository with the same files and folders as the template.
 
    ![Use this template](../images/template_button.png?raw=true "Cloning the template repo")
 
-  - Enter your own repository name where prompted.
-  - Leave **Include all branches** unchecked as you only need the master branch of the source repo copied.
+  - Enter your own **Repository name** where prompted.
+  - Select **Private** if you want to create a private repository.
+    >Note: The template works with public repositories by default. If you create a private repository, you will need to [configure the workflows](4-advanced-customization.md##Change-Environment-Variables) for use with a  private repository.
+  - Leave **Include all branches** unchecked as you only need the master branch.
   - Click **Create repository from template** to create your copy of this repository.
-
-The solution works with public repositories by default. To create a private repository, select **Private** and [change the `IS_PRIVATE_REPOSITORY` environment variable](4-advanced-customization.md##Change-Environment-Variables) to `true`.
 
 ## Clone your repository
 
