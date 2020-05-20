@@ -1,24 +1,24 @@
-# 2. Train an Initial Model
+# 2. Train an initial model
 
 Follow these steps to understand the workflow to contribute to models, understand the data used to train and test models, and create an initial model by making a change to the training data. The initial model will automatically become the benchmark model since there are no previous models to compare it to.
 
-### Table of Contents
+### Table of contents
 
-* [Pull Request Training Data Updates](#Pull-Request-Training-Data-Updates)
-    * [Update Training Data](#Update-Training-Data)
-        * [Test Training Data Updates](#Test-Training-Data-Updates)
-    * [Create and Merge the Pull Request](#Create-and-Merge-the-Pull-Request)
-* [Workflow for Training Data Updates](#Workflow-for-Training-Data-Updates)
-    * [Train a New Model](#Train-a-New-Model)
-    * [Test the New Model](#Test-the-new-Model)
-    * [Release an Endpoint](#Release-an-Endpoint)
-* [Next Steps](#Next-Steps)
+* [Create pull request for training data updates](#Create-pull-request-for-training-data-updates)
+    * [Update training data](#Update-training-data)
+        * [Test training data updates](#Test-training-data-updates)
+    * [Create and merge the pull request](#Create-and-merge-the-pull-request)
+* [Workflow for training data updates](#Workflow-for-training-data-updates)
+    * [Train a new model](#Train-a-new-model)
+    * [Test the new model](#Test-the-new-model)
+    * [Release an endpoint](#Release-an-endpoint)
+* [Next steps](#Next-steps)
 
-## Pull Request Training Data Updates
+## Create pull request for training data updates
 
 Create a pull request with updates to the training data to trigger the **SpeechTrainDataCICD** workflow which will train an initial model.
 
-### Update Training Data
+### Update training data
 
 An initial Custom Speech model is created when training data is updated for the first time, which includes the following files taken from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech/en-US):
 
@@ -47,9 +47,9 @@ git add .
 git commit -m "Changes to my Custom Speech model."
 ```
 
-You may [exclude any or all training data](4-advanced-customization.md#Exclude-Training-Data).
+You may [exclude any or all training data](4-advanced-customization.md#Exclude-training-data).
 
-#### Test Training Data Updates
+#### Test training data updates
 
 The changes to `training/related-text.txt` demonstrate the workflow to update training data. They weren't meant to improve the model and don't need to be tested, but meaningful changes should be tested before a pull request is created. To do so, [create an Azure Speech resource](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/get-started#new-resource) for personal use. [Create a Speech project](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this resource to test changes you make to training data before they are submitted to a greater audience.
 
@@ -63,7 +63,7 @@ Tests will output a [Word Error Rate](https://docs.microsoft.com/en-us/azure/cog
 
 If the model did not improve, more training data should be updated and the testing loop should start over.
 
-### Create and Merge the Pull Request
+### Create and merge the pull request
 
 Push the changes to the remote repository once you are satisfied with how the model is performing:
 
@@ -77,17 +77,17 @@ If everything has been set up properly, the **SpeechTrainDataCICD** workflow wil
 
 ![Actions tab showing that the workflow is running](../images/WorkflowRunning.png)
 
-## Workflow for Training Data Updates
+## Workflow for training data updates
 
 The objective of the first update to training data is to train and test an initial Custom Speech model so that its accuracy can be used as a benchmark to which future models can compare their accuracy.
 
-### Train a New Model
+### Train a new model
 
 Any time training data is updated, the **SpeechTrainDataCICD** workflow will run. When it is updated for the first time, the data from the `training` folder is used to build a new Custom Speech model. Please note that building models will take upwards of 30 minutes.
 
 Once Custom Speech models are created, it is no longer necessary to continue hosting the training data uploads, so these will be deleted within the **SpeechTrainDataCICD** workflow.
 
-### Test the New Model
+### Test the new model
 
 Test the new model's accuracy with [audio + human-labeled transcripts](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) in `testing/audio-and-trans.zip`. Models attempt to recognize the .wav files from the `audio` folder, and the recognition is compared to its corresponding text in `trans.txt`.
 
@@ -95,7 +95,7 @@ The test will create a test summary and a test results file. The test summary co
 
 The test summary and test results will be stored in an Azure Storage container called `test-results`. An Azure Storage container called `configuration` is also created. It stores a single file, `benchmark-test.txt`, which will point to the test summary file from the initial model. Visit the [Azure Portal](https://ms.portal.azure.com/#home) and navigate to your Azure Storage Account to view these additions.
 
-### Release an Endpoint
+### Release an endpoint
 
 Finally, a [Custom Speech endpoint](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) is created from this initial model, and a GitHub Release is created that will contain this endpoint and a copy of the repository contents at the time the release was created. Each time an endpoint is released, the repository is tagged with a new version.
 
@@ -111,6 +111,6 @@ The repository was tagged with this new version, and like every tag in **master*
 
 The latest release will always contain the best-performing Custom Speech endpoint. Users can update endpoints in their client applications to use the latest release at their own discretion.
 
-## Next Steps
+## Next steps
 
 Now that you have you created an initial Custom Speech model, attempt to [improve the model](./3-improve-the-model.md) by replacing data in the `testing` and `training` folder with your own data. The initial model is currently the benchmark model since there were no previous models to compare it to.
