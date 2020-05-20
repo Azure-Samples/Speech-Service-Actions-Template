@@ -68,7 +68,7 @@ Create a Speech Project in [Speech Studio](https://speech.microsoft.com/portal/)
 
    ![Speech Studio Speech Resource](../images/SpeechStudioSpeechResources.png)
 
-1. Select the Speech Resource that was created in Setup, and then click the eye icon to reveal the Speech subscription key. 
+1. Select the Speech Resource that was created in Setup, and then click the eye icon to reveal the Speech subscription key.
    >Note: Take note of this key for use later on.
 
    ![Speech Studio Speech Subscription Key](../images/SpeechStudioSubscriptionKey.png)
@@ -145,24 +145,25 @@ Using the process above, create a GitHub Secret named `AZURE_CREDENTIALS` with a
 
 ## Protect the master branch
 
-It is recommended (and a software engineering best practice) to protect the master branch from direct check-ins. By protecting the master branch in this way, you require all developers to check-in changes by raising a Pull Request and you may enforce certain workflows such as requiring more than one pull request review or requiring certain status checks to pass before allowing a pull request to merge. Read [Configuring protected branches](https://help.github.com/en/github/administering-a-repository/configuring-protected-branches) to learn more about protecting branches in GitHub.
+It is a software engineering best practice to protect the master branch from direct check-ins. Read [configuring protected branches](https://help.github.com/en/github/administering-a-repository/configuring-protected-branches) to learn more about protecting branches in GitHub.
 
-This solution uses [GitHub Flow](https://guides.github.com/introduction/flow/), which involves creating feature branches and merging them into **master**. This approach is lightweight, but illustrates the basics of protecting branches. To learn about using different branching strategies, refer to [changing branching strategies](4-advanced-customization.md#Configure-a-Clean-Master).
+The GitHub Actions workflows in this repository are configured to run when a merge to master occurs, for example after a PR is merged.
+Branch Protections are not required for these events to occur, so setting branch protections is optional.
 
-Note that the CI/CD pipelines in this repository are configured to run when a merge to master occurs, for example after a PR is merged. Branch Protections are not required to enable this behavior so setting them can be considered optional. However, By setting branch protections as described in the rest of this section, you encourage good software engineering practices by requiring developers to raise a PR in order to propose changes to master and to get those changes reviewed.
+> **Important:** Branch protections are supported on public GitHub repositories, or if you have a GitHub Pro subscription. If you are using a personal GitHub account and you created your repository as a private repository, you will have to change your repository to be **public**.
 
-> **Important:** Branch protections are supported on public GitHub repositories, or if you have a GitHub Pro subscription. If you are using a personal GitHub account and you created your repository as a private repository, you will have to change it to be **public** if you want to configure Branch protection policies. You can change your repository to be public in repository settings.
+If your organization does not have branch protection policies, configure branch protections as follows:
 
-You should configure the specific workflows that you require for your software engineering organization. In order to support the solution walk through described in this documentation, you can configure branch protections as follows:
-
-1. In the home page for your repository, click **Settings**.
-2. On the Settings page, click on **Branches** in the Options menu.
-3. Under **Branch protection rules**, click the **Add rule** button.
-4. Configure the rule:
+1. Click the **Settings** tab on the home page of your repository.
+1. Select **Branches** in the left menu.
+1. Under **Branch protection rules**, click **Add rule**.
+1. Enter the following for the rule:
     1. In the **Branch name pattern** box, enter **master**.
-    2. Check **Require pull request reviews before merging**.
-    3. Do **not** check **Include administrators**. Later you will need to use your administrator privileges to bypass merging restrictions. Once multiple people are contributing to the project, consider configuring these restrictions for administrators as well.
-    4. Click the **Create** button at the bottom of the page.
+    1. Check **Require pull request reviews before merging**.
+    1. Do **not** check **Include administrators**.
+         - You will use your administrator privileges to bypass merge restrictions later in this walk through.
+         - After the walk through, consider configuring these restrictions for administrators as well.
+1. Click **Create**.
 
 ## Next steps
 
