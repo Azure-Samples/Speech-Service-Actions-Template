@@ -4,16 +4,14 @@ This document shows how to create your GitHub repository, create your Azure reso
 
 ## Table of contents
 
-- [1. Setup](#1-setup)
-  - [Table of Contents](#table-of-contents)
-  - [Get the code](#get-the-code)
-  - [Clone your repository](#clone-your-repository)
-  - [Create the resource group and resources](#Create-the-resource-group-and-resources)
-  - [Create the Speech project](#create-the-speech-project)
-  - [Create the Azure Service Principal](#Create-the-Azure-Service-Principal)
-  - [Set GitHub Secrets](#set-github-secrets)
-  - [Protect the master branch](#protect-the-master-branch)
-  - [Next steps](#next-steps)
+- [Get the code](#get-the-code)
+- [Clone your repository](#clone-your-repository)
+- [Create the resource group and resources](#Create-the-resource-group-and-resources)
+- [Create the Speech project](#create-the-speech-project)
+- [Create the Azure Service Principal](#Create-the-Azure-Service-Principal)
+- [Set GitHub Secrets](#set-github-secrets)
+- [Protect the master branch](#protect-the-master-branch)
+- [Next steps](#next-steps)
 
 ## Get the code
 
