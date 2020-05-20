@@ -149,7 +149,7 @@ To create the Azure Service Principal:
 }
 ```
 
-Using the process above, create a GitHub Secret named `AZURE_CREDENTIALS` with a value of the JSON above.
+9. Using the process above, create a GitHub Secret named `AZURE_CREDENTIALS` with a value of the JSON above.
 
 ## Protect the master branch
 
