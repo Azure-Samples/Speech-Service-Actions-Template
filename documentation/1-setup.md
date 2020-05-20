@@ -7,8 +7,8 @@ This document shows how to create your GitHub repository, create your Azure reso
 - [Create your repo](#create-your-repo)
 - [Provision Azure resources](#Provision-Azure-resources)
 - [Create the Speech project](#create-the-speech-project)
+- [Create GitHub Secrets](#Create-GitHub-Secrets)
 - [Create the Azure Service Principal](#Create-the-Azure-Service-Principal)
-- [Set GitHub Secrets](#set-github-secrets)
 - [Protect the master branch](#protect-the-master-branch)
 - [Next steps](#next-steps)
 
@@ -81,6 +81,26 @@ Create a Speech Project in [Speech Studio](https://speech.microsoft.com/portal/)
    1. **Description**: Enter a description.
    1. **Language**: Select _English (United States)_.
 
+## Create GitHub Secrets
+
+[GitHub Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) serve as parameters to the GitHub Actions workflow while keeping those values secret. When viewing the workflow logs, secrets will appear as `***`.
+
+To create your GitHub Secretes:
+
+1. Click the **Settings** tab on the home page of your repository.
+1. Select **Options** in the left menu.
+1. For each secret below, click **New Secret**, enter the **Name** and **Value** below, and click **Add secret**:
+
+   | Name | Value |
+   |-------------|-------|
+   | **AZURE_CREDENTIALS** | The output from the `create_sp.ps1` script from the previous step |
+   | **SPEECH_RESOURCE_REGION** | The region you selected when configuring the Azure resources |
+   | **SPEECH_SUBSCRIPTION_KEY** | The speech subscription key |
+   | **SPEECH_PROJECT_NAME** | The speech project name |
+   | **STORAGE_ACCOUNT_NAME** | Azure storage account name |
+
+![GitHub Secrets](../images/GitHubSecrets.png)
+
 ## Create the Azure Service Principal
 
 Configure an [Azure Service Principal](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli) to allow the pipeline to login using your identity and to work with Azure resources using role-restricted access. Save the access token for the service principal in the GitHub Secrets for your repository.
@@ -127,23 +147,6 @@ To run the script:
 ```
 
 In the next step, you will save this value in a [GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `AZURE_CREDENTIALS`.
-
-## Save GitHub Secrets
-
-[GitHub Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) serve as parameters to the workflow, while also hiding secret values. When viewing the logs for a workflow on GitHub, secrets will appear as `***`.
-You access GitHub Secrets by clicking on the **Settings** tab on the home page of your repository, or by going to `https://github.com/{your-GitHub-Id}/{your-repository}/settings`. Then click on **Secrets** in the **Options** menu, which brings up the UI for entering Secrets.
-
-A number of values must be saved for use by the pipelines:
-
-| Secret Name | Value |
-|-------------|-------|
-| **AZURE_CREDENTIALS** | The output from the `create_sp.ps1` script from the previous step |
-| **SPEECH_RESOURCE_REGION** | The region you selected when configuring the Azure resources |
-| **SPEECH_SUBSCRIPTION_KEY** | The speech subscription key |
-| **SPEECH_PROJECT_NAME** | The speech project name |
-| **STORAGE_ACCOUNT_NAME** | Azure storage account name |
-
-![GitHub Secrets](../images/GitHubSecrets.png)
 
 ## Protect the master branch
 
