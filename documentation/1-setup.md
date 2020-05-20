@@ -167,7 +167,9 @@ If your organization does not have branch protection policies, configure branch 
 
 ## Next steps
 
-At this point the repository has been initialized with branch protections and GitHub secrets for the Azure Service Principal and Azure resources. For the next steps, find out how to [create an initial custom speech model](./2-train-an-initial-model.md) using data stored in the `testing` and `training` folder of the repository.
+In this step, you created your GitHub repository from the template, created your Azure resources, and configured the GitHub Actions workflows so you can begin developing Custom Speech models using your repo.
+
+Find out how to use the data in the `testing` and `training` folder of your repository to [create an initial custom speech model](./2-train-an-initial-model.md) in the next step.
 
 ## Further Reading
 
