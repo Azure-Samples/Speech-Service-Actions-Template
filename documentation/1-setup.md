@@ -1,6 +1,6 @@
 # 1. Setup
 
-This document shows how to create your GitHub repository, create your Azure resources, and configure the [GitHub Actions](https://help.github.com/en/actions) workflows so you can begin developing Custom Speech models using this template.
+This document shows how to create your GitHub repository from this template, create your Azure resources, and configure the [GitHub Actions](https://help.github.com/en/actions) workflows so you can begin developing Custom Speech models.
 
 ## Table of contents
 
@@ -14,12 +14,12 @@ This document shows how to create your GitHub repository, create your Azure reso
 
 ## Create your repo
 
-Use this template to create a GitHub repository with the same files and folders for your development.
+Use this template to create a GitHub repository for your development with the same files and folders.
 
 To create your repository:
 
 1. If you don't already have a GitHub account, create one by following the instructions at [Join GitHub: Create your account](https://github.com/join).
-1. Click the green **Use this template** button near the top of the [Speech-Service-DevOps-Samples](https://github.com/Azure-Samples/Speech-Service-DevOps-Samples) home page for this GitHub repo. This will create a new GitHub repository with the same files and folders as the template.
+1. Click the green **Use this template** button on the home page of this repo to create a new repo with the same files and folders as the template.
 
    ![Use this template](../images/template_button.png?raw=true "Cloning the template repo")
   
@@ -37,45 +37,53 @@ To create your repository:
 
 ## Provision Azure resources
 
-Developing Custom Speech models requires an Azure Resource Group with an Azure Speech Resource and an Azure Storage Account. To create these resources, click the Deploy to Azure button below:
+Developing Custom Speech models requires an Azure Resource Group with an Azure Speech Resource and an Azure Storage Account.
 
-**TEMPORARY:** URL behind this button is temporary while the repo is private. REMOVE THIS MESSAGE and change URL to correct target when this goes public.
+To create these resources:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FKatieProchilo%2FDeployToAzure%2Fmaster%2Fazuredeploy.json)
+1. Click the **Deploy to Azure** button below:
 
-<!--
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FSpeech-Services-DevOps-Samples%2Fmaster%2Fazuredeploy.json)
--->
+   **IMPORTANT:** URL behind this button is temporary while the repo is private. REMOVE THIS MESSAGE and change URL to correct target when this goes public.
 
-Enter the values in the template, including:
+   [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FKatieProchilo%2FDeployToAzure%2Fmaster%2Fazuredeploy.json)
 
-- **Resource Group:** Up to 90 alphanumeric characters, periods, underscores, hyphens and parenthesis. Cannot end in a period.
-- **Region:** Select the region from the dropdown that's best for your project.
-- **STORAGE_ACCOUNT_NAME:** 8-24 alphanumeric characters. Must be unique across Azure.
-- **STORAGE_ACCOUNT_REGION:** Select the region from the dropdown that's best for your project.
-- **SPEECH_RESOURCE_NAME:** 2-64 alphanumeric characters, underscores, and hyphens.
-- **SPEECH_RESOURCE_REGION:** Select the region from the dropdown that's best for your project.
+   <!--
+   [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FSpeech-Services-DevOps-Samples%2Fmaster%2Fazuredeploy.json)
+   -->
 
-  >Note: Take note of the `STORAGE_ACCOUNT_NAME` and  `SPEECH_RESOURCE_REGION`. You will need them when you configure the CI/CD pipelines.
+1. Enter the values in the template, including:
 
-Click **Review + create**, agree to the terms, and click **Create**  to create the Azure Resource Group and Resources.
+   - **Resource Group:** Up to 90 alphanumeric characters, periods, underscores, hyphens and parenthesis. Cannot end in a period.
+   - **Region:** Select the region from the dropdown that's best for your project.
+   - **STORAGE_ACCOUNT_NAME:** 8-24 alphanumeric characters. Must be unique across Azure.
+   - **STORAGE_ACCOUNT_REGION:** Select the region from the dropdown that's best for your project.
+   - **SPEECH_RESOURCE_NAME:** 2-64 alphanumeric characters, underscores, and hyphens.
+   - **SPEECH_RESOURCE_REGION:** Select the region from the dropdown that's best for your project.
+
+      >Note: Take note of the `STORAGE_ACCOUNT_NAME` and  `SPEECH_RESOURCE_REGION`. You will need them when you configure the GitHub Actions workflows.
+
+1. Click **Review + create**.
+1. Agree to the terms, and click **Create**.
 
 ## Create the Speech project
 
-Create a Speech Project in [Speech Studio](https://speech.microsoft.com/portal/) for your project. To create the project:
+Create a Speech Project in [Speech Studio](https://speech.microsoft.com/portal/) for your project.
+
+To create the project:
 
 1. Open [Speech Studio](https://speech.microsoft.com/portal/) and click the cog in the upper right corner, then click **Speech resources**:
 
    ![Speech Studio Speech Resource](../images/SpeechStudioSpeechResources.png)
 
-1. Select the Speech Resource that was created in Setup, and then click the eye icon to reveal the Speech subscription key.
+1. Select the Speech Resource that was created in above.
+1. Click the eye icon to reveal the **Speech resource key**.
    >Note: Take note of this key for use later on.
 
    ![Speech Studio Speech Subscription Key](../images/SpeechStudioSubscriptionKey.png)
 
-1. Click **Go to Studio** and select **Custom Speech**.
-
-1. Click **New project** to create a new [Speech Project](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project). Fill out the dialog:
+1. Click **Go to Studio**.
+1. Select **Custom Speech**.
+1. Click **New project** to create a new [Speech Project](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) and fill out the dialog:
    1. **Name**: Enter a name for the project.
       >Note: Take note of the name of your project for use later on.
    1. **Description**: Enter a description.
@@ -102,7 +110,7 @@ To create your GitHub Secrets:
 
 ## Create the Azure Service Principal
 
-Create an [Azure Service Principal](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli) to allow the pipeline to login using that identity and work with Azure resources using role-restricted access.
+Create an [Azure Service Principal](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli) to allow the GitHub Actions workflows to login using that identity and work with Azure resources using role-restricted access.
 
 A Powershell script [./setup/create_sp.ps1](./setup/create_sp.ps1) is provided to create the Azure Service Principal.
 
@@ -125,7 +133,7 @@ To create the Azure Service Principal:
    ./create_sp.ps1
    ```
 
-1. Enter a **Service Principal name** and your **Azure Resource Group** (from above):
+1. Enter a **Service Principal name** and your **Azure Resource Group** from above.
 
    > **IMPORTANT:** The Service Principal name you use must be unique within your Active Directory. When prompted enter your own unique name or hit **Enter** to use the auto-generated unique name.
 
