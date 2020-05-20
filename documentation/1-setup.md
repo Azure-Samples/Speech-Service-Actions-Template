@@ -5,13 +5,13 @@ Create the Azure resources and set up Git to begin developing Custom Speech mode
 ### Table of contents
 
 - [1. Setup](#1-setup)
-    - [Table of Contents](#table-of-contents)
+  - [Table of Contents](#table-of-contents)
   - [Get the code](#get-the-code)
   - [Clone your repository](#clone-your-repository)
   - [Create the resource group and resources](#Create-the-resource-group-and-resources)
   - [Create the Speech project](#create-the-speech-project)
   - [Create the Azure Service Principal](#Create-the-Azure-Service-Principal)
-  - [Validate GitHub Secrets](#validate-github-secrets)
+  - [Set GitHub Secrets](#set-github-secrets)
   - [Protect the master branch](#protect-the-master-branch)
   - [Next steps](#next-steps)
 
@@ -21,14 +21,14 @@ You'll use a GitHub repository and GitHub Actions for running the multi-stage pi
 
 To create your repository:
 
-* If you don't already have a GitHub account, create one by following the instructions at [Join GitHub: Create your account](https://github.com/join).
-* Click the green **Use this template** button near the top of the [Speech-Service-DevOps-Samples](https://github.com/Azure-Samples/Speech-Service-DevOps-Samples) home page for this GitHub repo. This will copy this repository to a GitHub repository of your own that it will create.
+- If you don't already have a GitHub account, create one by following the instructions at [Join GitHub: Create your account](https://github.com/join).
+- Click the green **Use this template** button near the top of the [Speech-Service-DevOps-Samples](https://github.com/Azure-Samples/Speech-Service-DevOps-Samples) home page for this GitHub repo. This will copy this repository to a GitHub repository of your own that it will create.
 
    ![Use this template](../images/template_button.png?raw=true "Cloning the template repo")
 
-  * Enter your own repository name where prompted.
-  * Leave **Include all branches** unchecked as you only need the master branch of the source repo copied.
-  * Click **Create repository from template** to create your copy of this repository.
+  - Enter your own repository name where prompted.
+  - Leave **Include all branches** unchecked as you only need the master branch of the source repo copied.
+  - Click **Create repository from template** to create your copy of this repository.
 
 The solution works with public repositories by default. To create a private repository, select **Private** and [change the `IS_PRIVATE_REPOSITORY` environment variable](4-advanced-customization.md##Change-Environment-Variables) to `true`.
 
@@ -54,12 +54,12 @@ Developing Custom Speech models with the CI/CD pipeline requires an Azure Resour
 
 Enter the values as prompted. Take a note of the values you enter for the `STORAGE_ACCOUNT_NAME` and for `SPEECH_RESOURCE_REGION`, as you will need them later on when we configure the CI/CD pipelines:
 
-* **Resource Group:** Up to 90 alphanumeric characters, periods, underscores, hyphens and parenthesis. Cannot end in a period.
-* **Location:** Select the region from the dropdown that's best for your project.
-* **STORAGE_ACCOUNT_NAME:** 8-24 alphanumeric characters. Must be unique across Azure. Record your name for later.
-* **STORAGE_ACCOUNT_REGION:** Select the region from the dropdown that's best for your project.
-* **SPEECH_RESOURCE_NAME:** 2-64 alphanumeric characters, underscores, and hyphens.
-* **SPEECH_RESOURCE_REGION:** Select the region from the dropdown that's best for your project. Record your choice for later.
+- **Resource Group:** Up to 90 alphanumeric characters, periods, underscores, hyphens and parenthesis. Cannot end in a period.
+- **Location:** Select the region from the dropdown that's best for your project.
+- **STORAGE_ACCOUNT_NAME:** 8-24 alphanumeric characters. Must be unique across Azure. Record your name for later.
+- **STORAGE_ACCOUNT_REGION:** Select the region from the dropdown that's best for your project.
+- **SPEECH_RESOURCE_NAME:** 2-64 alphanumeric characters, underscores, and hyphens.
+- **SPEECH_RESOURCE_REGION:** Select the region from the dropdown that's best for your project. Record your choice for later.
 
 Agree to the terms and click **Review + create** to create the Resource Group and Resources. Fix any validation errors if necessary and then click **Create**.
 
@@ -89,8 +89,8 @@ A Powershell script [./setup/create_sp.ps1](./setup/create_sp.ps1) is provided i
 
 To launch Azure Cloud Shell:
 
-* Go to [https://shell.azure.com](https://shell.azure.com), or click  this button to open Cloud Shell in your browser: [![Launch Cloud Shell in a new window](./images/hdi-launch-cloud-shell.png)](https://shell.azure.com)
-* Or select the **Cloud Shell** button on the menu bar at the upper right in the [Azure portal](https://portal.azure.com).
+- Go to [https://shell.azure.com](https://shell.azure.com), or click  this button to open Cloud Shell in your browser: [![Launch Cloud Shell in a new window](../images/hdi-launch-cloud-shell.png)](https://shell.azure.com)
+- Or select the **Cloud Shell** button on the menu bar at the upper right in the [Azure portal](https://portal.azure.com).
 
 When Cloud Shell launches, select the Azure subscription you used before to create the Azure resources, and if this is the first time of use, complete the initialization procedure.
 
@@ -100,7 +100,7 @@ To run the script:
 
 1. Click the **Upload/Download** button on the taskbar.
 
-   ![Azure CloudShell Upload button](./images/cloudshell.png?raw=true "Uploading in Azure Cloud Shell")
+   ![Azure CloudShell Upload button](../images/cloudshell.png?raw=true "Uploading in Azure Cloud Shell")
 
 1. Click **Upload** and navigate to the **/setup/create_sp.ps1** file in the cloned copy of this repo on your computer.
 
@@ -114,31 +114,26 @@ To run the script:
 
    > **IMPORTANT:** The Service Principal name you use must be unique within your Active Directory. When prompted enter your own unique name or hit *Enter* to use the auto-generated unique name. Also enter the **Resource Group** name you created when you configured the Azure resources:
 
-   ![Azure create-for-rbac](./images/rbac.png?raw=true "Saving output from az ad sp create-for-rbac")
+   ![Azure create-for-rbac](../images/rbac.png?raw=true "Saving output from az ad sp create-for-rbac")
 
-1. As prompted, copy the JSON that is returned, then in your repository, [create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `AZURE_CREDENTIALS` and set it to the JSON output from the command, for example:
+1. As prompted, copy the JSON that is returned. 
 
 ```json
 {
-  "clientId": "########-####-####-####-############",
-  "clientSecret": "########-####-####-####-############",
-  "subscriptionId": "########-####-####-####-############",
-  "tenantId": "########-####-####-####-############",
-  "activeDirectoryEndpointUrl": "https:...",
-  "resourceManagerEndpointUrl": "https:...",
-  "activeDirectoryGraphResourceId": "https:...",
-  "sqlManagementEndpointUrl": "https:...",
-  "galleryEndpointUrl": "https:...",
-  "managementEndpointUrl": "https:..."
+  "clientId": "########-####-####-####-############",  "clientSecret": "########-####-####-####-############",  "subscriptionId": "########-####-####-####-############",    "tenantId": "########-####-####-####-############",
+  "activeDirectoryEndpointUrl": "https:...",   "resourceManagerEndpointUrl": "https:...",   "activeDirectoryGraphResourceId": "https:...",
+  "sqlManagementEndpointUrl": "https:...",   "galleryEndpointUrl": "https:...",   "managementEndpointUrl": "https:..."
 }
 ```
+
+In the next step, you will save this value in a [GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `AZURE_CREDENTIALS`.
 
 ## Save GitHub Secrets
 
 [GitHub Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) serve as parameters to the workflow, while also hiding secret values. When viewing the logs for a workflow on GitHub, secrets will appear as `***`.
 You access GitHub Secrets by clicking on the **Settings** tab on the home page of your repository, or by going to `https://github.com/{your-GitHub-Id}/{your-repository}/settings`. Then click on **Secrets** in the **Options** menu, which brings up the UI for entering Secrets.
 
-As well as the `AZURE_CREDENTIALS` secret you have already saved, a number of other values must be saved for use by the pipelines:
+A number of values must be saved for use by the pipelines:
 
 | Secret Name | Value |
 |-------------|-------|
@@ -179,8 +174,8 @@ At this point the repository has been initialized with branch protections and Gi
 
 See the following documents for more information on this template and the engineering practices it demonstrates:
 
-* [Create an initial custom speech model](2-train-an-initial-model.md#table-of-contents)
+- [Create an initial custom speech model](2-train-an-initial-model.md#table-of-contents)
 
-* [Improve the model](3-improve-the-model.md#table-of-contents)
+- [Improve the model](3-improve-the-model.md#table-of-contents)
 
-* [Advanced customization](4-advanced-customization.md#table-of-contents)
+- [Advanced customization](4-advanced-customization.md#table-of-contents)
