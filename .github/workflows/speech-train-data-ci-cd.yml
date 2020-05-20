@@ -159,10 +159,6 @@ jobs:
           echo "::set-env name=AUDIO_TRANS_TRAIN_ID::$(echo $audio_trans_train_id)"
           echo "::set-env name=CUSTOM_SPEECH_MODEL_DATA::--audio-dataset $audio_trans_train_id"
 
-      - name: Create the build directory
-        if: env.TRAIN_ZIP_SOURCE_PATH == ''
-        run: mkdir ${{ env.TRAIN_BUILD_FOLDER_PATH }}
-
       # Upload pronunciation data to Speech. Fail if a GUID is not generated.
       - name: Upload pronunciation data
         if: env.PRONUNCIATION_FILE_PATH && env.PRONUNCIATION_FILE_PATH != ''
@@ -379,10 +375,13 @@ jobs:
           git fetch --prune --unshallow
 
       # https://github.com/GitTools/GitVersion
-      - name: GitVersion
-        uses: docker://gittools/gitversion:5.2.5-linux-ubuntu-16.04-netcoreapp2.1
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.3
         with:
-          args: /github/workspace /nofetch /output buildserver
+            versionSpec: '5.2.x'
+      - name: Use GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.3
 
       - name: Set environment variables
         run: |
