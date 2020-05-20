@@ -52,63 +52,71 @@ Developing Custom Speech models with the CI/CD pipeline requires an Azure Resour
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FSpeech-Services-DevOps-Samples%2Fmaster%2Fazuredeploy.json)
 -->
 
-Enter the values as follows and save them for later use:
+Enter the values as prompted. Take a note of the values you enter for the `STORAGE_ACCOUNT_NAME` and for `SPEECH_RESOURCE_REGION`, as you will need them later on when we configure the CI/CD pipelines:
 
 * **Resource Group:** Up to 90 alphanumeric characters, periods, underscores, hyphens and parenthesis. Cannot end in a period.
 * **Location:** Select the region from the dropdown that's best for your project.
-* **STORAGE_ACCOUNT_NAME:** 8-24 alphanumeric characters. Must be unique across Azure.
-    * [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `STORAGE_ACCOUNT_NAME` and set it to this value.
+* **STORAGE_ACCOUNT_NAME:** 8-24 alphanumeric characters. Must be unique across Azure. Record your name for later.
 * **STORAGE_ACCOUNT_REGION:** Select the region from the dropdown that's best for your project.
 * **SPEECH_RESOURCE_NAME:** 2-64 alphanumeric characters, underscores, and hyphens.
-* **SPEECH_RESOURCE_REGION:** Select the region from the dropdown that's best for your project.
-    * [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `SPEECH_RESOURCE_REGION` and set it to this value.
+* **SPEECH_RESOURCE_REGION:** Select the region from the dropdown that's best for your project. Record your choice for later.
 
 Agree to the terms and click **Review + create** to create the Resource Group and Resources. Fix any validation errors if necessary and then click **Create**.
 
 ## Create the Speech Project
 
-The GitHub action pipelines requires access to authentication keys and other sensitive information when they are executed. To protect these details we use  [GitHub Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets).
+You must create a Speech Project in [Speech Studio](https://speech.microsoft.com/portal/) for your project. To create the project:
 
-1. Navigate to the [Speech Studio](https://speech.microsoft.com/portal/) and click the cog in the upper right corner, then click **Speech resources**:
-![Speech Studio Speech Resource](../images/SpeechStudioSpeechResources.png)
-2. Select the Speech Resource that was created in Setup, and then click the eye icon to see the Speech subscription key. [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `SPEECH_SUBSCRIPTION_KEY`, and set it to this value:
-![Speech Studio Speech Subscription Key](../images/SpeechStudioSubscriptionKey.png)
-3. Click **Go to Studio** and select [_Custom Speech_](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this Speech Resource:
-a. Click to create a new _Speech Project_ and enter a suitable name for the project. Use _English (United States)_ as the language.
-![Speech Studio Speech Subscription Key](../images/new_speech_project.png)
-b. [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `SPEECH_PROJECT_NAME` and set it to the name of the project.
-c. Under **Language**, select the language you will use for testing and training models. The project is configured for **English (United States)**. To use other languages, [change locales](4-advanced-customization.md#Change-Locales).
+1. Open [Speech Studio](https://speech.microsoft.com/portal/) and click the cog in the upper right corner, then click **Speech resources**:
+
+   ![Speech Studio Speech Resource](../images/SpeechStudioSpeechResources.png)
+
+1. Select the Speech Resource that was created in Setup, and then click the eye icon to reveal the Speech subscription key. Record this value for use later on.
+
+   ![Speech Studio Speech Subscription Key](../images/SpeechStudioSubscriptionKey.png)
+
+1. Click **Go to Studio** and select [_Custom Speech_](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this Speech Resource:
+
+   1. Click to create a new _Speech Project_ and enter a suitable name for the project. Use _English (United States)_ as the language.
+
+   1. Save the name of the speech project for use later on.
 
 ## Create the Service Principal
 
-You need to configure an [Azure Service Principal](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?toc=%2Fazure%2Fazure-resource-manager%2Ftoc.json&view=azure-cli-latest) to allow the pipeline to login using your identity and to work with Azure resources on your behalf. You will save the access token for the service principal in the GitHub Secrets for your repository.
+Configure an [Azure Service Principal](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli) to allow the pipeline to login using your identity and to work with Azure resources using role-restricted access. Save the access token for the service principal in the GitHub Secrets for your repository.
 
-1. Install the Azure CLI on your machine, if not already installed. Follow these steps to [install the Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) on your system.
+A Powershell script [./setup/create_sp.ps1](./setup/create_sp.ps1) is provided in this repo to make this simple and the easiest way to run the script is to use [Azure Cloud Shell](https://shell.azure.com).
 
-1. Open a Powershell or Bash terminal window in the root folder of your cloned repository. and log into Azure:
+To launch Azure Cloud Shell:
 
-    ```bash
-    az login
-    ```
+* Go to [https://shell.azure.com](https://shell.azure.com), or click  this button to open Cloud Shell in your browser: [![Launch Cloud Shell in a new window](./images/hdi-launch-cloud-shell.png)](https://shell.azure.com)
+* Or select the **Cloud Shell** button on the menu bar at the upper right in the [Azure portal](https://portal.azure.com).
 
-   If the CLI can open your default browser, it will do so and load an Azure sign-in page. Sign in with your account credentials in the browser.
+When Cloud Shell launches, select the Azure subscription you used before to create the Azure resources, and if this is the first time of use, complete the initialization procedure.
 
-   Otherwise, open a browser page at <https://aka.ms/devicelogin> and enter the authorization code displayed in your terminal.
+To run the script:
 
-2. Show the selected azure subscription. If you have more than one subscription then you should ensure that the selected subscrption is the one in which you have created your *resource group* above. If you do not have the correct subscription selected then use the `az account set` command:
+1. Select **Powershell** at the top left of the terminal taskbar.
 
-   ```bash
-   az account show
-   az account set -s {Name or ID of subscription}
+1. Click the **Upload/Download** button on the taskbar.
+
+   ![Azure CloudShell Upload button](./images/cloudshell.png?raw=true "Uploading in Azure Cloud Shell")
+
+1. Click **Upload** and navigate to the **/setup/create_sp.ps1** file in the cloned copy of this repo on your computer.
+
+1. After the file has finished uploading, execute it:
+
+   ```powershell
+   ./create_sp.ps1
    ```
-   
-3. Set `RESOURCE_GROUP_NAME` to the name of the Resource Group from the Deploy to Azure task. Substitute the `AZURE_SUBSCRIPTION_ID` as well. Come up with a `SERVICE_PRINCIPAL_NAME` to run the command to create the service principal, which must be unique across Azure. If you see output from this command reporting that it has found an existing resource, run this command again and use a different name:
 
-```bash
-az ad sp create-for-rbac --name <<SERVICE_PRINCIPAL_NAME>> --role "Storage Blob Data Contributor" --scopes /subscriptions/<<AZURE_SUBSCRIPTION_ID>>/resourceGroups/<<RESOURCE_GROUP_NAME>> --sdk-auth
-```
+1. Enter the  requested input as prompted.
 
-[Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `AZURE_CREDENTIALS` and set it to the JSON output from the command, for example:
+   > **IMPORTANT:** The Service Principal name you use must be unique within your Active Directory. When prompted enter your own unique name or hit *Enter* to use the auto-generated unique name. Also enter the **Resource Group** name you created when you configured the Azure resources:
+
+   ![Azure create-for-rbac](./images/rbac.png?raw=true "Saving output from az ad sp create-for-rbac")
+
+1. As prompted, copy the JSON that is returned, then in your repository, [create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `AZURE_CREDENTIALS` and set it to the JSON output from the command, for example:
 
 ```json
 {
@@ -125,23 +133,34 @@ az ad sp create-for-rbac --name <<SERVICE_PRINCIPAL_NAME>> --role "Storage Blob 
 }
 ```
 
-## Validate GitHub Secrets
+## Save GitHub Secrets
 
-GitHub Secrets serve as parameters to the workflow, while also hiding secret values. When viewing the logs for a workflow on GitHub, secrets will appear as `***`.
+[GitHub Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) serve as parameters to the workflow, while also hiding secret values. When viewing the logs for a workflow on GitHub, secrets will appear as `***`.
+You access GitHub Secrets by clicking on the **Settings** tab on the home page of your repository, or by going to `https://github.com/{your-GitHub-Id}/{your-repository}/settings`. Then click on **Secrets** in the **Options** menu, which brings up the UI for entering Secrets.
 
-Ensure each of the following secrets have been set:
+As well as the `AZURE_CREDENTIALS` secret you have already saved, a number of other values must be saved for use by the pipelines:
+
+| Secret Name | Value |
+|-------------|-------|
+| **AZURE_CREDENTIALS** | The output from the `create_sp.ps1` script from the previous step |
+| **SPEECH_RESOURCE_REGION** | The region you selected when configuring the Azure resources |
+| **SPEECH_SUBSCRIPTION_KEY** | The speech subscription key |
+| **SPEECH_PROJECT_NAME** | The speech project name |
+| **STORAGE_ACCOUNT_NAME** | Azure storage account name |
 
 ![GitHub Secrets](../images/GitHubSecrets.png)
 
 ## Protect the Master Branch
 
-This solution uses [GitHub Flow](https://guides.github.com/introduction/flow/), which involves creating feature branches and merging them into **master**. This approach is lightweight, but illustrates the basics of protecting branches. To protect multiple or different branches like **master** and **develop** read about [changing branching strategies](4-advanced-customization.md#Configure-a-Clean-Master).
+It is recommended (and a software engineering best practice) to protect the master branch from direct check-ins. By protecting the master branch in this way, you require all developers to check-in changes by raising a Pull Request and you may enforce certain workflows such as requiring more than one pull request review or requiring certain status checks to pass before allowing a pull request to merge. Read [Configuring protected branches](https://help.github.com/en/github/administering-a-repository/configuring-protected-branches) to learn more about protecting branches in GitHub.
 
-Branch policies should be configured to prevent direct pushes to the master branch. They should require changes to be checked in by creating a pull request and getting these changes approved by collaborators in the repository.
+This solution uses [GitHub Flow](https://guides.github.com/introduction/flow/), which involves creating feature branches and merging them into **master**. This approach is lightweight, but illustrates the basics of protecting branches. To learn about using different branching strategies, refer to [changing branching strategies](4-advanced-customization.md#Configure-a-Clean-Master).
 
-***Important:*** *Individual GitHub accounts must be public or have a GitHub Pro subscription to enforce branch protections. If you are using a private repository with a personal GitHub account, you will have to change your repository to be public in repository settings.*
+Note that the CI/CD pipelines in this repository are configured to run when a merge to master occurs, for example after a PR is merged. Branch Protections are not required to enable this behavior so setting them can be considered optional. However, By setting branch protections as described in the rest of this section, you encourage good software engineering practices by requiring developers to raise a PR in order to propose changes to master and to get those changes reviewed.
 
-To configure these protections:
+> **Important:** Branch protections are supported on public GitHub repositories, or if you have a GitHub Pro subscription. If you are using a personal GitHub account and you created your repository as a private repository, you will have to change it to be **public** if you want to configure Branch protection policies. You can change your repository to be public in repository settings.
+
+You should configure the specific workflows that you require for your software engineering organization. In order to support the solution walk through described in this documentation, you can configure branch protections as follows:
 
 1. In the home page for your repository, click **Settings**.
 2. On the Settings page, click on **Branches** in the Options menu.
@@ -154,4 +173,14 @@ To configure these protections:
 
 ## Next Steps
 
-The repository has been initialized with branch protections and GitHub secrets for the Azure Service Principal and Azure resources. Now [create an initial custom speech model](./2-train-an-initial-model.md) using data stored in the `testing` and `training` folder of the repository.
+At this point the repository has been initialized with branch protections and GitHub secrets for the Azure Service Principal and Azure resources. For the next steps, find out how to [create an initial custom speech model](./2-train-an-initial-model.md) using data stored in the `testing` and `training` folder of the repository.
+
+## Further Reading
+
+See the following documents for more information on this template and the engineering practices it demonstrates:
+
+* [Create an initial custom speech model](2-train-an-initial-model.md#table-of-contents)
+
+* [Improve the model](3-improve-the-model.md#table-of-contents)
+
+* [Advanced customization](4-advanced-customization.md#table-of-contents)
