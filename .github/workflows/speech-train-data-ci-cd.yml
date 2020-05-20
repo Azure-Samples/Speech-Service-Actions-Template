@@ -315,7 +315,7 @@ jobs:
 
       # Nuance: setting a local variable for env retrieved values. Working
       # solution to text expansion within the "if [[]]; then fi", which results
-      # in a substitution error.
+      # in a substitution error. We also verify the GUID exists with the same if block.
       - name: Delete datasets after testing is complete. Pass or FAIL.
         run: |
           audio_trans_test_id=${{ env.AUDIO_TRANS_TEST_ID }}
@@ -345,7 +345,7 @@ jobs:
 
       # Nuance: setting a local variable for env retrieved values. Working
       # solution to text expansion within the "if [[]]; then fi", which results
-      # in a substitution error.
+      # in a substitution error. We also verify the GUID exists with the same if block.
       - name: Delete Test after testing is complete
         run: |
           test_id=${{ env.TEST_ID }}
@@ -357,7 +357,7 @@ jobs:
 
       # Nuance: setting a local variable for env retrieved values. Working
       # solution to text expansion within the "if [[]]; then fi", which results
-      # in a substitution error.
+      # in a substitution error. We also verify the GUID exists with the same if block.
       - name: FAIL - Delete model uploads to Speech
         if: env.BENCHMARK_WER <= env.NEW_WER
         run: |
