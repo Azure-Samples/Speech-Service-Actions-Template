@@ -5,7 +5,6 @@ This document shows how to create your GitHub repository, create your Azure reso
 ## Table of contents
 
 - [Create your repo](#create-your-repo)
-- [Clone your repository](#clone-your-repository)
 - [Create the resource group and resources](#Create-the-resource-group-and-resources)
 - [Create the Speech project](#create-the-speech-project)
 - [Create the Azure Service Principal](#Create-the-Azure-Service-Principal)
@@ -29,8 +28,6 @@ To create your repository:
     >Note: The template works with public repositories by default. If you create a private repository, you will need to [configure the workflows](4-advanced-customization.md##Change-Environment-Variables) for use with a  private repository.
   - Leave **Include all branches** unchecked as you only need the master branch.
   - Click **Create repository from template** to create your copy of this repository.
-
-## Clone your repository
 
 After your repository is created, [clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository).
 
