@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 ###############################################################################
 #
 # Custom Speech Continuous Improvement Pipeline for GitHub Actions
@@ -7,7 +10,6 @@
 name: SpeechTestDataCI
 
 on:
-
   push:
     # Execute on pushes to master.
     branches:
