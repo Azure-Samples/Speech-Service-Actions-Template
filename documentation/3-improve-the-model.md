@@ -1,20 +1,22 @@
 # 3. Improve the model
 
+In the previous 
 Compare the word error rate from new models to the WER from benchmark models to determine if the changes improve the new model's recognition overall. Follow these steps to understand that model comparison and attempt to improve a model by updating the training data.
 
 ### Table of contents
 
-* [Create pull request for data updates](#Create-pull-request-for-data-updates)
+* [3. Improve the model](#3-improve-the-model)
+  * [Create pull request for data updates](#Create-pull-request-for-data-updates)
     * [Update testing data](#Update-testing-data)
     * [Update training data](#Update-training-data)
     * [Create and merge the pull request](#Create-and-merge-the-pull-request)
-* [Workflow for testing data updates](#Workflow-for-testing-data-updates)
+  * [Workflow for testing data updates](#Workflow-for-testing-data-updates)
     * [Test the previous model](#Test-the-previous-model)
-* [Workflow for training data updates](#Workflow-for-training-data-updates)
+  * [Workflow for training data updates](#Workflow-for-training-data-updates)
     * [Train a new model](#Train-a-new-model)
     * [Test the new model](#Test-the-new-model)
-        * [Fail](#Fail)
-        * [Pass](#Pass)
+      * [Fail](#Fail)
+      * [Pass](#Pass)
     * [Release an endpoint](#Release-an-endpoint)
 * [Next steps](#Next-steps)
 
