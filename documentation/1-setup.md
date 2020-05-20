@@ -4,28 +4,43 @@ Create the Azure resources and set up Git to begin developing Custom Speech mode
 
 ### Table of Contents
 
-* [Use this Template](#Use-this-Template)
-* [Create the Resource Group and Resources](#Create-the-Resource-Group-and-Resources)
-* [Create the Speech Project](#Create-the-Speech-Project)
-* [Create the Service Principal](#Create-the-Service-Principal)
-* [Validate GitHub Secrets](#Validate-GitHub-Secrets)
-* [Protect the Master Branch](#Protect-the-Master-Branch)
-* [Next Steps](#Next-Steps)
+- [1. Setup](#1-setup)
+    - [Table of Contents](#table-of-contents)
+  - [Get the code](#get-the-code)
+  - [Clone your repository](#clone-your-repository)
+  - [Create an Azure Resource Group and a set of Azure Resources](#create-an-azure-resource-group-and-a-set-of-azure-resources)
+  - [Create the Speech Project](#create-the-speech-project)
+  - [Create the Service Principal](#create-the-service-principal)
+  - [Validate GitHub Secrets](#validate-github-secrets)
+  - [Protect the Master Branch](#protect-the-master-branch)
+  - [Next Steps](#next-steps)
 
-## Use this Template
+## Get the code
 
-[Generate a copy of this template repository](https://github.com/KatieProchilo/CustomSpeechDevOpsSample/generate) to hold the code and the GitHub Actions pipelines:
+You'll use a GitHub repository and GitHub Actions for running the multi-stage pipeline with build, testing, and release stages.
 
-1. Enter a name for the repository where prompted.
-2. The solution works with public repositories by default. To create a private repository, select **Private** and [change the `IS_PRIVATE_REPOSITORY` environment variable](4-advanced-customization.md##Change-Environment-Variables) to `true`.
-3. Leave **Include all branches** unchecked. You only need to copy the master branch of this repository.
-4. Click **Create repository from template** to create your copy.
+To create your repository:
 
-[Clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository). Use this repository to walk through this guide and for your own experimentation.
+* If you don't already have a GitHub account, create one by following the instructions at [Join GitHub: Create your account](https://github.com/join).
+* Click the green **Use this template** button near the top of the [Speech-Service-DevOps-Samples](https://github.com/Azure-Samples/Speech-Service-DevOps-Samples) home page for this GitHub repo. This will copy this repository to a GitHub repository of your own that it will create.
 
-If you are using this solution as the starting point for a Custom Speech project with a lot of data, consider [using Git Large File Storage](4-advanced-customization.md#Use-Git-Large-File-Storage) to manage large files in this repository. This will cost less compared to storing large files with Git.
+   ![Use this template](../images/template_button.png?raw=true "Cloning the template repo")
 
-## Create the Resource Group and Resources
+  * Enter your own repository name where prompted.
+  * Leave **Include all branches** unchecked as you only need the master branch of the source repo copied.
+  * Click **Create repository from template** to create your copy of this repository.
+
+The solution works with public repositories by default. To create a private repository, select **Private** and [change the `IS_PRIVATE_REPOSITORY` environment variable](4-advanced-customization.md##Change-Environment-Variables) to `true`.
+
+## Clone your repository
+
+After your repository is created, clone it to your own machine.
+
+- Follow these steps to [clone your repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository) to your own machine.
+
+If you are using this solution as the starting point for a Custom Speech project with a lot of data, consider [using Git Large File Storage](4-advanced-customization.md#Use-Git-Large-File-Storage) to manage large files in this repository. This will cost less compared to storing large files within Git itself.
+
+## Create an Azure Resource Group and a set of Azure Resources
 
 Developing Custom Speech models with the CI/CD pipeline requires an Azure Resource Group, under which an Azure Speech Resource and an Azure Storage Account must be created. To create these resources, click the Deploy to Azure button below:
 
@@ -52,42 +67,42 @@ Agree to the terms and click **Review + create** to create the Resource Group an
 
 ## Create the Speech Project
 
-Navigate to the [Speech Studio](https://speech.microsoft.com/portal/) and click the cog in the upper right corner, then click **Speech resources**:
+The GitHub action pipelines requires access to authentication keys and other sensitive information when they are executed. To protect these details we use  [GitHub Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets).
 
+1. Navigate to the [Speech Studio](https://speech.microsoft.com/portal/) and click the cog in the upper right corner, then click **Speech resources**:
 ![Speech Studio Speech Resource](../images/SpeechStudioSpeechResources.png)
-
-Select the Speech Resource that was created in Setup, and then click the eye icon to see the Speech subscription key. [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `SPEECH_SUBSCRIPTION_KEY`, and set it to this value:
-
+2. Select the Speech Resource that was created in Setup, and then click the eye icon to see the Speech subscription key. [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `SPEECH_SUBSCRIPTION_KEY`, and set it to this value:
 ![Speech Studio Speech Subscription Key](../images/SpeechStudioSubscriptionKey.png)
-
-Click **Go to Studio** and [create a Speech project](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this Speech Resource:
-
-* [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `SPEECH_PROJECT_NAME` and set it to the name of the project.
-* Under **Language**, select the language you will use for testing and training models. The project is configured for **English (United States)**. To use other languages, [change locales](4-advanced-customization.md#Change-Locales).
+3. Click **Go to Studio** and select [_Custom Speech_](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this Speech Resource:
+a. Click to create a new _Speech Project_ and enter a suitable name for the project. Use _English (United States)_ as the language.
+![Speech Studio Speech Subscription Key](../images/new_speech_project.png)
+b. [Create a GitHub Secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) called `SPEECH_PROJECT_NAME` and set it to the name of the project.
+c. Under **Language**, select the language you will use for testing and training models. The project is configured for **English (United States)**. To use other languages, [change locales](4-advanced-customization.md#Change-Locales).
 
 ## Create the Service Principal
 
-[Azure Service Principals](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?toc=%2Fazure%2Fazure-resource-manager%2Ftoc.json&view=azure-cli-latest) give role-restricted access to Azure Resources. The service principal you will create will be used to log in to Azure in the workflow.
+You need to configure an [Azure Service Principal](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?toc=%2Fazure%2Fazure-resource-manager%2Ftoc.json&view=azure-cli-latest) to allow the pipeline to login using your identity and to work with Azure resources on your behalf. You will save the access token for the service principal in the GitHub Secrets for your repository.
 
-[Install the Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) and log in to Azure:
+1. Install the Azure CLI on your machine, if not already installed. Follow these steps to [install the Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) on your system.
 
-```bash
-az login
-```
+1. Open a Powershell or Bash terminal window in the root folder of your cloned repository. and log into Azure:
 
-Execute the following command to confirm you are in the correct Azure Subscription:
+    ```bash
+    az login
+    ```
 
-```bash
-az account show
-```
+   If the CLI can open your default browser, it will do so and load an Azure sign-in page. Sign in with your account credentials in the browser.
 
-If you have more than one subscription and the incorrect subscription is selected, set the right subscription with:
+   Otherwise, open a browser page at <https://aka.ms/devicelogin> and enter the authorization code displayed in your terminal.
 
-```bash
-az account set -s <<AZURE_SUBSCRIPTION_NAME_OR_ID>>
-```
+2. Show the selected azure subscription. If you have more than one subscription then you should ensure that the selected subscrption is the one in which you have created your *resource group* above. If you do not have the correct subscription selected then use the `az account set` command:
 
-Set `RESOURCE_GROUP_NAME` to the name of the Resource Group from the Deploy to Azure task. Substitute the `AZURE_SUBSCRIPTION_ID` as well. Come up with a `SERVICE_PRINCIPAL_NAME` to run the command to create the service principal, which must be unique across Azure. If you see output from this command reporting that it has found an existing resource, run this command again and use a different name:
+   ```bash
+   az account show
+   az account set -s {Name or ID of subscription}
+   ```
+   
+3. Set `RESOURCE_GROUP_NAME` to the name of the Resource Group from the Deploy to Azure task. Substitute the `AZURE_SUBSCRIPTION_ID` as well. Come up with a `SERVICE_PRINCIPAL_NAME` to run the command to create the service principal, which must be unique across Azure. If you see output from this command reporting that it has found an existing resource, run this command again and use a different name:
 
 ```bash
 az ad sp create-for-rbac --name <<SERVICE_PRINCIPAL_NAME>> --role "Storage Blob Data Contributor" --scopes /subscriptions/<<AZURE_SUBSCRIPTION_ID>>/resourceGroups/<<RESOURCE_GROUP_NAME>> --sdk-auth
