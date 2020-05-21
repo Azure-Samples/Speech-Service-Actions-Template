@@ -14,7 +14,7 @@ This document shows how to create your GitHub repository from this template, cre
 
 ## Create your repo
 
-Use this template to create a GitHub repository for your development with the same files and folders.
+Use this template to create a GitHub repository for your development with all the files and folders from this template repository.
 
 To create your repository:
 
@@ -153,14 +153,14 @@ To create the Azure Service Principal:
 
 ## Protect the master branch
 
-It is a software engineering best practice to protect the master branch from direct check-ins. Read [configuring protected branches](https://help.github.com/en/github/administering-a-repository/configuring-protected-branches) to learn more about protecting branches in GitHub.
+It's a software engineering best practice to protect the master branch from direct check-ins. Read [configuring protected branches](https://help.github.com/en/github/administering-a-repository/configuring-protected-branches) to learn more about protecting branches in GitHub.
+
+> **Important:** Branch protections are supported on public GitHub repositories, or if you have a GitHub Pro subscription. If you are using a personal GitHub account and you created your repository as a private repository, you will have to change your repository to be **public**.
 
 The GitHub Actions workflows in this repository are configured to run when a merge to master occurs, for example after a PR is merged.
 Branch Protections are not required for these events to occur, so setting branch protections is optional.
 
-> **Important:** Branch protections are supported on public GitHub repositories, or if you have a GitHub Pro subscription. If you are using a personal GitHub account and you created your repository as a private repository, you will have to change your repository to be **public**.
-
-If your organization does not have branch protection policies, configure branch protections as follows:
+Configure branch protections according to your established software engineering process. If you don't have established branch protection policies, configure branch protections as follows:
 
 1. Click the **Settings** tab on the home page of your repository.
 1. Select **Branches** in the left menu.
