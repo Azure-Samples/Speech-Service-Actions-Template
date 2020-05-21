@@ -1,14 +1,14 @@
 # 2. Train an initial model
 
-Follow these steps to understand the developer workflow and create the initial Custom Speech model.
+Follow these steps to understand the developer workflow and create the baseline Custom Speech model.
 
-This initial Custom Speech model will be used as an accuracy benchmark to compare against future models.
+This baseline Custom Speech model will be used as an accuracy benchmark to compare against future models.
 
 This template includes sample data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of this walk through, including:
 
 * **`training/related-text.txt`:** [Language, or sentences, data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) is a type of [related text](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) used to improve language mode accuracy when recognizing product names, or industry-specific vocabulary within the context of a sentence.
 * **`training/pronunciation.txt`:** [Pronunciation data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-pronunciation-file) is the second type of related text used to improve language mode accuracy when recognizing uncommon terms, acronyms, or other words with undefined pronunciations.
-* **`training/audio-and-trans.zip`:** This folder of [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) is used to train acoustic models.
+* **`training/audio-and-trans.zip`:** Contains [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) used to train acoustic models.
 
 After you've completed this walk through, replace the data in the repo with your project data to start creating a model specific to your project.
 
@@ -19,7 +19,6 @@ After you've completed this walk through, replace the data in the repo with your
 * [Test training data effect](#Test-training-data-effect)
 * [Create the Pull Request](#Create-the-Pull-Request)
 * [Confirm the Workflow Results](#Confirm-the-Workflow-Results)
-* [Understanding the SpeechTrainDataCICD workflow](#Understanding-the-SpeechTrainDataCICD-workflow)
 * [Next steps](#Next-steps)
 * [Further Reading](#further-reading)
 
@@ -34,23 +33,23 @@ To create your development project:
 
 ## Update the training data
 
-Update the training data to be used to create the initial model.
+Update the training data to be used to create the baseline model.
 
 To update the training data:
 
 1. Navigate to the root of the repository and create a feature branch from master:
 
     ```bash
-    git checkout -b initialSpeechModel
+    git checkout -b baselineSpeechModel
     ```
 
 1. Change the file `training/related-text.txt` by adding the line below to the end of the file:
 
     ```xml
-    This is language data for my initial model.
+    This is language data for my baseline model.
     ```
 
-    This change illustrates a training data change that will trigger the GitHub Actions workflow from a Pull Request. After this walk through, you'll make updates that [attempt to improve the model's recognition](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-sentences-file).
+    This change illustrates a training data change that will trigger the GitHub Actions workflow. After this walk through, you'll make updates that [attempt to improve the model's recognition](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-sentences-file).
 
 1. Add and commit the changes:
 
@@ -61,7 +60,7 @@ To update the training data:
 
 ## Test training data effect
 
-The changes to `training/related-text.txt` represent changes you'll make to your training data to adapt your Custom Speech model to your needs. Changes should be tested to confirm the effect on the model before a pull request is created. Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) you can use to evaluate whether or not the changes have generally improved the model. If so, the updates can be submitted in a Pull Request.
+The changes to `training/related-text.txt` represent changes you'll make to your training data to adapt your Custom Speech model to your needs. Changes should be tested to confirm the effect on the model before a Pull Request is created. Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) you can use to evaluate whether the changes have improved the model. If so, the updates can be submitted in a Pull Request.
 
 To do that testing, use your development Speech project.
 
@@ -89,10 +88,10 @@ To create the Pull Request:
 1. Push your changes:
 
     ```bash
-    git push -u origin initialSpeechModel
+    git push -u origin baselineSpeechModel
     ```
 
-1. Create a Pull Request from **initialSpeechModel** to **master**.
+1. Create a Pull Request from **baselineSpeechModel** to **master**.
 1. Click the **Merge pull request** button to merge the pull request into **master**.
     >**Note:** If you have set up the branch protection policies, it will be necessary to check **Use your administrator privileges** to merge this pull request to complete the merge.
 
@@ -104,17 +103,17 @@ When you merge a Pull Request to master, the **SpeechTrainDataCICD** GitHub Acti
 
 GitHub Action workflows stored in the `.github/workflows/` directory will run when triggered.
 
-To view the GitHub Actions workflow:
+To view the **SpeechTrainDataCICD** workflow:
 
 1. Open `.github/workflows/speech-train-data-ci-cd.yml`.
 1. Review the code in the workflow.
 1. Go to the [GitHub Actions documentation](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions) to learn how to develop workflows.
 
-### View the model
+### View the workflow run
 
-The **SpeechTrainDataCICD** workflow is configured to trigger on a merge to master that includes changes to any of the training data  in the `/training` folder. When training data is updated for the first time, the data from the `/training` folder is used to build the initial Custom Speech model. This initial model will be used as an accuracy benchmark to compare against future models.
+The **SpeechTrainDataCICD** workflow is configured to trigger on a merge to master that includes changes to any of the training data  in the `training` folder.
 
-To confirm the execution of the workflow:
+To view workflow run for your Pull Request:
 
 1. Navigate to the **Actions** tab of your main repository.
 1. Select **SpeechTrainDataCICD** on the left navigation menu.
@@ -125,33 +124,40 @@ To confirm the execution of the workflow:
 1. Wait for the jobs to complete successfully.
     > **Note:** Training models can take upwards of 30 minutes.
 1. Familiarize yourself with the jobs and tasks in the workflow.
+
+### View the model
+
+When training data is merged to master, the data from the `training` folder is used to build a Custom Speech model. The baseline model will be used as an accuracy benchmark to compare against future models.
+
 1. Open [Speech Studio](https://speech.microsoft.com/portal/).
 1. Open the the main Speech project from [Setup](1-setup.md#table-of-contents).
 1. Select **Training** and note the new model created.
 
 ### View the test results
 
-Once the new speech model is built, the workflow tests the new model's accuracy using [audio + human-labeled transcripts](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) in `testing/audio-and-trans.zip`. 
+Once the new speech model is built, the workflow tests the new model's accuracy using [audio + human-labeled transcripts](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) in `testing/audio-and-trans.zip`.
 
-The test creates a test summary and a test results file. The test summary contains the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) for that test, which is an industry-standard metric to measure recognition accuracy.
+Testing creates a test summary and a test results file. The test summary contains the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) for that test, which is an industry-standard metric to measure recognition accuracy.
 
 The workflow stores the test summary and test results in an Azure Storage container called `test-results`. The workflow also creates an Azure Storage container called `configuration` with a single file, `benchmark-test.txt`. This file contains the name of the test summary file for the model with the best Word Error Rate, establishing a benchmark to compare future models against.
 
 To view the test results and benchmark:
 
 1. Open [Azure Portal](https://ms.portal.azure.com/#home) and navigate the Azure Storage Account created in [Setup](1-setup.md#table-of-contents).
-1. Under **Tools and SDKs**, select **Stroage Explorer (preview)**.
+1. Under **Tools and SDKs**, select **Storage Explorer (preview)**.
 1. Select **BLOB CONTAINERS** in the navigation menu on the left.
 1. Select the **test-results** container.
-1. Open the `test-summary-from-train-data-update-XXXXXXX.json` file to view the test results from your initial model.
+1. Open the `test-summary-from-train-data-update-XXXXXXX.json` file to view the test results from your baseline model.
 1. Select the **configuration** container.
-1. Open `benchmark-test.txt` and confirm it contains the name of the test summary file from the initial model.
+1. Open `benchmark-test.txt` and confirm it contains the name of the test summary file from the baseline model.
 
 ### View the Release and Endpoint
 
 Finally, if the Word Error rate has improved, the workflow creates a GitHub Release and a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) for the model. The GitHub Release contains a copy of the repository contents at the time the release was created, along with a JSON file with endpoint details.
 
 Update endpoints in client applications to use the latest release at your own discretion.
+
+To view the Release and Endpoint:
 
 1. Navigate to the **Code** tab of the main repository.
 1. Select **Releases** to see the release created for your Pull Request.
@@ -165,7 +171,7 @@ Update endpoints in client applications to use the latest release at your own di
 
 ## Next steps
 
-Now that you understand the developer workflow and you've created the initial Custom Speech model, in the next step you'll attempt to [improve the model](./3-improve-the-model.md) by replacing data in the `testing` and `training` folders and comparing the results against the initial model.
+Now that you understand the developer workflow and you've created the baseline Custom Speech model, in the next step you'll attempt to [improve the model](./3-improve-the-model.md) by replacing data in the `testing` and `training` folders and comparing the results against the baseline model.
 
 ## Further Reading
 
