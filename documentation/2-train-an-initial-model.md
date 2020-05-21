@@ -17,7 +17,7 @@ After you've completed this walk through, replace the data in the repo with your
 * [Update the training data](#Update-the-training-data)
 * [Create Dev Test Speech Project](#Create-Dev-Test-Speech-Project)
 * [Test training data effect](#Test-training-data-effect)
-* [Create and merge the pull request](#Create-and-merge-the-pull-request)
+* [Create the Pull Request](#Create-the-Pull-Request)
 * [What the SpeechTrainDataCICD workflow does](#what-the-speechtraindatacicd-workflow-does)
   * [Train a new model](#Train-a-new-model)
   * [Test the new model](#Test-the-new-model)
@@ -70,7 +70,7 @@ To do that testing, use the Speech project you created for your development and 
 To test the effect of your changes:
 
 1. Open [Speech Studio](https://speech.microsoft.com/portal/).
-1. Open the Speech project from the prior step.
+1. Open the dev test Speech project from the prior step.
 1. For each change you'd like to evaluate:
     1. Create a datasets by [uploading](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#upload-data) your `training/related-text.txt` and `training/pronunciation.txt` training data.
     2. [Train a dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-train-model) using those datasets.
@@ -79,19 +79,43 @@ To test the effect of your changes:
 
 If the model did not improve, add more training data and test the effect on the model.
 
-### Create and merge the pull request
+## Create the Pull Request
 
-Push the changes to the remote repository once you are satisfied with how the model is performing:
+Once you are satisfied with how the model is performing based on your changes, create a Pull Request to submit those changes to master so the initial model is built.
 
-```bash
-git push -u origin initialSpeechModel
-```
+To create the Pull Request:
 
-Create a pull request from **initialSpeechModel** to **master**. Click the **Merge pull request** button to merge the pull request into **master**. If you have set up the branch protection policies, it will be necessary to check **Use your administrator privileges** to merge this pull request to complete the merge.
+1. Push your changes:
 
-If everything has been set up properly, the **SpeechTrainDataCICD** workflow will automatically execute after a few seconds. Navigate to the **Actions** tab of the repository to see the workflow called the workflow in progress:
+    ```bash
+    git push -u origin initialSpeechModel
+    ```
 
-![Actions tab showing that the workflow is running](../images/WorkflowRunning.png)
+1. Create a pull request from **initialSpeechModel** to **master**.
+1. Click the **Merge pull request** button to merge the pull request into **master**.
+    **Note:** If you have set up the branch protection policies, it will be necessary to check **Use your administrator privileges** to merge this pull request to complete the merge.
+
+## Examine the GitHub Workflow
+
+When you merge a Pull Request to master, the **SpeechTrainDataCICD** GitHub Actions workflow will automatically execute to create a model and a release based on your Pull Request.
+
+To confirm the execution of the workflow:
+
+1. Navigate to the **Actions** tab of your main repository.
+1. Select **SpeechTrainDataCICD** on the left navigation menu.
+1. Select the event that represents your Pull Request.
+
+    ![Actions tab showing that the workflow is running](../images/WorkflowRunning.png)
+
+1. Wait for the jobs to complete successfully.
+    > **Note:** Please note that building models will take upwards of 30 minutes.
+1. Navigate to the **Code** tab of the main repository.
+1. Select **Releases** to see the release created for your Pull Request.
+
+    ![Latest Release](../images/LatestRelease.png)
+1. Open [Speech Studio](https://speech.microsoft.com/portal/).
+1. Open the the main Speech project from [Setup](1-setup.md#table-of-contents).
+1. Select **Training** and note the new model created.
 
 ## What the SpeechTrainDataCICD workflow does
 
