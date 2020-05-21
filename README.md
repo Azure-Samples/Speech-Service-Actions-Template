@@ -10,6 +10,13 @@ urlFragment: "update-this-to-unique-url-stub"
 
 # Speech Services DevOps Solution
 
+![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
+
+<!-- Uncomment after repo is public -->
+<!-- ![Preview](https://img.shields.io/github/v/release/Azure-Samples/Speech-Service-DevOps-Samples?include_prereleases&sort=semver) -->
+
+> **Speech-Service-DevOps-Samples** is currently under **public preview** and is not ready for production use.
+
 <!--
 Guidelines on README format: https://review.docs.microsoft.com/help/onboard/admin/samples/concepts/readme-template?branch=master
 
