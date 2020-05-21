@@ -18,6 +18,7 @@ After you've completed this walk through, replace the data in the repo with your
 * [Update the training data](#Update-the-training-data)
 * [Test training data effect](#Test-training-data-effect)
 * [Create the Pull Request](#Create-the-Pull-Request)
+* [Confirm the Workflow Results](#Confirm-the-Workflow-Results)
 * [Understanding the SpeechTrainDataCICD workflow](#Understanding-the-SpeechTrainDataCICD-workflow)
 * [Next steps](#Next-steps)
 * [Further Reading](#further-reading)
@@ -95,9 +96,23 @@ To create the Pull Request:
 1. Click the **Merge pull request** button to merge the pull request into **master**.
     >**Note:** If you have set up the branch protection policies, it will be necessary to check **Use your administrator privileges** to merge this pull request to complete the merge.
 
-## Examine the GitHub Workflow
+## Confirm the Workflow Results
 
-When you merge a Pull Request to master, the **SpeechTrainDataCICD** GitHub Actions workflow will automatically execute to create a model, a release, and an endpoint based on your Pull Request.
+When you merge a Pull Request to master, the **SpeechTrainDataCICD** GitHub Actions workflow will  execute to train a model, test the model, and if the WER has improved, create a release and an endpoint.
+
+### Review the workflow
+
+GitHub Action workflows stored in the `.github/workflows/` directory will run when triggered.
+
+To view the GitHub Actions workflow:
+
+1. Open `.github/workflows/speech-train-data-ci-cd.yml`.
+1. Review the code in the workflow.
+1. Go to the [GitHub Actions documentation](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions) to learn how to develop workflows.
+
+### View the model
+
+The **SpeechTrainDataCICD** workflow is configured to trigger on a merge to master that includes changes to any of the training data  in the `/training` folder. When training data is updated for the first time, the data from the `/training` folder is used to build the initial Custom Speech model. This initial model will be used as an accuracy benchmark to compare against future models.
 
 To confirm the execution of the workflow:
 
@@ -109,6 +124,35 @@ To confirm the execution of the workflow:
 
 1. Wait for the jobs to complete successfully.
     > **Note:** Training models can take upwards of 30 minutes.
+1. Familiarize yourself with the jobs and tasks in the workflow.
+1. Open [Speech Studio](https://speech.microsoft.com/portal/).
+1. Open the the main Speech project from [Setup](1-setup.md#table-of-contents).
+1. Select **Training** and note the new model created.
+
+### View the test results
+
+Once the new speech model is built, the workflow tests the new model's accuracy using [audio + human-labeled transcripts](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) in `testing/audio-and-trans.zip`. 
+
+The test creates a test summary and a test results file. The test summary contains the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) for that test, which is an industry-standard metric to measure recognition accuracy.
+
+The workflow stores the test summary and test results in an Azure Storage container called `test-results`. The workflow also creates an Azure Storage container called `configuration` with a single file, `benchmark-test.txt`. This file contains the name of the test summary file for the model with the best Word Error Rate, establishing a benchmark to compare future models against.
+
+To view the test results and benchmark:
+
+1. Open [Azure Portal](https://ms.portal.azure.com/#home) and navigate the Azure Storage Account created in [Setup](1-setup.md#table-of-contents).
+1. Under **Tools and SDKs**, select **Stroage Explorer (preview)**.
+1. Select **BLOB CONTAINERS** in the navigation menu on the left.
+1. Select the **test-results** container.
+1. Open the `test-summary-from-train-data-update-XXXXXXX.json` file to view the test results from your initial model.
+1. Select the **configuration** container.
+1. Open `benchmark-test.txt` and confirm it contains the name of the test summary file from the initial model.
+
+### View the Release and Endpoint
+
+Finally, if the Word Error rate has improved, the workflow creates a GitHub Release and a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) for the model. The GitHub Release contains a copy of the repository contents at the time the release was created, along with a JSON file with endpoint details.
+
+Update endpoints in client applications to use the latest release at your own discretion.
+
 1. Navigate to the **Code** tab of the main repository.
 1. Select **Releases** to see the release created for your Pull Request.
 
@@ -118,44 +162,6 @@ To confirm the execution of the workflow:
     ```bash
     {"ENDPOINT_ID":"########-####-####-####-############"}
     ```
-
-1. Open [Speech Studio](https://speech.microsoft.com/portal/).
-1. Open the the main Speech project from [Setup](1-setup.md#table-of-contents).
-1. Select **Training** and note the new model created.
-
-## Understanding the SpeechTrainDataCICD workflow
-
-The **SpeechTrainDataCICD** workflow is configured to trigger on a merge to master that includes changes to any of the training data files in the `training` folder of your repo.
-
-This workflow:
-
-* [Trains a new model](#train-a-new-model)
-* [Tests the new model](#test-the-new-model)
-* [Releases an endpoint](#release-an-endpoint)
-
-During the initial run for a new project, the objective of this first change to training data is to train and test the initial Custom Speech model. This initial model will be used as an accuracy benchmark to compare against future models.
-
-### Train a new model
-
-Any time training data updates are merged to `master`, the **SpeechTrainDataCICD** workflow will run. When it is updated for the first time, the data from the `training` folder is used to build the initial Custom Speech model.
-
-### Test the new model
-
-Once the new speech model is built, the workflow tests the new model's accuracy using [audio + human-labeled transcripts](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) in `testing/audio-and-trans.zip`. Models attempt to recognize the .wav files from the `audio` folder in this zip archive, and the recognition is compared to its corresponding text in the `trans.txt` file from the same zip archive.
-
-The test creates a test summary and a test results file. The test summary contains the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) for that test, which is an industry-standard metric to measure recognition accuracy. It is the sum of substitutions, deletions, and insertions divided by the number of words in a sentence. Essentially it's a measure of how many words were recognized incorrectly. In future runs, it matters that the WER improves and gets lower over time, but this initial run will simply set a baseline WER for future runs.
-
-The workflow stores the test summary and test results in an Azure Storage container called `test-results`. The workflow also creates an Azure Storage container called `configuration` in which it stores a single file, `benchmark-test.txt`, which contains the name of the test summary file from the initial model. On future runs of this workflow, when a new speech model is tested that improves the Word Error Rate, the workflow updates this file to point at the test summary file for the new model, thus establishing a new improved baseline for future runs.
-
-After the workflow has completed, visit the [Azure Portal](https://ms.portal.azure.com/#home) and navigate to your Azure Storage Account to view these additions.
-
-### Release an endpoint
-
-Finally, the workflow creates a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) for this initial model, and a GitHub Release is created that contains a JSON file with endpoint details and a copy of the repository contents at the time the release was created.
-
-Each time the workflow runs and the Word Error rate improves, a new endpoint is released and the repository is tagged with a new version.
-
-The latest release will always contain the best-performing Custom Speech endpoint. Users can update endpoints in their client applications to use the latest release at their own discretion.
 
 ## Next steps
 
