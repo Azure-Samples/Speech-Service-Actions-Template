@@ -124,7 +124,7 @@ jobs:
       - name: Get the benchmark Speech model
         run: |
           custom_speech_model_kind="Acoustic"
-          if [[ -z "${{ env.TEST_AUDIO_ZIP_FILE }}" ]]
+          if [[ -z "${{ env.TEST_ZIP_SOURCE_PATH }}" ]]
           then
             custom_speech_model_kind="Language"
           fi
