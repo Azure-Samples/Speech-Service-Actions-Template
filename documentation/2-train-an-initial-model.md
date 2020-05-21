@@ -16,7 +16,8 @@ After you've completed this walk through, replace the data in the repo with your
 
 * [Update the training data](#Update-the-training-data)
 * [Create Dev Test Speech Project](#Create-Dev-Test-Speech-Project)
-  * [Create and merge the pull request](#Create-and-merge-the-pull-request)
+* [Test training data effect](#Test-training-data-effect)
+* [Create and merge the pull request](#Create-and-merge-the-pull-request)
 * [What the SpeechTrainDataCICD workflow does](#what-the-speechtraindatacicd-workflow-does)
   * [Train a new model](#Train-a-new-model)
   * [Test the new model](#Test-the-new-model)
@@ -60,20 +61,23 @@ To create that project:
 1. [Create an Azure Speech resource](https://docs.microsoft.com/azure/cognitive-services/speech-service/get-started#new-resource) in the Azure Resource Group from [Setup](1-setup.md#table-of-contents).
 1. [Create a Speech project](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this resource.
 
-## Test training data updates
+## Test training data effect
 
-The changes to `training/related-text.txt` represent changes you'll make to your training data to adapt your Custom Speech model to your needs. Changes should be tested to confirm the effect on the model before a pull request is created. To do that testing, use the Speech project you created for your development and testing.
+The changes to `training/related-text.txt` represent changes you'll make to your training data to adapt your Custom Speech model to your needs. Changes should be tested to confirm the effect on the model before a pull request is created. Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) you can use to evaluate whether or not the changes have generally improved the model. If so, the updates can be submitted in a pull request.
+
+To do that testing, use the Speech project you created for your development and testing.
 
 To test the effect of your changes:
+
 1. Open [Speech Studio](https://speech.microsoft.com/portal/).
-1. Open  
-1. [Upload training and testing data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#upload-data)
-2. [Train a model for Custom Speech](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-train-model)
-3. [Evaluate Custom Speech accuracy](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test)
+1. Open the Speech project from the prior step.
+1. For each change you'd like to evaluate:
+    1. Create a datasets by [uploading](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#upload-data) your `training/related-text.txt` and `training/pronunciation.txt` training data.
+    2. [Train a dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-train-model) using those datasets.
+    3. [Test your dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test) using the test data in `testing/audio-and-trans.zip` get the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER).
+    4. Submit a pull request if the (WER) has improved.
 
-Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) which can be used to gauge whether or not the changes have generally improved the model. If so, the updates can be submitted in a pull request.
-
-If the model did not improve, more training data should be updated and the testing loop should start over.
+If the model did not improve, add more training data and test the effect on the model.
 
 ### Create and merge the pull request
 
