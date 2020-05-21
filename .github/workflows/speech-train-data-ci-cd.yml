@@ -319,7 +319,8 @@ jobs:
         run: |
           az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file previous-benchmark-test.txt --auth-mode login
           benchmark_test_results_name=$(cat previous-benchmark-test.txt)
-          az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name $(echo $benchmark_test_results_name) --file benchmark-test-results.json --auth-mode login | jq '.wordErrorRate' | xargs -I {} echo "::set-env name=BENCHMARK_WER::{}"
+          az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name $(echo $benchmark_test_results_name) --file benchmark-test-results.json --auth-mode login
+          jq '.wordErrorRate' benchmark-test-results.json | xargs -I {} echo "::set-env name=BENCHMARK_WER::{}"
 
       # Get NEW_WER from the newly-created test results file.
       - name: Get the new word error rate (WER)
