@@ -1,8 +1,24 @@
 # 3. Improve the model
 
-In [2. Train an initial model](2-train-an-initial-model.md#table-of-contents) you built the initial Custom Speech model that will serve as the benchmark against which future updates will be measured to establish whether or not performance has improved.
+Follow these steps to make updates to the training and testing data to attempt to improve the model when compared to the baseline model from [Train an initial model](2-train-an-initial-model.md#table-of-contents).
 
-You will now make updates to the training and testing data to attempt to improve the model. The GitHub Actions workflow will compare the word error rate from the new model to the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) from the benchmark model to determine if the changes improve the new model's recognition overall. Follow these steps to understand that model comparison and attempt to improve a model by updating the training data.
+During the development of a Custom Speech model, developers may make updates to the [training data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) used to train the Custom Speech model, or to the [testing data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) used to evaluate the accuracy of that model.
+
+In the steps in this document, you will update both the training and the testing data. You will create a pull request with updates to the training and testing data. These updates will trigger two GitHub Action workflows:
+
+* **SpeechTrainDataCICD** triggers on updates to training data. Its job is to build a new model from the training data and to test whether the new model has a better WER than the benchmark model.
+* **SpeechTestDataCI** triggers on updates to test data. Its job is to retest the benchmark model to calculate the new Word Error rate for the benchmark model with the changed test data.
+
+A new model must have a better WER than a benchmark model for the workflow to release an endpoint for the new model and for the new model to become the new benchmark for future iterations.
+
+To do this, you will:
+
+* [Create a feature branch](#1-create-a-feature-branch)
+* [Update testing data](#update-testing-data)
+* [Update training data](#update-training-data)
+* [Create and merge the pull request](#create-and-merge-the-pull-request)
+* [Understand the operation of the SpeechTestDataCI workflow](#understand-the-operation-of-the-speechtestdataci-workflow) to process updates to testing data
+* [Understand the operation of the SpeechTrainDataCICD workflow](#what-the-speechtraindatacicd-workflow-does) to process updates to training data
 
 ### Table of contents
 
