@@ -16,25 +16,45 @@ on:
       - master
     # The push must include updates to training data.
     paths:
+      # The path from the root of the repository to a .zip with .wav files and a
+      # .txt transcript used for training.
       - "training/audio-and-trans.zip"
+      # The path from the root of the repository to the pronunciation data file.
       - "training/pronunciation.txt"
+      # The path from the root of the repository to the related text data file.
       - "training/related-text.txt"
 
 env:
-  # If your repository is private, set this to `true`.
+  # `true` if the repository is private and `false` otherwise.
   IS_PRIVATE_REPOSITORY: false
+  # See Language Support for available locales:
+  # https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support
   SPEECH_LOCALE: "en-us"
   #############################################################################
   # Testing Data
   #############################################################################
+  # The name and extension of the .txt transcript file that will be extracted
+  # from `testZipSourcePath`.
   TEST_TRANS_FILE: "trans.txt"
+  # The path from the root of the repository to a .zip with .wav files and a
+  # .txt transcript used for testing.
   TEST_ZIP_SOURCE_PATH: "testing/audio-and-trans.zip"
   #############################################################################
   # Training Data
   #############################################################################
+  # The path from the root of the repository to the pronunciation data file. Set
+  # to an empty string if you are training an acoustic model.
   PRONUNCIATION_FILE_PATH: "training/pronunciation.txt"
+  # The path from the root of the repository to the related text data file. Set
+  # to an empty string if you are training an acoustic model.
   RELATED_TEXT_FILE_PATH: "training/related-text.txt"
+  # The name and extension of the .txt transcript file that will be extracted
+  # from `trainZipSourcePath`. Set to an empty string if you are training a
+  # language model.
   TRAIN_TRANS_FILE: ""
+  # The path from the root of the repository to a .zip with .wav files and a
+  # .txt transcript used for training. Set to an empty string if you are
+  # training a language model.
   TRAIN_ZIP_SOURCE_PATH: ""
 
 jobs:

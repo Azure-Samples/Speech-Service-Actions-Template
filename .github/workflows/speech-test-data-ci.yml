@@ -16,13 +16,19 @@ on:
       - master
     # The push must include updates to testing data.
     paths:
+      # The path from the root of the repository to a .zip with .wav files and a
+      # .txt transcript used for testing.
       - "testing/audio-and-trans.zip"
 
 env:
   #############################################################################
   # Testing Data
   #############################################################################
+  # The name and extension of the .txt transcript file that will be extracted
+  # from `testZipSourcePath`.
   TEST_TRANS_FILE: "trans.txt"
+  # The path from the root of the repository to a .zip with .wav files and a
+  # .txt transcript used for testing.
   TEST_ZIP_SOURCE_PATH: "testing/audio-and-trans.zip"
 
 jobs:
