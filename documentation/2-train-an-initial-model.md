@@ -6,9 +6,9 @@ This initial Custom Speech model will be used as an accuracy benchmark to compar
 
 This template includes sample data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of this walk through, including:
 
-* **`training/related-text.txt`:** [Language, or sentences, data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) is a type of [related text](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) that trains language models.
-* **`training/pronunciation.txt`:** [Pronunciation data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-pronunciation-file) is the second type of related text that also trains language models. It should be used in moderation to improve the recognition of words, phrases, and acronyms that are outside of a locale's typical vocabulary.
-* **`training/audio-and-trans.zip`:** This folder of [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) is used in its entirety to train acoustic models.
+* **`training/related-text.txt`:** [Language, or sentences, data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) is a type of [related text](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) used to improve language mode accuracy when recognizing product names, or industry-specific vocabulary within the context of a sentence.
+* **`training/pronunciation.txt`:** [Pronunciation data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-pronunciation-file) is the second type of related text used to improve language mode accuracy when recognizing uncommon terms, acronyms, or other words with undefined pronunciations.
+* **`training/audio-and-trans.zip`:** This folder of [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) is used to train acoustic models.
 
 After you've completed this walk through, replace the data in the repo with your project data to start creating a model specific to your project.
 
@@ -24,7 +24,7 @@ After you've completed this walk through, replace the data in the repo with your
 
 ## Create Development Speech Project
 
-The resources and Speech Project you created in [Setup](1-setup.md#table-of-contents) was for your production model. In this step, you'll create a resource and Speech project you'll use for your personal development and testing, much in the way that you use a feature branch in GitHub.
+The resources and Speech Project you created in [Setup](1-setup.md#table-of-contents) was for your main model. In this step, you'll create a resource and Speech project you'll use for your personal development and testing, much in the way that you use a feature branch in GitHub.
 
 To create your development project:
 
@@ -60,7 +60,7 @@ To update the training data:
 
 ## Test training data effect
 
-The changes to `training/related-text.txt` represent changes you'll make to your training data to adapt your Custom Speech model to your needs. Changes should be tested to confirm the effect on the model before a pull request is created. Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) you can use to evaluate whether or not the changes have generally improved the model. If so, the updates can be submitted in a pull request.
+The changes to `training/related-text.txt` represent changes you'll make to your training data to adapt your Custom Speech model to your needs. Changes should be tested to confirm the effect on the model before a pull request is created. Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) you can use to evaluate whether or not the changes have generally improved the model. If so, the updates can be submitted in a Pull Request.
 
 To do that testing, use your development Speech project.
 
@@ -74,14 +74,14 @@ To test the effect of your changes:
 
         >**Note:** Training models can take upwards of 30 minutes.
 
-    1. [Test your dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test) using the test data in `testing/audio-and-trans.zip` get the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER).
+    1. [Test your dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test) using the test data in `testing/audio-and-trans.zip` to get the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER).
     1. Submit a pull request if the (WER) has improved.
 
 If the model did not improve, add more training data and test the effect on the model.
 
 ## Create the Pull Request
 
-Once you are satisfied with how your development model is performing based on your changes, create a Pull Request to submit those changes to master they are built into the initial model.
+Once you are satisfied with how your development model is performing based on your changes, create a Pull Request to submit those changes to master.
 
 To create the Pull Request:
 
@@ -151,7 +151,7 @@ After the workflow has completed, visit the [Azure Portal](https://ms.portal.azu
 
 ### Release an endpoint
 
-Finally, the workflow creates a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) for this initial model, and a GitHub Release is created that contains a JSON file with data about this endpoint and a copy of the repository contents at the time the release was created.
+Finally, the workflow creates a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) for this initial model, and a GitHub Release is created that contains a JSON file with endpoint details and a copy of the repository contents at the time the release was created.
 
 Each time the workflow runs and the Word Error rate improves, a new endpoint is released and the repository is tagged with a new version.
 
