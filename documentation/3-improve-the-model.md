@@ -51,7 +51,7 @@ git checkout -b newSpeechModel
 
 ### Update testing data
 
-To make changes to `testing/audio-and-trans.zip`, unzip the file and edit the text in `trans.txt`. Transcript files must be formatted a certain way so do not add an additional line, do not modify the file name (**audio.wav**) at the beginning of the line, and do not delete the tab character separating the filename from the following text. 
+To make changes to `testing/audio-and-trans.zip`, unzip the file and edit the text in `trans.txt`. Transcript files must be formatted a certain way so do not add an additional line, do not modify the file name (**audio.wav**) at the beginning of the line, and do not delete the tab character separating the filename from the following text.
 
 For example, you can add some words to the beginning of the text, as follows:
 
@@ -59,7 +59,7 @@ For example, you can add some words to the beginning of the text, as follows:
 audio.wav	SOME UPDATE Once the test is complete, indicated by the status change to Succeeded, you'll find a WER number for both models included in your test. Click on the test name to view the testing detail page. This detail page lists all the utterances in your dataset, indicating the recognition results of the two models alongside the transcription from the submitted dataset. To help inspect the side-by-side comparison, you can toggle various error types including insertion, deletion, and substitution. By listening to the audio and comparing recognition results in each column, which shows the human-labeled transcription and the results for two speech-to-text models, you can decide which model meets your needs and where additional training and improvements are required.
 ```
 
-After you have made your changes, zip the files up again and replace the original `testing/audio-and-trans.zip`. Add and commit the changes:
+After you have made your changes, zip the files up again and replace the original `audio-and-trans.zip` in the `testing` folder in this repo. Add and commit the changes:
 
 ```bash
 git add .
@@ -68,15 +68,15 @@ git commit -m "Update testing data."
 
 ### Update training data
 
-You will make updates to the training data for a Custom Speech project to improve its performance compared to the benchmark. Training data is in the `training` folder in this repo. 
+You will make updates to the training data for a Custom Speech project to improve its performance compared to the benchmark. Training data is in the `training` folder in this repo.
 
-For example, add a line to `training/relate-text.txt` such as:
+For example, edit the `related-text.txt` file in the `training` folder and add a new line such as:
 
 ```txt
 This is language data for my second model.
 ```
 
-Commit the changes to the training data:
+Commit the changes you have made to the training data:
 
 ```bash
 git add .
@@ -134,7 +134,7 @@ The data from the `training` folder is used to build a new Custom Speech model. 
 
 ### Test the new model and compare WER with the benchmark model
 
-The process of testing the new model is the same as the process to [test the new model](2-train-an-initial-model.md#test-the-new-model) for the initial benchmark model. Same as before, the test summary and test results will be stored in the `test-results` container. The big difference is that now that there is a benchmark model already created, the WER of the new model is compared against the WER of the benchmark model, which is fetched from the `benchmark-test.txt`file in the Azure Storage Container named `configuration`.
+The process of testing the new model is the same as the process to [test the new model](2-train-an-initial-model.md#test-the-new-model) for the initial benchmark model. Same as before, the test summary and test results will be stored in the `test-results` container. The big difference is that now that there is a benchmark model already created, the WER of the new model is compared against the WER of the benchmark model, which is fetched from the `benchmark-test.txt` file in the Azure Storage Container named `configuration`.
 
 #### WER is worse than the benchmark
 

@@ -38,7 +38,7 @@ Make a change to the file `training/related-text.txt` such as adding the line:
 This is language data for my initial model.
 ```
 
-This change is sufficient to cause the **SpeechTrainDataCICD** pipeline to trigger once the PR is merged.
+This change is sufficient to cause the **SpeechTrainDataCICD** workflow to trigger once the PR is merged.
 
 Add and commit the changes:
 
