@@ -1,8 +1,8 @@
 # 2. Train an initial model
 
-Follow these steps to understand the developer workflow, the data used to train and test models, and to create the initial Custom Speech model by making a change to the training data.
+Follow these steps to understand the developer workflow, the data used to train and test models, and how to create the initial Custom Speech model.
 
-The initial Custom Speech model will be used as an accuracy benchmark to compare against future models.
+This initial Custom Speech model will be used as an accuracy benchmark to compare against future models.
 
 This template includes sample data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of this walk through, including:
 
@@ -15,8 +15,7 @@ After you've completed this walk through, replace the data in the repo with your
 ## Table of contents
 
 * [Update the training data](#Update-the-training-data)
-  * [Update training data](#Update-training-data)
-    * [Test training data updates](#Test-training-data-updates)
+* [Create Dev Test Speech Project](#Create-Dev-Test-Speech-Project)
   * [Create and merge the pull request](#Create-and-merge-the-pull-request)
 * [What the SpeechTrainDataCICD workflow does](#what-the-speechtraindatacicd-workflow-does)
   * [Train a new model](#Train-a-new-model)
@@ -52,12 +51,22 @@ To update the training data:
     git commit -m "Changes to my Custom Speech model."
     ```
 
-#### Test training data updates
+## Create Dev Test Speech Project
 
-The changes to `training/related-text.txt` demonstrate the workflow to update training data. They weren't meant to improve the model and don't need to be tested, but meaningful changes should be tested before a pull request is created. To do so, [create an Azure Speech resource](https://docs.microsoft.com/azure/cognitive-services/speech-service/get-started#new-resource) for personal use. [Create a Speech project](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this resource to test changes you make to training data before they are submitted to a greater audience.
+The resources and Speech Project you created in [Setup](1-setup.md#table-of-contents) was for your production model. In this step, you'll create a resource and Speech project you'll use for your personal development and testing, much in the way that you use a feature branch in GitHub.
 
-Now you can begin the testing loop. Each of the following three steps should be done in the [Speech Studio](https://speech.microsoft.com/portal/) until it seems that the updates to the training data have improved the model:
+To create that project:
 
+1. [Create an Azure Speech resource](https://docs.microsoft.com/azure/cognitive-services/speech-service/get-started#new-resource) in the Azure Resource Group from [Setup](1-setup.md#table-of-contents).
+1. [Create a Speech project](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this resource.
+
+## Test training data updates
+
+The changes to `training/related-text.txt` represent changes you'll make to your training data to adapt your Custom Speech model to your needs. Changes should be tested to confirm the effect on the model before a pull request is created. To do that testing, use the Speech project you created for your development and testing.
+
+To test the effect of your changes:
+1. Open [Speech Studio](https://speech.microsoft.com/portal/).
+1. Open  
 1. [Upload training and testing data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#upload-data)
 2. [Train a model for Custom Speech](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-train-model)
 3. [Evaluate Custom Speech accuracy](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test)
