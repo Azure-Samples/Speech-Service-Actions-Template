@@ -20,7 +20,7 @@ To do this, you will:
 * [Understand the operation of the SpeechTestDataCI workflow](#understand-the-operation-of-the-speechtestdataci-workflow) to process updates to testing data
 * [Understand the operation of the SpeechTrainDataCICD workflow](#what-the-speechtraindatacicd-workflow-does) to process updates to training data
 
-### Table of contents
+## Table of contents
 
 * [How to make updates to a Custom Speech model](#how-to-make-updates-to-a-custom-speech-model)
   * [Create a feature branch](#create-a-feature-branch)
@@ -35,85 +35,100 @@ To do this, you will:
   * [Release an endpoint](#release-an-endpoint)
 * [Next steps](#Next-steps)
 
-## How to make updates to a Custom Speech model
+## Create a feature branch
 
-During the development of a Custom Speech model, developers may make updates to the [training data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) used to refine and train the speech-to-text model, or to the [testing data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) used to evaluate accuracy.
+Create a feature branch for your development of the training and testing data.
 
-In the steps in this document, you will update both the training and the testing data. You will create a pull request with updates to the testing and training data which will trigger two automation workflows:
+To create a feature branch:
 
-* **SpeechTestDataCI** triggers on updates to test data. Its job is to retest the benchmark model to calculate the new Word Error rate for the benchmark model with the changed test data.
-* **SpeechTrainDataCICD** triggers on updates to training data. Its job is to build a new model from the training data and to test whether the new model has a better WER than the benchmark model.
+1. Navigate to the root of the repository and create a feature branch from master:
 
-A new model must have a better WER than a benchmark model for the workflow to release an endpoint for the new model and for the new model to become the new benchmark for future iterations.
+    ```bash
+    git checkout master
+    git pull
+    git checkout -b newSpeechModel
+    ```
 
-To do this, you will:
+## Update training data
 
-* [Create a feature branch](#1-create-a-feature-branch)
-* [Update testing data](#update-testing-data)
-* [Update training data](#update-training-data)
-* [Create and merge the pull request](#create-and-merge-the-pull-request)
-* [Understand the operation of the SpeechTestDataCI workflow](#understand-the-operation-of-the-speechtestdataci-workflow) to process updates to testing data
-* [Understand the operation of the SpeechTrainDataCICD workflow](#what-the-speechtraindatacicd-workflow-does) to process updates to training data
+Update the training data to improve its performance compared to the benchmark.
 
-### Create a feature branch
+1. Change the file `training/related-text.txt` by adding the line below to the end of the file:
 
-To begin an attempt to train a better model, navigate to the root of the repository, and create a feature branch:
+    ```xml
+    This is language data for my second model.
+    ```
 
-```bash
-git checkout master
-git pull
-git checkout -b newSpeechModel
-```
+    This change illustrates a training data change that will trigger the GitHub Actions workflow. After this walk through, you'll make updates that [attempt to improve the model's recognition](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-sentences-file).
 
-### Update testing data
+1. Add and commit the changes:
 
-To make changes to `testing/audio-and-trans.zip`, unzip the file and edit the text in `trans.txt`. Transcript files must be formatted a certain way so do not add an additional line, do not modify the file name (**audio.wav**) at the beginning of the line, and do not delete the tab character separating the filename from the following text.
+    ```bash
+    git add .
+    git commit -m "Update training data."
+    ```
 
-For example, you can add some words to the beginning of the text, as follows:
+## Update testing data
 
-```txt
-audio.wav	SOME UPDATE Once the test is complete, indicated by the status change to Succeeded, you'll find a WER number for both models included in your test. Click on the test name to view the testing detail page. This detail page lists all the utterances in your dataset, indicating the recognition results of the two models alongside the transcription from the submitted dataset. To help inspect the side-by-side comparison, you can toggle various error types including insertion, deletion, and substitution. By listening to the audio and comparing recognition results in each column, which shows the human-labeled transcription and the results for two speech-to-text models, you can decide which model meets your needs and where additional training and improvements are required.
-```
+Update the testing data to improve its performance compared to the benchmark.
 
-After you have made your changes, zip the files up again and replace the original `audio-and-trans.zip` in the `testing` folder in this repo. Add and commit the changes:
+To make changes to the testing data:
 
-```bash
-git add .
-git commit -m "Update testing data."
-```
+1. Unzip the `testing/audio-and-trans.zip` file.
+1. Open `trans.txt` and add some text to the beginning of the transcription, for example:
 
-### Update training data
+    ```txt
+    audio.wav SOME UPDATE Once the test is complete, indicated by the status change to Succeeded, you'll find a WER number for both models included in your test. Click on the test name to view the testing detail page. This detail page lists all the utterances in your dataset, indicating the recognition results of the two models alongside the transcription from the submitted dataset. To help inspect the side-by-side comparison, you can toggle various error types including insertion, deletion, and substitution. By listening to the audio and comparing recognition results in each column, which shows the human-labeled transcription and the results for two speech-to-text models, you can decide which model meets your needs and where additional training and improvements are required.
+    ```
 
-You will make updates to the training data for a Custom Speech project to improve its performance compared to the benchmark. Training data is in the `training` folder in this repo.
+    >**Note**: Transcript files are formatted a certain way so do not add an additional line, do not modify the file name (**audio.wav**) at the beginning of the line, and do not delete the tab character separating the filename from the following text.
 
-For example, edit the `related-text.txt` file in the `training` folder and add a new line such as:
+1. Zip up the files and replace the original `testing/audio-and-trans.zip`.
+1. Add and commit the changes:
 
-```txt
-This is language data for my second model.
-```
+    ```bash
+    git add .
+    git commit -m "Update testing data."
+    ```
 
-Commit the changes you have made to the training data:
+## Test training and testing data effect
 
-```bash
-git add .
-git commit -m "Update training data."
-```
+Changes should be tested to confirm the effect on the model before a Pull Request is created. Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) you can use to evaluate whether the changes have improved the model. If so, the updates can be submitted in a Pull Request.
 
-#### Test training data updates
+To do that testing, use your development Speech project from [Setup](1-setup.md#table-of-contents).
 
-Changes should be tested by the developer before a pull request is created. To do so, [create an Azure Speech resource](https://docs.microsoft.com/azure/cognitive-services/speech-service/get-started#new-resource) for personal use. [Create a Speech project](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this resource to test changes you make to training data before they are submitted to a greater audience.
+To test the effect of your changes:
 
-Now you can begin the testing loop. Each of the following three steps should be done in the [Speech Studio](https://speech.microsoft.com/portal/) until it seems that the updates to the training data have improved the model:
+1. Open [Speech Studio](https://speech.microsoft.com/portal/).
+1. Open your development Speech project from [Setup](1-setup.md#table-of-contents).
+1. For each change you'd like to evaluate:
+    1. Create a datasets by [uploading](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#upload-data) your `training/related-text.txt` and `training/pronunciation.txt` training data.
+    1. [Train a dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-train-model) using those datasets.
 
-1. [Upload training and testing data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#upload-data)
-2. [Train a model for Custom Speech](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-train-model)
-3. [Evaluate Custom Speech accuracy](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test)
+        >**Note:** Training models can take upwards of 30 minutes.
 
-Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) which can be used to gauge whether or not the changes have generally improved the model. If so, the updates can be submitted in a pull request.
+    1. [Test your dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test) using the test data in `testing/audio-and-trans.zip` to get the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER).
+    1. Submit a Pull Request if the WER has improved.
 
-If the model did not improve, more training data should be updated and the testing loop should start over.
+If the model did not improve, add more training data and test the effect on the model.
 
-### Create and merge the pull request
+## Create the Pull Request
+
+Once you are satisfied with how your development model is performing based on your changes, create a Pull Request to submit those changes to master.
+
+To create the Pull Request:
+
+1. Push your changes:
+
+    ```bash
+    git push -u origin newSpeechModel
+    ```
+
+1. Create a Pull Request from **newSpeechModel** to **master**.
+1. Click the **Merge pull request** button to merge the pull request into **master**.
+    >**Note:** If you have set up the branch protection policies, it will be necessary to check **Use your administrator privileges** to merge this pull request to complete the merge.
+
+## Create and merge the pull request
 
 Push the changes to the remote repository:
 
