@@ -1,6 +1,6 @@
 # 2. Train an initial model
 
-Follow these steps to understand the developer workflow, the data used to train and test models, and how to create the initial Custom Speech model.
+Follow these steps to understand the developer workflow and create the initial Custom Speech model.
 
 This initial Custom Speech model will be used as an accuracy benchmark to compare against future models.
 
@@ -75,7 +75,7 @@ To test the effect of your changes:
         >**Note:** Training models can take upwards of 30 minutes.
 
     1. [Test your dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test) using the test data in `testing/audio-and-trans.zip` get the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER).
-    4. Submit a pull request if the (WER) has improved.
+    1. Submit a pull request if the (WER) has improved.
 
 If the model did not improve, add more training data and test the effect on the model.
 
@@ -125,7 +125,7 @@ To confirm the execution of the workflow:
 
 ## Understanding the SpeechTrainDataCICD workflow
 
-The **SpeechTrainDataCICD** workflow is configured to trigger on a merge to master that includes changes to any of the training data files in the `training` folder in this repo.
+The **SpeechTrainDataCICD** workflow is configured to trigger on a merge to master that includes changes to any of the training data files in the `training` folder of your repo.
 
 This workflow:
 
@@ -133,15 +133,15 @@ This workflow:
 * [Tests the new model](#test-the-new-model)
 * [Releases an endpoint](#release-an-endpoint)
 
-During the initial run for a new project, the objective of this first change to training data is to train and test a Custom Speech model. This initial model will be used as an accuracy benchmark to compare against future models.
+During the initial run for a new project, the objective of this first change to training data is to train and test the initial Custom Speech model. This initial model will be used as an accuracy benchmark to compare against future models.
 
 ### Train a new model
 
-Any time training data is updated, the **SpeechTrainDataCICD** workflow will run. When it is updated for the first time, the data from the `training` folder is used to build a new Custom Speech model.
+Any time training data updates are merged to `master`, the **SpeechTrainDataCICD** workflow will run. When it is updated for the first time, the data from the `training` folder is used to build the initial Custom Speech model.
 
 ### Test the new model
 
-Once the new speech model is built, the workflow tests the new model's accuracy using [audio + human-labeled transcripts](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) which are in `testing/audio-and-trans.zip` in this repo. Models attempt to recognize the .wav files from the `audio` folder in this zip archive, and the recognition is compared to its corresponding text in the `trans.txt` file from the same zip archive.
+Once the new speech model is built, the workflow tests the new model's accuracy using [audio + human-labeled transcripts](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) in `testing/audio-and-trans.zip`. Models attempt to recognize the .wav files from the `audio` folder in this zip archive, and the recognition is compared to its corresponding text in the `trans.txt` file from the same zip archive.
 
 The test creates a test summary and a test results file. The test summary contains the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) for that test, which is an industry-standard metric to measure recognition accuracy. It is the sum of substitutions, deletions, and insertions divided by the number of words in a sentence. Essentially it's a measure of how many words were recognized incorrectly. In future runs, it matters that the WER improves and gets lower over time, but this initial run will simply set a baseline WER for future runs.
 
@@ -151,11 +151,15 @@ After the workflow has completed, visit the [Azure Portal](https://ms.portal.azu
 
 ### Release an endpoint
 
-Finally, a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) is created from this initial model, and a GitHub Release is created that will contain this endpoint and a copy of the repository contents at the time the release was created. Each time an endpoint is released, the repository is tagged with a new version.
+Finally, the workflow creates a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) for this initial model, and a GitHub Release is created that contains a JSON file with data about this endpoint and a copy of the repository contents at the time the release was created.
+
+Each time the workflow runs and the Word Error rate improves, a new endpoint is released and the repository is tagged with a new version.
+
+The latest release will always contain the best-performing Custom Speech endpoint. Users can update endpoints in their client applications to use the latest release at their own discretion.
 
 ## Next steps
 
-Now that you have you created an initial Custom Speech model to serve as your initial benchmark, in the next steps you will attempt to [improve the model](./3-improve-the-model.md) by replacing data in the `testing` and `training` folder with your own data. The initial model is currently the benchmark model since there were no previous models to compare it to.
+Now that you understand the developer workflow and you've created the initial Custom Speech model, in the next step you'll attempt to [improve the model](./3-improve-the-model.md) by replacing data in the `testing` and `training` folders and comparing the results against the initial model.
 
 ## Further Reading
 
