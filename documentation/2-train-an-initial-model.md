@@ -14,20 +14,26 @@ After you've completed this walk through, replace the data in the repo with your
 
 ## Table of contents
 
+* [Create Development Speech Project](#Create-Development-Speech-Project)
 * [Update the training data](#Update-the-training-data)
-* [Create Dev Test Speech Project](#Create-Dev-Test-Speech-Project)
 * [Test training data effect](#Test-training-data-effect)
 * [Create the Pull Request](#Create-the-Pull-Request)
-* [What the SpeechTrainDataCICD workflow does](#what-the-speechtraindatacicd-workflow-does)
-  * [Train a new model](#Train-a-new-model)
-  * [Test the new model](#Test-the-new-model)
-  * [Release an endpoint](#Release-an-endpoint)
+* [Understanding the SpeechTrainDataCICD workflow](#Understanding-the-SpeechTrainDataCICD-workflow)
 * [Next steps](#Next-steps)
 * [Further Reading](#further-reading)
 
+## Create Development Speech Project
+
+The resources and Speech Project you created in [Setup](1-setup.md#table-of-contents) was for your production model. In this step, you'll create a resource and Speech project you'll use for your personal development and testing, much in the way that you use a feature branch in GitHub.
+
+To create your development project:
+
+1. [Create an Azure Speech resource](https://docs.microsoft.com/azure/cognitive-services/speech-service/get-started#new-resource) in the Azure Resource Group from [Setup](1-setup.md#table-of-contents).
+1. [Create a Speech project](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this resource.
+
 ## Update the training data
 
-Update to the training so you can use that data to create the initial model.
+Update the training data to be used to create the initial model.
 
 To update the training data:
 
@@ -37,13 +43,13 @@ To update the training data:
     git checkout -b initialSpeechModel
     ```
 
-1. Change the file `training/related-text.txt` by adding the line:
+1. Change the file `training/related-text.txt` by adding the line below to the end of the file:
 
     ```xml
     This is language data for my initial model.
     ```
 
-    This change illustrates a training data change that will trigger the GitHub Actions workflow from a pull request. After this walk through, you'll make updates that [attempt to improve the model's recognition](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-sentences-file).
+    This change illustrates a training data change that will trigger the GitHub Actions workflow from a Pull Request. After this walk through, you'll make updates that [attempt to improve the model's recognition](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-sentences-file).
 
 1. Add and commit the changes:
 
@@ -52,36 +58,30 @@ To update the training data:
     git commit -m "Changes to my Custom Speech model."
     ```
 
-## Create Dev Test Speech Project
-
-The resources and Speech Project you created in [Setup](1-setup.md#table-of-contents) was for your production model. In this step, you'll create a resource and Speech project you'll use for your personal development and testing, much in the way that you use a feature branch in GitHub.
-
-To create that project:
-
-1. [Create an Azure Speech resource](https://docs.microsoft.com/azure/cognitive-services/speech-service/get-started#new-resource) in the Azure Resource Group from [Setup](1-setup.md#table-of-contents).
-1. [Create a Speech project](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this resource.
-
 ## Test training data effect
 
 The changes to `training/related-text.txt` represent changes you'll make to your training data to adapt your Custom Speech model to your needs. Changes should be tested to confirm the effect on the model before a pull request is created. Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) you can use to evaluate whether or not the changes have generally improved the model. If so, the updates can be submitted in a pull request.
 
-To do that testing, use the Speech project you created for your development and testing.
+To do that testing, use your development Speech project.
 
 To test the effect of your changes:
 
 1. Open [Speech Studio](https://speech.microsoft.com/portal/).
-1. Open the dev test Speech project from the prior step.
+1. Open your development Speech project from the prior step.
 1. For each change you'd like to evaluate:
     1. Create a datasets by [uploading](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#upload-data) your `training/related-text.txt` and `training/pronunciation.txt` training data.
-    2. [Train a dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-train-model) using those datasets.
-    3. [Test your dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test) using the test data in `testing/audio-and-trans.zip` get the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER).
+    1. [Train a dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-train-model) using those datasets.
+
+        >**Note:** Training models can take upwards of 30 minutes.
+
+    1. [Test your dev model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test) using the test data in `testing/audio-and-trans.zip` get the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER).
     4. Submit a pull request if the (WER) has improved.
 
 If the model did not improve, add more training data and test the effect on the model.
 
 ## Create the Pull Request
 
-Once you are satisfied with how the model is performing based on your changes, create a Pull Request to submit those changes to master so the initial model is built.
+Once you are satisfied with how your development model is performing based on your changes, create a Pull Request to submit those changes to master they are built into the initial model.
 
 To create the Pull Request:
 
@@ -91,13 +91,13 @@ To create the Pull Request:
     git push -u origin initialSpeechModel
     ```
 
-1. Create a pull request from **initialSpeechModel** to **master**.
+1. Create a Pull Request from **initialSpeechModel** to **master**.
 1. Click the **Merge pull request** button to merge the pull request into **master**.
-    **Note:** If you have set up the branch protection policies, it will be necessary to check **Use your administrator privileges** to merge this pull request to complete the merge.
+    >**Note:** If you have set up the branch protection policies, it will be necessary to check **Use your administrator privileges** to merge this pull request to complete the merge.
 
 ## Examine the GitHub Workflow
 
-When you merge a Pull Request to master, the **SpeechTrainDataCICD** GitHub Actions workflow will automatically execute to create a model and a release based on your Pull Request.
+When you merge a Pull Request to master, the **SpeechTrainDataCICD** GitHub Actions workflow will automatically execute to create a model, a release, and an endpoint based on your Pull Request.
 
 To confirm the execution of the workflow:
 
@@ -108,28 +108,36 @@ To confirm the execution of the workflow:
     ![Actions tab showing that the workflow is running](../images/WorkflowRunning.png)
 
 1. Wait for the jobs to complete successfully.
-    > **Note:** Please note that building models will take upwards of 30 minutes.
+    > **Note:** Training models can take upwards of 30 minutes.
 1. Navigate to the **Code** tab of the main repository.
 1. Select **Releases** to see the release created for your Pull Request.
 
     ![Latest Release](../images/LatestRelease.png)
+1. Select `release-endpoints.json` to download the file and view the ID of the [Custom Speech endpoint](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) created for the model:
+
+    ```bash
+    {"ENDPOINT_ID":"########-####-####-####-############"}
+    ```
+
 1. Open [Speech Studio](https://speech.microsoft.com/portal/).
 1. Open the the main Speech project from [Setup](1-setup.md#table-of-contents).
 1. Select **Training** and note the new model created.
 
-## What the SpeechTrainDataCICD workflow does
+## Understanding the SpeechTrainDataCICD workflow
 
-The **SpeechTrainDataCICD** workflow is configured to trigger on a merge to master of changes to any of the training data files, which are in the `training` folder in this repo. In outline, this workflow:
+The **SpeechTrainDataCICD** workflow is configured to trigger on a merge to master that includes changes to any of the training data files in the `training` folder in this repo.
+
+This workflow:
 
 * [Trains a new model](#train-a-new-model)
 * [Tests the new model](#test-the-new-model)
 * [Releases an endpoint](#release-an-endpoint)
 
-During the initial run for a new project, the objective of this first update to training data is to train and test a Custom Speech model so that its accuracy can be used as a benchmark to which future models can compare their accuracy.
+During the initial run for a new project, the objective of this first change to training data is to train and test a Custom Speech model. This initial model will be used as an accuracy benchmark to compare against future models.
 
 ### Train a new model
 
-Any time training data is updated, the **SpeechTrainDataCICD** workflow will run. When it is updated for the first time, the data from the `training` folder is used to build a new Custom Speech model. Please note that building models will take upwards of 30 minutes.
+Any time training data is updated, the **SpeechTrainDataCICD** workflow will run. When it is updated for the first time, the data from the `training` folder is used to build a new Custom Speech model.
 
 ### Test the new model
 
