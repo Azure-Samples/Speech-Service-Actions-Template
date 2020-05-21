@@ -26,14 +26,14 @@ To create your repository:
    1. Enter your own **Repository name** where prompted.
    1. Select **Private** if you want to create a private repository.
 
-      >Note: The template works with public repositories by default. If you create a private repository, you will need to [configure the workflows](4-advanced-customization.md##Change-Environment-Variables) for use with a  private repository.
+      >**Note**: The template works with public repositories by default. If you create a private repository, you will need to [configure the workflows](4-advanced-customization.md##Change-Environment-Variables) for use with a  private repository.
 
    1. Leave **Include all branches** unchecked as you only need the master branch.
    1. Click **Create repository from template** to create your copy of this repository.
 
 1. After your repository is created, [clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository).
   
->Note: If you are using this solution as the starting point for a Custom Speech project with a lot of data, consider [configuring Git Large File Storage](4-advanced-customization.md#Use-Git-Large-File-Storage) to manage large files.
+>**Note**: If you are using this solution as the starting point for a Custom Speech project with a lot of data, consider [configuring Git Large File Storage](4-advanced-customization.md#Use-Git-Large-File-Storage) to manage large files.
 
 ## Provision Azure resources
 
@@ -60,7 +60,7 @@ To create these resources:
    - **SPEECH_RESOURCE_NAME:** 2-64 alphanumeric characters, underscores, and hyphens.
    - **SPEECH_RESOURCE_REGION:** Select the region from the dropdown that's best for your project.
 
-      >Note: Take note of the `STORAGE_ACCOUNT_NAME` and  `SPEECH_RESOURCE_REGION`. You will need them when you configure the GitHub Actions workflows.
+      >**Note**: Take note of the `STORAGE_ACCOUNT_NAME` and  `SPEECH_RESOURCE_REGION`. You will need them when you configure the GitHub Actions workflows.
 
 1. Click **Review + create**.
 1. Agree to the terms, and click **Create**.
@@ -77,7 +77,7 @@ To create the project:
 
 1. Select the Speech Resource that was created in above.
 1. Click the eye icon to reveal the **Speech resource key**.
-   >Note: Take note of this key for use later on.
+   >**Note**: Take note of this key for use later on.
 
    ![Speech Studio Speech Subscription Key](../images/SpeechStudioSubscriptionKey.png)
 
@@ -85,7 +85,7 @@ To create the project:
 1. Select **Custom Speech**.
 1. Click **New project** to create a new [Speech Project](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) and fill out the dialog:
    1. **Name**: Enter a name for the project.
-      >Note: Take note of the name of your project for use later on.
+      >**Note**: Take note of the name of your project for use later on.
    1. **Description**: Enter a description.
    1. **Language**: Select _English (United States)_.
 
