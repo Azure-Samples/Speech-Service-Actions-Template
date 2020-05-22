@@ -1,6 +1,6 @@
 # 2. Train an initial model
 
-Follow these steps to understand the developer workflow and create the baseline Custom Speech model.
+Follow these steps to understand the workflow and create the baseline Custom Speech model.
 
 This baseline Custom Speech model will be used as an accuracy benchmark to compare against future models.
 
@@ -99,15 +99,7 @@ To create the pull request:
 
 When you merge a pull request to **master**, the **SpeechTrainDataCICD** GitHub Actions workflow executes to train a model, test the model, and if the WER improves, create a GitHub release and an endpoint from that model.
 
-### Review the workflow
-
-GitHub Action workflows stored in the `.github/workflows/` directory will run when triggered.
-
-To view the **SpeechTrainDataCICD** workflow:
-
-1. Open `.github/workflows/speech-train-data-ci-cd.yml`.
-1. Review the code in the workflow.
-1. Go to the [GitHub Actions documentation](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions) to learn how to develop workflows.
+GitHub Action workflows stored in the `.github/workflows/` directory will run when triggered. To view the **SpeechTrainDataCICD** YAML open `.github/workflows/speech-train-data-ci-cd.yml`.
 
 ### View the workflow run
 
@@ -173,7 +165,7 @@ To view the release and endpoint:
 
 ## Next steps
 
-Now that you understand the developer workflow and you've created the baseline Custom Speech model, in the next step you'll attempt to [improve the model](./3-improve-the-model.md) by replacing data in the `testing` and `training` folders and comparing the results against the baseline model.
+Now that you understand the workflow and you've created the baseline Custom Speech model, in the next step you'll attempt to [improve the model](./3-improve-the-model.md) by replacing data in the `testing` and `training` folders and comparing the results against the baseline model.
 
 ## Further Reading
 
