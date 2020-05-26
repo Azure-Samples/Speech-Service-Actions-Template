@@ -150,7 +150,7 @@ To view the test results and benchmark:
 
 ## Confirm the training workflow results
 
-When you merge a pull request that includes training data updates, the **SpeechTrainDataCICD** GitHub Actions workflow will run. Much of the **SpeechTrainDataCICD** workflow is the same as when building the baseline model, the key difference is that the WER of the new model is compared to the WER of the benchmark model.
+When you merge a pull request that includes training data updates, the **SpeechTrainDataCICD** GitHub Actions workflow will run. Much of the **SpeechTrainDataCICD** workflow is the same as when building the baseline model. The key difference is that the WER of the new model is compared to the WER of the benchmark model, including:
 
 * **WER is better than the benchmark** - The training workflow will pass if the new model has a better WER than the benchmark model. The test summary from the new model will replace the benchmark results in `benchmark-test.txt`. The workflow will create a release and endpoint for the new model.
 
