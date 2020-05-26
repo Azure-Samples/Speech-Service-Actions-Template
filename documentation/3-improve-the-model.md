@@ -1,12 +1,12 @@
 # 3. Improve the model
 
-During the development of a Custom Speech model, developers make updates to the training data used to train the Custom Speech model, and/or to the testing data used to evaluate the accuracy of that model to improve the accuracy of that model.
+During the development of a Custom Speech model, developers  improve the accuracy of a model by updating the training data used to train the Custom Speech model, and/or the testing data used to evaluate the accuracy of that model.
 
 Follow these steps to make updates to the training and testing data to illustrate making improvements to the model when compared to the baseline model from [Train an initial model](2-train-an-initial-model.md#table-of-contents).
 
 This template includes sample testing data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of this walk through. The `testing/audio-and-trans.zip` file contains [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) used to test your model.
 
-In the steps in this document, you will update the training and testing data and create a Pull Request with those updates. That Pull Request will trigger two GitHub Action workflows:
+In the steps in this document, you will update the training and testing data and create a pull request containing those updates. That pull request will trigger two GitHub Action workflows:
 
 * **SpeechTestDataCI** triggers on updates to test data. This workflow will retest the benchmark model with the updated test data to calculate the new benchmark Word Error Rate (WER).
 * **SpeechTrainDataCICD** triggers on updates to training data. This workflow will build a new model from the training data and test whether the new model has a better WER than the benchmark model. If that new model has a better WER than the benchmark model, the workflow will create a release and endpoint for the new model and the new model will become the new benchmark.
@@ -16,11 +16,12 @@ In the steps in this document, you will update the training and testing data and
 * [Create a feature branch](#create-a-feature-branch)
 * [Update training data](#Update-training-data)
 * [Update testing data](#Update-testing-data)
-* [Test training and testing data effect](#Test-training-and-testing-data-effect)
-* [Create the Pull Request](#Create-the-Pull-Request)
-* [Confirm the Testing Workflow Results](#Confirm-the-Testing-Workflow-Results)
-* [Confirm the Training Workflow Results](#Confirm-the-Training-Workflow-Results)
+* [Testing the effect of training and testing data updates](#Testing-the-effect-of-training-and-testing-data-updates)
+* [Create the pull request](#Create-the-Pull-Request)
+* [Confirm the testing workflow results](#Confirm-the-Testing-Workflow-Results)
+* [Confirm the training workflow results](#Confirm-the-Training-Workflow-Results)
 * [Next steps](#Next-steps)
+* [Further reading](#Further-reading)
 
 ## Create a feature branch
 
@@ -55,7 +56,7 @@ Update the training data to illustrate making a change to [improve the model's r
 
 ## Update testing data
 
-Update the testing data to illustrate making a change to [improve accuracy testing](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data).
+When developing a custom speech model, you update training data to improve the accuracy of your model. You update the testing data to evaluate that accuracy. Here, you will update the testing data to illustrate making a change to [improve accuracy testing](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data).
 
 To make changes to the testing data:
 
@@ -76,9 +77,9 @@ To make changes to the testing data:
     git commit -m "Update testing data."
     ```
 
-## Test training and testing data effect
+## Testing the effect of training and testing data updates
 
-Changes should be tested to confirm the effect on the model before a Pull Request is created. Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) you can use to evaluate whether the changes have improved the model. If so, the updates will be submitted as a Pull Request.
+Changes should be tested to confirm the effect on the model before a pull request is created. Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) you can use to evaluate whether the changes have improved the model. If so, the updates will be submitted as a pull request.
 
 >**Note**: In this walk through, you will submit your changes as a PR regardless of the WER to illustrate making a change to the training and testing data.
 
@@ -93,14 +94,14 @@ To test the effect of your changes:
         >**Note:** Training models can take upwards of 30 minutes.
 
     1. [Test your model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#create-a-test) using the test data in `testing/audio-and-trans.zip` to get the [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER).
-    1. Submit a Pull Request if the WER has improved.
+    1. Submit a pull request if the WER has improved.
     1. If the WER did not improve, add more training data and test the effect on the model.
 
-## Create the Pull Request
+## Create the pull request
 
-Once you have made your changes, create a Pull Request to submit those changes to master.
+Once you have made your changes, create a pull request to submit those changes to master.
 
-To create the Pull Request:
+To create the pull request:
 
 1. Push your changes:
 
@@ -108,30 +109,25 @@ To create the Pull Request:
     git push -u origin newSpeechModel
     ```
 
-1. Create a Pull Request from **newSpeechModel** to **master**.
+1. Create a pull request from **newSpeechModel** to **master**.
 1. Click the **Merge pull request** button to merge the pull request into **master**.
-    >**Note:** If you have set up branch protection policies, you will need to check **Use your administrator privileges** to merge the Pull Request.
+    >**Note:** If you have set up branch protection policies, you will need to check **Use your administrator privileges** to merge the pull request.
 
-## Confirm the Testing Workflow Results
+## Confirm the testing workflow results
 
-When you merge a Pull Request that includes testing data updates, the **SpeechTestDataCI** GitHub Actions workflow will run. **SpeechTestDataCI**  retests the benchmark model to calculate the new benchmark WER based on the updated test data.
+When you merge a pull request that includes testing data updates, the **SpeechTestDataCI** GitHub Actions workflow will run. **SpeechTestDataCI**  retests the benchmark model to calculate the new benchmark WER based on the updated test data.
 
 This ensures that when the WER of any new models are compared with the WER of the benchmark, both models have been tested against the same test data.
 
-### Review the workflow
-
-To view the **SpeechTestDataCI** workflow:
-
-1. Open `.github/workflows/speech-test-data-ci.yml`.
-1. Review the code in the workflow.
+GitHub Action workflows stored in the `.github/workflows/` directory will run when triggered. To view the **SpeechTestDataCI** YAML open `.github/workflows/speech-test-data-ci.yml`.
 
 ### View the workflow run
 
-To view **SpeechTestDataCI** workflow run for your Pull Request:
+To view **SpeechTestDataCI** workflow run for your pull request:
 
 1. Navigate to the **Actions** tab of your main repository.
-1. Select **SpeechTestDataCI** on the left navigation menu.
-1. Select the event that represents your Pull Request.
+1. Select the **SpeechTestDataCI** workflow on the left navigation menu.
+1. Select the run that represents your pull request.
 
     ![Actions tab showing that the workflow is running](../images/WorkflowRunning.png)
 
@@ -152,9 +148,9 @@ To view the test results and benchmark:
 1. Select the **configuration** container.
 1. Open `benchmark-test.txt` and confirm it contains the name of the test summary file from the baseline model.
 
-## Confirm the Training Workflow Results
+## Confirm the training workflow results
 
-Much of the **SpeechTrainDataCICD** workflow is the same as when building the baseline model, the key difference is that the WER of the new model is compared to the WER of the benchmark model.
+When you merge a pull request that includes training data updates, the **SpeechTrainDataCICD** GitHub Actions workflow will run. Much of the **SpeechTrainDataCICD** workflow is the same as when building the baseline model, the key difference is that the WER of the new model is compared to the WER of the benchmark model.
 
 * **WER is better than the benchmark** - The training workflow will pass if the new model has a better WER than the benchmark model. The test summary from the new model will replace the benchmark results in `benchmark-test.txt`. The workflow will create a release and endpoint for the new model.
 
@@ -166,6 +162,16 @@ To view the results of this workflow, follow the training workflow confirmation 
 
 Now that you understand how to make training and testing data changes to improve the model, you are ready to start working on your model.
 
-To start working on your model, replace the sample data supplied with this repo with data for your project. Start with small data sets that replicate the language and acoustics that the model will encounter. For example, record audio on the same hardware and in the same acoustic environment as the end solution so that any incompatibilities can be sorted before investing in a larger data set. More audio data can be added at any time using the tools and documentation in this solution. As the data volume grows, make sure it is diverse and representative of your project's scenario.
+To start working on your model, replace the sample data supplied with this repo with data for your project. Start with small data sets that replicate the language and acoustics that the model will encounter. For example, record audio on the same hardware and in the same acoustic environment as the end solution so that any incompatibilities can be sorted before investing in a larger data set. More audio data can be added at any time using the tools and documentation in this solution. As the data set gets larger, make sure it's diverse and representative of your project's scenario.
 
 Visit [advanced customization](./4-advanced-customization.md) to use alternative branching strategies, change the file structure, and more.
+
+## Further reading
+
+See the following documents for more information on this template and the engineering practices it demonstrates:
+
+* [Setup](1-setup.md#table-of-contents)
+
+* [Create an initial custom speech model](2-train-an-initial-model.md#table-of-contents)
+
+* [Advanced customization](4-advanced-customization.md#table-of-contents)
