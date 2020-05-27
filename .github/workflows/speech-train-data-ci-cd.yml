@@ -506,9 +506,6 @@ jobs:
       - name: Delete all but the 5 latest models
         run: |
           speech_model_list_file=${{ env.TRAIN_BUILD_FOLDER_PATH }}/speech-model-list.txt
-          speech model list > $speech_model_list_file
-          sed -i '1d' $speech_model_list_file
-          sed -i '/^$/d' $speech_model_list_file
           number_of_models_to_delete=$(($( wc -l < "$speech_model_list_file") - 5))
           if [[ $number_of_models_to_delete -gt 0 ]]
           then
