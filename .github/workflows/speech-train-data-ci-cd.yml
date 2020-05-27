@@ -234,6 +234,37 @@ jobs:
           fi
           echo "::set-env name=CUSTOM_SPEECH_MODEL_ID::$(echo $custom_speech_model_id)"
 
+      # Nuance: setting a local variable for env retrieved values. Working
+      # solution to text expansion within the "if [[]]; then fi", which results
+      # in a substitution error. We also verify the GUID exists with the same if
+      # block.
+      - name: Delete datasets
+        run: |
+          audio_trans_test_id=${{ env.AUDIO_TRANS_TEST_ID }}
+          if [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          then
+            speech dataset delete ${{ env.AUDIO_TRANS_TEST_ID }};
+            echo "AUDIO TRANS TEST DATASET DELETED"
+          fi
+          audio_trans_train_id=${{ env.AUDIO_TRANS_TRAIN_ID }}
+          if [[ ${audio_trans_train_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            speech dataset delete ${{ env.AUDIO_TRANS_TRAIN_ID }}
+            echo DELETED AUDIO+HUMAN-LABELED TRANSCRIPT TRAINING DATA.
+          fi
+          pronunciation_id=${{ env.PRONUNCIATION_ID }}
+          if [[ ${pronunciation_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            speech dataset delete ${{ env.PRONUNCIATION_ID }}
+            echo DELETED PRONUNCIATION DATA.
+          fi
+          language_id=${{ env.LANGUAGE_ID }}
+          if [[ ${language_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            speech dataset delete ${{ env.LANGUAGE_ID }}
+            echo DELETED LANGUAGE DATA.
+          fi
+
       #########################################################################
       # Test the Custom Speech model.
       #########################################################################
@@ -289,32 +320,8 @@ jobs:
       # solution to text expansion within the "if [[]]; then fi", which results
       # in a substitution error. We also verify the GUID exists with the same if
       # block.
-      - name: Delete datasets and test
+      - name: Delete test
         run: |
-          audio_trans_test_id=${{ env.AUDIO_TRANS_TEST_ID }}
-          if [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
-          then
-            speech dataset delete ${{ env.AUDIO_TRANS_TEST_ID }};
-            echo "AUDIO TRANS TEST DATASET DELETED"
-          fi
-          audio_trans_train_id=${{ env.AUDIO_TRANS_TRAIN_ID }}
-          if [[ ${audio_trans_train_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-          then
-            speech dataset delete ${{ env.AUDIO_TRANS_TRAIN_ID }}
-            echo DELETED AUDIO+HUMAN-LABELED TRANSCRIPT TRAINING DATA.
-          fi
-          pronunciation_id=${{ env.PRONUNCIATION_ID }}
-          if [[ ${pronunciation_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-          then
-            speech dataset delete ${{ env.PRONUNCIATION_ID }}
-            echo DELETED PRONUNCIATION DATA.
-          fi
-          language_id=${{ env.LANGUAGE_ID }}
-          if [[ ${language_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-          then
-            speech dataset delete ${{ env.LANGUAGE_ID }}
-            echo DELETED LANGUAGE DATA.
-          fi
           test_id=${{ env.TEST_ID }}
           if [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
           then
