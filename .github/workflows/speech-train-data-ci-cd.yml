@@ -285,6 +285,43 @@ jobs:
           speech test show ${{ env.TEST_ID }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
           sed -i '1d' ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
 
+      # Nuance: setting a local variable for env retrieved values. Working
+      # solution to text expansion within the "if [[]]; then fi", which results
+      # in a substitution error. We also verify the GUID exists with the same if
+      # block.
+      - name: Delete datasets and test
+        run: |
+          audio_trans_test_id=${{ env.AUDIO_TRANS_TEST_ID }}
+          if [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          then
+            speech dataset delete ${{ env.AUDIO_TRANS_TEST_ID }};
+            echo "AUDIO TRANS TEST DATASET DELETED"
+          fi
+          audio_trans_train_id=${{ env.AUDIO_TRANS_TRAIN_ID }}
+          if [[ ${audio_trans_train_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            speech dataset delete ${{ env.AUDIO_TRANS_TRAIN_ID }}
+            echo DELETED AUDIO+HUMAN-LABELED TRANSCRIPT TRAINING DATA.
+          fi
+          pronunciation_id=${{ env.PRONUNCIATION_ID }}
+          if [[ ${pronunciation_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            speech dataset delete ${{ env.PRONUNCIATION_ID }}
+            echo DELETED PRONUNCIATION DATA.
+          fi
+          language_id=${{ env.LANGUAGE_ID }}
+          if [[ ${language_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            speech dataset delete ${{ env.LANGUAGE_ID }}
+            echo DELETED LANGUAGE DATA.
+          fi
+          test_id=${{ env.TEST_ID }}
+          if [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          then
+            speech test delete ${{ env.TEST_ID }};
+            echo "TEST DELETED"
+          fi
+
       ###########################################################################
       # Archiving test results in blob
       ###########################################################################
@@ -336,49 +373,8 @@ jobs:
 
       # Nuance: setting a local variable for env retrieved values. Working
       # solution to text expansion within the "if [[]]; then fi", which results
-      # in a substitution error. We also verify the GUID exists with the same if block.
-      - name: Delete datasets after testing is complete. Pass or FAIL.
-        run: |
-          audio_trans_test_id=${{ env.AUDIO_TRANS_TEST_ID }}
-          if [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
-          then
-            speech dataset delete ${{ env.AUDIO_TRANS_TEST_ID }};
-            echo "AUDIO TRANS TEST DATASET DELETED"
-          fi
-          audio_trans_train_id=${{ env.AUDIO_TRANS_TRAIN_ID }}
-          if [[ ${audio_trans_train_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-          then
-            speech dataset delete ${{ env.AUDIO_TRANS_TRAIN_ID }}
-            echo DELETED AUDIO+HUMAN-LABELED TRANSCRIPT TRAINING DATA.
-          fi
-          pronunciation_id=${{ env.PRONUNCIATION_ID }}
-          if [[ ${pronunciation_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-          then
-            speech dataset delete ${{ env.PRONUNCIATION_ID }}
-            echo DELETED PRONUNCIATION DATA.
-          fi
-          language_id=${{ env.LANGUAGE_ID }}
-          if [[ ${language_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-          then
-            speech dataset delete ${{ env.LANGUAGE_ID }}
-            echo DELETED LANGUAGE DATA.
-          fi
-
-      # Nuance: setting a local variable for env retrieved values. Working
-      # solution to text expansion within the "if [[]]; then fi", which results
-      # in a substitution error. We also verify the GUID exists with the same if block.
-      - name: Delete Test after testing is complete
-        run: |
-          test_id=${{ env.TEST_ID }}
-          if [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
-          then
-            speech test delete ${{ env.TEST_ID }};
-            echo "TEST DELETED"
-          fi
-
-      # Nuance: setting a local variable for env retrieved values. Working
-      # solution to text expansion within the "if [[]]; then fi", which results
-      # in a substitution error. We also verify the GUID exists with the same if block.
+      # in a substitution error. We also verify the GUID exists with the same if
+      # block.
       - name: FAIL - Delete model uploads to Speech
         if: env.BENCHMARK_WER <= env.NEW_WER
         run: |
@@ -388,6 +384,7 @@ jobs:
             speech model delete ${{ env.CUSTOM_SPEECH_MODEL_ID }}
             echo DELETED CUSTOM SPEECH MODEL.
           fi
+          echo "::error ::Failed to improve upon the benchmark Custom Speech model. Submit a pull request with updates to training data to try again."
           exit 1
 
   #############################################################################
@@ -470,7 +467,7 @@ jobs:
 
       - name: Delete all but the 5 latest models
         run: |
-          speech_model_list_file="${ env.TRAIN_BUILD_FOLDER_PATH }/speech-model-list.txt"
+          speech_model_list_file=${{ env.TRAIN_BUILD_FOLDER_PATH }}/speech-model-list.txt
           speech model list > $speech_model_list_file
           sed -i '1d' $speech_model_list_file
           sed -i '/^$/d' $speech_model_list_file
