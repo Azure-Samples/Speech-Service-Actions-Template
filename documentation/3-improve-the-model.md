@@ -158,6 +158,8 @@ When you merge a pull request that includes training data updates, the **SpeechT
 
 To view the results of this workflow, follow the training workflow confirmation steps from [Train an initial model](2-train-an-initial-model.md#Confirm-the-Workflow-Results).
 
+As a part of release, there is __naive__ pruning step in place, this step deletes all but the 5 latests models of the current model type. The number of models, by type, does not exceed 5.
+
 ## Next steps
 
 Now that you understand how to make training and testing data changes to improve the model, you are ready to start working on your model.
