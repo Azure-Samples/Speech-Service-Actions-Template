@@ -517,7 +517,12 @@ jobs:
               if [[ ${line//-/} =~ ^[[:xdigit:]]{32}$ ]]
               then
                 speech model delete $line
-                echo DELETED CUSTOM SPEECH MODEL WITH GUID: "$line"
+                if [[ ${?} -gt 0 ]]
+                then
+                  echo "::warning::Bad deletion request detected, likely scenario a model is still attached to an endpoint"
+                else
+                  echo DELETED CUSTOM SPEECH MODEL WITH GUID: "$line"
+                fi
               fi
             done < "$speech_model_list_file" | head -$number_of_models_to_delete
           fi
