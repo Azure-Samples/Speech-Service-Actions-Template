@@ -455,12 +455,12 @@ jobs:
 
       # https://github.com/GitTools/GitVersion
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.9.3
+        uses: gittools/actions/gitversion/setup@6dfe406
         with:
           versionSpec: "5.2.x"
       - name: Use GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.3
+        uses: gittools/actions/gitversion/execute@6dfe406
 
       - name: Set environment variables
         run: |
