@@ -165,8 +165,12 @@ jobs:
       # Upload training data and create the Custom Speech model.
       #########################################################################
 
-      # Assemble the Audio + Human-Labeled Transcript and upload to Speech. Fail
-      # if a GUID is not generated.
+      # Assemble the Audio + Human-Labeled Transcript in the proper format to
+      # then upload the data.
+      #
+      # Check that the data has been successfully uploaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Upload audio and human transcript training data
         if: env.TRAIN_ZIP_SOURCE_PATH && env.TRAIN_ZIP_SOURCE_PATH != ''
         run: |
@@ -182,7 +186,11 @@ jobs:
           echo "::set-env name=AUDIO_TRANS_TRAIN_ID::$(echo $audio_trans_train_id)"
           echo "::set-env name=CUSTOM_SPEECH_MODEL_DATA::--audio-dataset $audio_trans_train_id"
 
-      # Upload pronunciation data to Speech. Fail if a GUID is not generated.
+      # Upload pronunciation data to Speech.
+      #
+      # Check that the data has been successfully uploaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Upload pronunciation data
         if: env.PRONUNCIATION_FILE_PATH && env.PRONUNCIATION_FILE_PATH != ''
         run: |
@@ -196,7 +204,11 @@ jobs:
           echo "::set-env name=PRONUNCIATION_ID::$(echo $pronunciation_id)"
           echo "::set-env name=CUSTOM_SPEECH_MODEL_DATA::-pro $pronunciation_id"
 
-      # Upload language data to Speech. Fail if a GUID is not generated.
+      # Upload language data to Speech.
+      #
+      # Check that the data has been successfully uploaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Upload language data
         if: env.RELATED_TEXT_FILE_PATH && env.RELATED_TEXT_FILE_PATH != ''
         run: |
@@ -210,6 +222,12 @@ jobs:
           echo "::set-env name=LANGUAGE_ID::$(echo $language_id)"
           echo "::set-env name=CUSTOM_SPEECH_MODEL_DATA::${{ env.CUSTOM_SPEECH_MODEL_DATA }} -lng $language_id"
 
+      # Get the latest baseline model, which is the underlying, non-customized
+      # portion of Custom Speech models.
+      #
+      # Check that the baseline model has been successfully downloaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Get latest baseline model
         run: |
           speech model list-scenarios --locale ${{ env.SPEECH_LOCALE }} --simple > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/base-models.txt
@@ -221,8 +239,11 @@ jobs:
           fi
           echo "::set-env name=BASE_MODEL_ID::$(echo $base_model_id)"
 
-      # Assemble and upload the Custom Speech Model using only the training data
-      # the user supplied. Fail if a GUID is not generated.
+      # Train the Custom Speech Model.
+      #
+      # Check that the Custom Speech model has been successfully trained with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Create Custom Speech model with training data
         run: |
           speech model create -l ${{ env.SPEECH_LOCALE }} ${{ env.CUSTOM_SPEECH_MODEL_DATA }} -s ${{ env.BASE_MODEL_ID }} -n custom_speech_model_${{ env.CURRENT_COMMIT_HASH }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/model-creation-output.txt
@@ -234,17 +255,17 @@ jobs:
           fi
           echo "::set-env name=CUSTOM_SPEECH_MODEL_ID::$(echo $custom_speech_model_id)"
 
-      # Nuance: setting a local variable for env retrieved values. Working
-      # solution to text expansion within the "if [[]]; then fi", which results
-      # in a substitution error. We also verify the GUID exists with the same if
-      # block.
+      # Set environment variables to be bash variables to avoid substitution
+      # errors. Not all training data will be used, so check that it was with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Delete datasets
         run: |
           audio_trans_test_id=${{ env.AUDIO_TRANS_TEST_ID }}
-          if [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          if [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
-            speech dataset delete ${{ env.AUDIO_TRANS_TEST_ID }};
-            echo "AUDIO TRANS TEST DATASET DELETED"
+            speech dataset delete ${{ env.AUDIO_TRANS_TEST_ID }}
+            echo DELETED AUDIO+HUMAN-LABELED TRANSCRIPT TESTING DATA.
           fi
           audio_trans_train_id=${{ env.AUDIO_TRANS_TRAIN_ID }}
           if [[ ${audio_trans_train_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
@@ -274,7 +295,9 @@ jobs:
       #
       # Otherwise assemble the data and upload to Speech.
       #
-      # Fail if a GUID is not generated.
+      # Check that the data has been successfully uploaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Upload audio and human transcript testing data
         run: |
           audio_trans_test_id=''
@@ -295,7 +318,11 @@ jobs:
           fi
           echo "::set-env name=AUDIO_TRANS_TEST_ID::$(echo $audio_trans_test_id)"
 
-      # Test with Speech. Fail if a GUID is not generated.
+      # Test with Speech.
+      #
+      # Check that the test has been successfully created with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Test the new Speech model
         run: |
           speech test create -n test_from_train_data_update_${{ env.CURRENT_COMMIT_HASH }} -a ${{ env.AUDIO_TRANS_TEST_ID }} -m ${{ env.CUSTOM_SPEECH_MODEL_ID }} -lm ${{ env.CUSTOM_SPEECH_MODEL_ID }} --wait > ${{ env.TEST_BUILD_FOLDER_PATH }}/test-output.txt
@@ -316,16 +343,16 @@ jobs:
           speech test show ${{ env.TEST_ID }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
           sed -i '1d' ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
 
-      # Nuance: setting a local variable for env retrieved values. Working
-      # solution to text expansion within the "if [[]]; then fi", which results
-      # in a substitution error. We also verify the GUID exists with the same if
-      # block.
+      # Set environment variables to be bash variables to avoid substitution
+      # errors. Check that the test has been successfully uploaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Delete test
         run: |
           test_id=${{ env.TEST_ID }}
-          if [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]];
+          if [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
-            speech test delete ${{ env.TEST_ID }};
+            speech test delete ${{ env.TEST_ID }}
             echo "TEST DELETED"
           fi
 
@@ -378,10 +405,10 @@ jobs:
           echo ${{ env.TEST_SUMMARY_FILE }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt
           az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt --auth-mode login
 
-      # Nuance: setting a local variable for env retrieved values. Working
-      # solution to text expansion within the "if [[]]; then fi", which results
-      # in a substitution error. We also verify the GUID exists with the same if
-      # block.
+      # Set environment variables to be bash variables to avoid substitution
+      # errors. Check that the model has been successfully uploaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: FAIL - Delete model uploads to Speech
         if: env.BENCHMARK_WER <= env.NEW_WER
         run: |
@@ -454,6 +481,10 @@ jobs:
       # benchmark Speech model. From similar checks in the `setup` job, we know
       # the repository is properly configured and only have to do minimal
       # checking here.
+      #
+      # Check that the benchmark model has been successfully downloaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Get the benchmark Speech model
         run: |
           custom_speech_model_kind="Acoustic"
@@ -483,7 +514,7 @@ jobs:
           then
             while read -a line
             do
-              if [[ ${line//-/} =~ ^[[:xdigit:]]{32}$ ]];
+              if [[ ${line//-/} =~ ^[[:xdigit:]]{32}$ ]]
               then
                 speech model delete $line
                 echo DELETED CUSTOM SPEECH MODEL WITH GUID: "$line"
@@ -491,6 +522,13 @@ jobs:
             done < "$speech_model_list_file" | head -$number_of_models_to_delete
           fi
 
+      # Create a file containing the endpoint from the improved Custom Speech
+      # model trained in this run of the workflow. This file will be stored in a
+      # GitHub release.
+      #
+      # Check that the endpoint has been successfully created with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Create Release Asset
         run: |
           speech endpoint create -n endpoint_${{ env.CURRENT_COMMIT_HASH }} -l ${{ env.SPEECH_LOCALE }} -m ${{ env.CUSTOM_SPEECH_MODEL_ID }} -lm ${{ env.CUSTOM_SPEECH_MODEL_ID }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/endpoint-output.txt
@@ -502,6 +540,8 @@ jobs:
           fi
           echo '{"ENDPOINT_ID":"'$endpoint_id'"}' > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/${{ env.RELEASE_FILE }}
 
+      # Create a GitHub release named with the repository's current semantic
+      # version.
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -515,6 +555,9 @@ jobs:
             draft: false
             prerelease: false
 
+      # Upload the file release-endpoints.json to the GitHub release. It will
+      # contain the endpoint from the improved Custom Speech model trained in
+      # this run of the workflow.
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
