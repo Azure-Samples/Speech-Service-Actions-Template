@@ -26,5 +26,3 @@ Click Create.
 After your test has been successfully created, you can compare the results side by side.
 Side-by-side comparison
 Once the test is complete, indicated by the status change to Succeeded, you'll find a WER number for both models included in your test. Click on the test name to view the testing detail page. This detail page lists all the utterances in your dataset, indicating the recognition results of the two models alongside the transcription from the submitted dataset. To help inspect the side-by-side comparison, you can toggle various error types including insertion, deletion, and substitution. By listening to the audio and comparing recognition results in each column, which shows the human-labeled transcription and the results for two speech-to-text models, you can decide which model meets your needs and where additional training and improvements are required.
-This change was also committed but not pushed before the tag was pushed.
-Now create the tag first, then add and commit, then push the tag.
