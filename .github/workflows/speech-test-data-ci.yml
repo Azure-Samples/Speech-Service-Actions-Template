@@ -84,8 +84,6 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "::set-env name=CURRENT_COMMIT_HASH::$(git rev-parse --short HEAD)"
-          echo ::set-env name=TAG::${GITHUB_REF/refs\/tags\//}
           echo "::set-env name=TEST_AUDIO_ZIP_FILE::test-audio.zip"
           echo "::set-env name=TEST_BUILD_FOLDER_PATH::build-speech-test"
 
@@ -114,39 +112,54 @@ jobs:
           fi
           echo "::set-env name=AUDIO_TRANS_TEST_ID::$(echo $audio_trans_test_id)"
 
-      # Filter results from the `speech model list` command by the
-      # CUSTOM_SPEECH_MODEL_KIND, which must be a language or an acoustic model.
-      # Get the latest benchmark model if it exists. If a benchmark model does
-      # not exist, simply use the latest baseline model.
+      # If a benchmark model exists, it will be tested later in the workflow.
       #
-      # Check that the benchmark and baseline models have been successfully
-      # downloaded with [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will
-      # return true if the variable is a valid GUID with 32 hexadecimal
-      # characters.
-      - name: Get the benchmark or baseline model
+      # Check that the benchmark model has been successfully downloaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
+      - name: Get the benchmark model
         run: |
           speech model list > ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt
           sed -i "/${{ env.CUSTOM_SPEECH_MODEL_KIND }}/!d" ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt
-          if ! [[ -s ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt ]]
+          custom_speech_model_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt | tail -1 | awk '{print $1;}')
+          if [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
-            speech model list-scenarios --locale ${{ env.SPEECH_LOCALE }} --simple > ${{ env.TEST_BUILD_FOLDER_PATH }}/base-models.txt
-            base_model_id=$(head -n 1 ${{ env.TEST_BUILD_FOLDER_PATH }}/base-models.txt)
-            if ! [[ ${base_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-            then
-              echo "::error ::Failed to get the latest baseline model. Possibly re-run all jobs."
-              exit 1
-            fi
-            echo "::set-env name=MODEL_ID::$(echo $base_model_id)"
-            echo "::set-env name=TEST_NAME_INFIX::baseline_tag"
-          else
-            custom_speech_model_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt | tail -1 | awk '{print $1;}')
-            if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-            then
-              echo "::error ::Failed to get the benchmark Custom Speech model. Possibly re-run all jobs."
-              exit 1
-            fi
+            echo "::set-env name=IS_INITIAL_MODEL::false"
             echo "::set-env name=MODEL_ID::$(echo $custom_speech_model_id)"
-            echo "::set-env name=TEST_NAME_INFIX::test_data_update"
+            echo AT LEAST ONE CUSTOM SPEECH MODEL CURRENTLY EXISTS UNDER THE AZURE SPEECH RESOURCE.
+          fi
+
+      # If a benchmark model does not exist, or if a user pushed a tag beginning
+      # with `BASELINE`, get the latest baseline model.
+      #
+      # Check that the baseline model has been successfully downloaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
+      #
+      # For an event ID use the git tag if there is one, or just use the commit hash
+      - name: Get the baseline model
+        if: env.IS_INITIAL_MODEL !== 'false'
+        run: |
+          if [[ 1 == 1 ]]
+          then
+            echo THE USER HAS PUSHED A BASELINE TAG.
+            echo ::set-env name=EVENT_ID::${GITHUB_REF/refs\/tags\//}
+            echo "::set-env name=EVENT_NAME::baseline_tag"
+            echo "::set-env name=MODEL_ID::$(echo $baseline_model_id)"
+            echo CONFIGURED TO TEST THE LATEST BASELINE MODEL. THERE ARE CURRENTLY NO CUSTOM SPEECH MODELS UNDER THE AZURE SPEECH RESOURCE.
+          else
+            echo THE USER HAS NOT PUSHED A BASELINE TAG.
+            echo "::set-env name=EVENT_ID::$(git rev-parse --short HEAD)"
+            echo "::set-env name=EVENT_NAME::test_data_update"
+            echo CONFIGURED TO TEST THE LATEST BASELINE MODEL. THERE ARE CURRENTLY NO CUSTOM SPEECH MODELS UNDER THE AZURE SPEECH RESOURCE.
+          fi
+          echo "::set-env name=IS_BASELINE_TEST::true"
+          speech model list-scenarios --locale ${{ env.SPEECH_LOCALE }} --simple > ${{ env.TEST_BUILD_FOLDER_PATH }}/baseline-models.txt
+          baseline_model_id=$(head -n 1 ${{ env.TEST_BUILD_FOLDER_PATH }}/baseline-models.txt)
+          if ! [[ ${baseline_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            echo "::error ::Failed to get the latest baseline model. Possibly re-run all jobs."
+            exit 1
           fi
 
       # Test with Speech.
