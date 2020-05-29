@@ -12,8 +12,8 @@ name: SpeechTestDataCI
 on:
   push:
     # Execute on pushes to master.
-    # branches:
-    #   - master
+    branches:
+      - master
     # The push must include updates to testing data.
     paths:
       # The path from the root of the repository to a .zip with .wav files and a
@@ -56,8 +56,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: echo
-        run: echo Hello world!
+      # https://github.com/Azure/azure-cli
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create the test-results container if it does not exist
+        run: |
+          results_container_exists=$(az storage container exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name test-results --auth-mode login | jq '.exists')
+          if [ $results_container_exists != 'true' ]
+          then
+            az storage container create --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name test-results --auth-mode login
+            echo CREATED TEST-RESULTS CONTAINER.
+          fi
+
+      - name: Create the configuration container if it does not exist
+        run: |
+          config_container_exists=$(az storage container exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name configuration --auth-mode login | jq '.exists')
+          if [ $config_container_exists != 'true' ]
+          then
+            az storage container create --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --name configuration --public-access blob --auth-mode login
+            echo CREATED CONFIGURATION CONTAINER.
+          fi
 
   #############################################################################
   #
@@ -72,7 +93,7 @@ jobs:
     needs: setup
 
     steps:
-      - name: Checkout and download LFS dependencies
+      - name: Checkout the repository
         uses: actions/checkout@v2
         with:
           # Indicates all history.
@@ -82,10 +103,26 @@ jobs:
       # - name: Checkout LFS objects
       #   run: git lfs checkout
 
+      # Set environment variables needed throughout the workflow, including
+      # those specific to whether the workflow was triggered by updating test
+      # data, or by pushing a BASELINE** tag.
       - name: Set environment variables
         run: |
           echo "::set-env name=TEST_AUDIO_ZIP_FILE::test-audio.zip"
           echo "::set-env name=TEST_BUILD_FOLDER_PATH::build-speech-test"
+          if [[ ${GITHUB_REF/refs\/tags\//} == BASELINE* ]]
+          then
+            echo WORKFLOW TRIGGERED BY A BASELINE TAG.
+            echo ::set-env name=EVENT_ID::${GITHUB_REF/refs\/tags\//}
+            echo "::set-env name=HYPHEN_EVENT_NAME::baseline-tag"
+            echo "::set-env name=IS_BASELINE_TEST::true"
+            echo "::set-env name=UNDERSCORE_EVENT_NAME::baseline_tag"
+          else
+            echo WORKFLOW TRIGGERED BY A TEST DATA UPDATE.
+            echo "::set-env name=EVENT_ID::$(git rev-parse --short HEAD)"
+            echo "::set-env name=HYPHEN_EVENT_NAME::test-data-update"
+            echo "::set-env name=UNDERSCORE_EVENT_NAME::test_data_update"
+          fi
 
       # https://github.com/msimecek/Azure-Speech-CLI
       - name: Install and configure Azure Speech CLI
@@ -97,13 +134,17 @@ jobs:
       # Test the Custom Speech model.
       #########################################################################
 
-      # Assemble the Audio + Human-Labeled Transcript and upload to Speech. Fail
-      # if a GUID is not generated.
+      # Assemble the Audio + Human-Labeled Transcript in the proper format and
+      # upload the data.
+      #
+      # Check that the data has been successfully uploaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Upload audio and human transcript testing data
         run: |
           unzip ${{ env.TEST_ZIP_SOURCE_PATH }} -d ${{ env.TEST_BUILD_FOLDER_PATH }}
           zip -r ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_AUDIO_ZIP_FILE }} ${{ env.TEST_BUILD_FOLDER_PATH }} -x "*.txt"
-          speech dataset create -n audio_trans_test_${{ env.CURRENT_COMMIT_HASH }} -a ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_AUDIO_ZIP_FILE }} -t ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_TRANS_FILE }} --wait > ${{ env.TEST_BUILD_FOLDER_PATH }}/audio-trans-test-upload.txt
+          speech dataset create -n audio_trans_test_${{ env.EVENT_ID }} -a ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_AUDIO_ZIP_FILE }} -t ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_TRANS_FILE }} --wait > ${{ env.TEST_BUILD_FOLDER_PATH }}/audio-trans-test-upload.txt
           audio_trans_test_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/audio-trans-test-upload.txt | sed -n '3p')
           if ! [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
@@ -113,6 +154,9 @@ jobs:
           echo "::set-env name=AUDIO_TRANS_TEST_ID::$(echo $audio_trans_test_id)"
 
       # If a benchmark model exists, it will be tested later in the workflow.
+      #
+      # CUSTOM_SPEECH_MODEL_KIND will be used to filter results from the `speech
+      # model list` command to get the benchmark Speech model of the same kind.
       #
       # Check that the benchmark model has been successfully downloaded with
       # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
@@ -124,9 +168,12 @@ jobs:
           custom_speech_model_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/speech-model-list.txt | tail -1 | awk '{print $1;}')
           if [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
-            echo "::set-env name=IS_INITIAL_MODEL::false"
+            echo IF THIS IS NOT A BASELINE TEST, TEST THE BENCHMARK CUSTOM SPEECH MODEL WITH GUID: $custom_speech_model_id
             echo "::set-env name=MODEL_ID::$(echo $custom_speech_model_id)"
-            echo AT LEAST ONE CUSTOM SPEECH MODEL CURRENTLY EXISTS UNDER THE AZURE SPEECH RESOURCE.
+          else
+            echo NO EXISTING CUSTOM SPEECH MODELS. TEST THE LATEST BASELINE MODEL.
+            echo "::set-env name=INITIAL_MODEL_EXISTS::false"
+            echo "::set-env name=IS_BASELINE_TEST::true"
           fi
 
       # If a benchmark model does not exist, or if a user pushed a tag beginning
@@ -135,25 +182,9 @@ jobs:
       # Check that the baseline model has been successfully downloaded with
       # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
       # the variable is a valid GUID with 32 hexadecimal characters.
-      #
-      # For an event ID use the git tag if there is one, or just use the commit hash
       - name: Get the baseline model
-        if: env.IS_INITIAL_MODEL !== 'false'
+        if: env.IS_BASELINE_TEST == 'true'
         run: |
-          if [[ 1 == 1 ]]
-          then
-            echo THE USER HAS PUSHED A BASELINE TAG.
-            echo ::set-env name=EVENT_ID::${GITHUB_REF/refs\/tags\//}
-            echo "::set-env name=EVENT_NAME::baseline_tag"
-            echo "::set-env name=MODEL_ID::$(echo $baseline_model_id)"
-            echo CONFIGURED TO TEST THE LATEST BASELINE MODEL. THERE ARE CURRENTLY NO CUSTOM SPEECH MODELS UNDER THE AZURE SPEECH RESOURCE.
-          else
-            echo THE USER HAS NOT PUSHED A BASELINE TAG.
-            echo "::set-env name=EVENT_ID::$(git rev-parse --short HEAD)"
-            echo "::set-env name=EVENT_NAME::test_data_update"
-            echo CONFIGURED TO TEST THE LATEST BASELINE MODEL. THERE ARE CURRENTLY NO CUSTOM SPEECH MODELS UNDER THE AZURE SPEECH RESOURCE.
-          fi
-          echo "::set-env name=IS_BASELINE_TEST::true"
           speech model list-scenarios --locale ${{ env.SPEECH_LOCALE }} --simple > ${{ env.TEST_BUILD_FOLDER_PATH }}/baseline-models.txt
           baseline_model_id=$(head -n 1 ${{ env.TEST_BUILD_FOLDER_PATH }}/baseline-models.txt)
           if ! [[ ${baseline_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
@@ -161,15 +192,17 @@ jobs:
             echo "::error ::Failed to get the latest baseline model. Possibly re-run all jobs."
             exit 1
           fi
+          echo TEST THE LATEST BASELINE MODEL WITH GUID: $baseline_model_id
+          echo "::set-env name=MODEL_ID::$(echo $baseline_model_id)"
 
       # Test with Speech.
       #
       # Check that the test has been successfully created with
       # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
       # the variable is a valid GUID with 32 hexadecimal characters.
-      - name: Test the benchmark Speech model
+      - name: Test the benchmark or baseline model
         run: |
-          speech test create -n test_from_test_data_update_${{ env.CURRENT_COMMIT_HASH }} -a ${{ env.AUDIO_TRANS_TEST_ID }} -m ${{ env.MODEL_ID }} -lm ${{ env.MODEL_ID }} --wait > ${{ env.TEST_BUILD_FOLDER_PATH }}/test-output.txt
+          speech test create -n test_from_${{ env.UNDERSCORE_EVENT_NAME }}_${{ env.EVENT_ID }} -a ${{ env.AUDIO_TRANS_TEST_ID }} -m ${{ env.MODEL_ID }} -lm ${{ env.MODEL_ID }} --wait > ${{ env.TEST_BUILD_FOLDER_PATH }}/test-output.txt
           test_id=$(cat ${{ env.TEST_BUILD_FOLDER_PATH }}/test-output.txt | sed -n '3p')
           if ! [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
@@ -178,21 +211,24 @@ jobs:
           fi
           echo "::set-env name=TEST_ID::$(echo $test_id)"
 
-      # Get the content from the test and remove the first line, which is
-      # logging, so the result is a JSON file.
-      - name: Store JSON test output
-        run: |
-          test_summary_file_name="test-summary-from-test-data-update-${{ env.CURRENT_COMMIT_HASH }}.json"
-          echo "::set-env name=TEST_SUMMARY_FILE::$(echo $test_summary_file_name)"
-          speech test show ${{ env.TEST_ID }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
-          sed -i '1d' ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
-
-      # It is not necessary to check if AUDIO_TRANS_TEST_ID is a valid GUID
-      # because the workflow will have already failed if not.
       - name: Delete testing datasets
         run: |
           speech dataset delete ${{ env.AUDIO_TRANS_TEST_ID }}
           echo DELETED AUDIO+HUMAN-LABELED TRANSCRIPT TESTING DATA.
+
+      # Get the content from the test and remove the first line, which is
+      # logging, so the result is a JSON file.
+      - name: Store JSON test output
+        run: |
+          test_summary_file_name="test-summary-from-${{ env.HYPHEN_EVENT_NAME }}-${{ env.EVENT_ID }}.json"
+          echo "::set-env name=TEST_SUMMARY_FILE::$(echo $test_summary_file_name)"
+          speech test show ${{ env.TEST_ID }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
+          sed -i '1d' ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
+
+      - name: Delete test
+        run: |
+          speech test delete ${{ env.TEST_ID }}
+          echo DELETED TEST.
 
       #########################################################################
       # Archive test summary and test results in Blob
@@ -213,22 +249,20 @@ jobs:
         run: |
           results_url=$(jq '.resultsUrl' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs)
           curl $results_url -o "test-results.txt"
-          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-test-data-update-${{ env.CURRENT_COMMIT_HASH }}.txt --file test-results.txt --auth-mode login
+          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-${{ env.HYPHEN_EVENT_NAME }}-${{ env.EVENT_ID }}.txt --file test-results.txt --auth-mode login
 
+      - name: Verify the configuration file exists
+        run: az storage blob exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --auth-mode login | jq '.exists' | xargs -I {} echo "::set-env name=BENCHMARK_BLOB_EXISTS::{}"
+
+      # The configuration container has a file, benchmark-test.txt, that
+      # contains the name of the test summary file that was output from testing
+      # the current benchmark model.
+      #
+      # If there is no current benchmark-test.txt, no initial model, or if the
+      # workflow triggered as teh results of a test data update, upload the test
+      # summary from the current run of the workflow.
       - name: Update benchmark in configuration file
+        if: env.IS_BASELINE_TEST != 'true' || env.BENCHMARK_BLOB_EXISTS == 'false' || env.INITIAL_MODEL_EXISTS == 'false'
         run: |
           echo ${{ env.TEST_SUMMARY_FILE }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt
           az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt --auth-mode login
-
-      # Set environment variables to be bash variables to avoid substitution
-      # errors. Check that the test has been successfully uploaded with
-      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
-      # the variable is a valid GUID with 32 hexadecimal characters.
-      - name: Delete test
-        run: |
-          test_id=${{ env.TEST_ID }}
-          if [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-          then
-            speech test delete ${{ env.TEST_ID }}
-            echo DELETED TEST.
-          fi
