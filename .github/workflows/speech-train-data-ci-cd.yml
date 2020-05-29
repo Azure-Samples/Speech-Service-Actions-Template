@@ -12,8 +12,8 @@ name: SpeechTrainDataCICD
 on:
   push:
     # Execute on pushes to master.
-    branches:
-      - master
+    # branches:
+    #   - master
     # The push must include updates to training data.
     paths:
       # The path from the root of the repository to a .zip with .wav files and a
@@ -259,14 +259,8 @@ jobs:
       # errors. Not all training data will be used, so check that it was with
       # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
       # the variable is a valid GUID with 32 hexadecimal characters.
-      - name: Delete datasets
+      - name: Delete training datasets
         run: |
-          audio_trans_test_id=${{ env.AUDIO_TRANS_TEST_ID }}
-          if [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-          then
-            speech dataset delete ${{ env.AUDIO_TRANS_TEST_ID }}
-            echo DELETED AUDIO+HUMAN-LABELED TRANSCRIPT TESTING DATA.
-          fi
           audio_trans_train_id=${{ env.AUDIO_TRANS_TRAIN_ID }}
           if [[ ${audio_trans_train_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
@@ -334,6 +328,13 @@ jobs:
             exit 1
           fi
 
+      # It is not necessary to check if AUDIO_TRANS_TEST_ID is a valid GUID
+      # because the workflow will have already failed if not.
+      - name: Delete testing datasets
+        run: |
+          speech dataset delete ${{ env.AUDIO_TRANS_TEST_ID }}
+          echo DELETED AUDIO+HUMAN-LABELED TRANSCRIPT TESTING DATA.
+
       # Get the content from the test and remove the first line, which is
       # logging, so the result is a JSON file.
       - name: Store JSON test output
@@ -353,7 +354,7 @@ jobs:
           if [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
             speech test delete ${{ env.TEST_ID }}
-            echo "TEST DELETED"
+            echo DELETED TEST.
           fi
 
       ###########################################################################
