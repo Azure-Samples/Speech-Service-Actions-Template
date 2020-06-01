@@ -177,13 +177,13 @@ Configure branch protections according to your established software engineering 
 
 In this step, you created your GitHub repository from the template, created your Azure resources, and configured the GitHub Actions workflows so you can begin developing Custom Speech models using your repo.
 
-Find out how to use the data in the `testing` and `training` folder of your repository to [create an initial custom speech model](./2-train-an-initial-model.md) in the next step.
+Find out how to use the data in the `testing` and `training` folder of your repository to [create an initial custom speech model](./2-test-the-baseline-model.md) in the next step.
 
 ## Further Reading
 
 See the following documents for more information on this template and the engineering practices it demonstrates:
 
-- [Create an initial custom speech model](2-train-an-initial-model.md#table-of-contents)
+- [Create an initial custom speech model](2-test-the-baseline-model.md#table-of-contents)
 
 - [Improve the model](3-improve-the-model.md#table-of-contents)
 
