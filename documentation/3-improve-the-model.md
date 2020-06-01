@@ -86,7 +86,7 @@ Changes should be tested to confirm the effect on the model before a pull reques
 To test the effect of your changes:
 
 1. Open [Speech Studio](https://speech.microsoft.com/portal/).
-1. Open your development Speech project from [Test the baseline model](2-train-the-baseline-model#Test-training-data-effect).
+1. Open your development Speech project from [Test the baseline model](2-test-the-baseline-model#Test-training-data-effect).
 1. For each change you'd like to evaluate:
     1. Create datasets by [uploading](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#upload-data) your `training/related-text.txt` and `training/pronunciation.txt` training data.
     1. [Train a model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-train-model) using those datasets.

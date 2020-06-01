@@ -4,13 +4,13 @@ This document shows how to create your GitHub repository from this template, cre
 
 ## Table of contents
 
-- [Create your repo](#create-your-repo)
+- [Create your repo](#Create-your-repo)
 - [Provision Azure resources](#Provision-Azure-resources)
-- [Create the Speech project](#create-the-speech-project)
+- [Create the Speech project](#Create-the-Speech-project)
 - [Create GitHub Secrets](#Create-GitHub-Secrets)
 - [Create the Azure Service Principal](#Create-the-Azure-Service-Principal)
-- [Protect the master branch](#protect-the-master-branch)
-- [Next steps](#next-steps)
+- [Protect the master branch](#Protect-the-master-branch)
+- [Next steps](#Next-steps)
 
 ## Create your repo
 
@@ -22,7 +22,7 @@ To create your repository:
 1. Click the green **Use this template** button on the home page of this repo to create a new repo with the same files and folders as the template.
 
    ![Use this template](../images/template_button.png?raw=true "Cloning the template repo")
-  
+
    1. Enter your own **Repository name** where prompted.
    1. Select **Private** if you want to create a private repository.
 
@@ -32,7 +32,9 @@ To create your repository:
    1. Click **Create repository from template** to create your copy of this repository.
 
 1. After your repository is created, [clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository).
-  
+
+This template includes sample data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of this walk through. Details will follow, but eventually the sample data will be replaced with data for your own project.
+
 >**Note**: If you are using this solution as the starting point for a Custom Speech project with a lot of data, consider [configuring Git Large File Storage](4-advanced-customization.md#Use-Git-Large-File-Storage) to manage large files.
 
 ## Provision Azure resources
@@ -177,9 +179,7 @@ Configure branch protections according to your established software engineering 
 
 In this step, you created your GitHub repository from the template, created your Azure resources, and configured the GitHub Actions workflows so you can begin developing Custom Speech models using your repo.
 
-Find out how to use the data in the `testing` and `training` folder of your repository to [test the baseline model](./2-test-the-baseline-model.md) in the next step.
-
-## Further Reading
+In the next step, find out how to [test the baseline model](./2-test-the-baseline-model.md) using the data in the `testing` folder of your repository.
 
 See the following documents for more information on this template and the engineering practices it demonstrates:
 

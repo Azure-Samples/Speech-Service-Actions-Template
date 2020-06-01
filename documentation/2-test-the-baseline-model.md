@@ -1,4 +1,4 @@
-# 2. Test the baseline  model
+# 2. Test the baseline model
 
 Follow these steps to understand the workflow and create the baseline Custom Speech model.
 
