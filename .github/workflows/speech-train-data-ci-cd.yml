@@ -342,11 +342,6 @@ jobs:
           speech test show ${{ env.TEST_ID }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
           sed -i '1d' ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
 
-      - name: Delete test
-        run: |
-          speech test delete ${{ env.TEST_ID }}
-          echo DELETED TEST.
-
       ###########################################################################
       # Archiving test results in blob
       ###########################################################################
@@ -367,6 +362,14 @@ jobs:
           results_url=$(jq '.resultsUrl' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs)
           curl $results_url -o "test-results.txt"
           az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-train-data-update-${{ env.CURRENT_COMMIT_HASH }}.txt --file test-results.txt --auth-mode login
+
+      # Delete the test. This must be done after the test results file is
+      # generated, as the resultsUrl will only be available while the test
+      # exists.
+      - name: Delete test
+        run: |
+          speech test delete ${{ env.TEST_ID }}
+          echo DELETED TEST.
 
       ###########################################################################
       # FAIL pipeline and delete assets in Speech Studio if WER did not improve.
