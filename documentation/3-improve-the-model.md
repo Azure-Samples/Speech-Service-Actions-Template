@@ -158,9 +158,9 @@ When you merge a pull request that includes training data updates, the **SpeechT
 
 To view the results of this workflow, follow the training workflow confirmation steps from [Train an initial model](2-train-an-initial-model.md#Confirm-the-Workflow-Results).
 
-As a part of release, there is a __naive__ pruning step in place which deletes all but the 5 latests models of the current model type. The number of retained models, by type, does not exceed 5.
+As a part of the release job, there is a step in place which deletes all but the 5 latest models of the current model kind. 
 
-**There is NO automation to managing released endpoints, deleting an endpoint should be a manual process because deleting an endpoint has larger ramifications than deleting a model**. Models can/will not be deleted while still attached to an endpoint, when this is the case, the workflow issues an error, this does NOT break the workflow, it is purely an optional step.
+**Deleting an endpoint should be a manual process because deleting an endpoint has larger ramifications than deleting a model**. Models will not be deleted if they are attached to an endpoint.
 
 ## Next steps
 
