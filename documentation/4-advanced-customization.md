@@ -85,7 +85,7 @@ With the branch protections and triggers in place, create pull requests from fea
 
 ## Exclude training data
 
-The three types of training data to use when building a Custom Speech model were explained when [training the initial model](2-test-the-baseline-model.md#Create-pull-request-for-training-data-updates), but it's possible to exclude any or all of the data if it is [unsupported by the locale](#Change-locales), or if your project does not require it.
+The three types of training data to use when building a Custom Speech model were explained when [testing the baseline model](2-test-the-baseline-model.md#Create-pull-request-for-training-data-updates), but it's possible to exclude any or all of the data if it is [unsupported by the locale](#Change-locales), or if your project does not require it.
 
 To exclude training data:
 
