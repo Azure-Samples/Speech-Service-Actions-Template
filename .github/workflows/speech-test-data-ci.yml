@@ -225,11 +225,6 @@ jobs:
           speech test show ${{ env.TEST_ID }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
           sed -i '1d' ${{ env.TEST_BUILD_FOLDER_PATH }}/$test_summary_file_name
 
-      - name: Delete test
-        run: |
-          speech test delete ${{ env.TEST_ID }}
-          echo DELETED TEST.
-
       #########################################################################
       # Archive test summary and test results in Blob
       #########################################################################
@@ -251,6 +246,14 @@ jobs:
           curl $results_url -o "test-results.txt"
           az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-${{ env.HYPHEN_EVENT_NAME }}-${{ env.EVENT_ID }}.txt --file test-results.txt --auth-mode login
 
+      # Delete the test. This must be done after the test results file is
+      # generated, as the resultsUrl will only be available while the test
+      # exists.
+      - name: Delete test
+        run: |
+          speech test delete ${{ env.TEST_ID }}
+          echo DELETED TEST.
+
       - name: Verify the configuration file exists
         run: az storage blob exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --auth-mode login | jq '.exists' | xargs -I {} echo "::set-env name=BENCHMARK_BLOB_EXISTS::{}"
 
@@ -259,7 +262,7 @@ jobs:
       # the current benchmark model.
       #
       # If there is no current benchmark-test.txt, no initial model, or if the
-      # workflow triggered as teh results of a test data update, upload the test
+      # workflow triggered as the results of a test data update, upload the test
       # summary from the current run of the workflow.
       - name: Update benchmark in configuration file
         if: env.IS_BASELINE_TEST != 'true' || env.BENCHMARK_BLOB_EXISTS == 'false' || env.INITIAL_MODEL_EXISTS == 'false'
