@@ -2,7 +2,7 @@
 
 During the development of a Custom Speech model, developers  improve the accuracy of a model by updating the training data used to train the Custom Speech model, and/or the testing data used to evaluate the accuracy of that model.
 
-Follow these steps to make updates to the training and testing data to illustrate making improvements to the model when compared to the baseline model from [Train an initial model](2-train-an-initial-model.md#table-of-contents).
+Follow these steps to make updates to the training and testing data to illustrate making improvements to the model when compared to the baseline model from [Train an initial model](2-test-the-baseline-model.md#table-of-contents).
 
 This template includes sample testing data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of this walk through. The `testing/audio-and-trans.zip` file contains [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) used to test your model.
 
@@ -86,7 +86,7 @@ Changes should be tested to confirm the effect on the model before a pull reques
 To test the effect of your changes:
 
 1. Open [Speech Studio](https://speech.microsoft.com/portal/).
-1. Open your development Speech project from [Train an Initial Model](2-train-an-initial-model#Test-training-data-effect).
+1. Open your development Speech project from [Train an Initial Model](2-train-the-baseline-model#Test-training-data-effect).
 1. For each change you'd like to evaluate:
     1. Create datasets by [uploading](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#upload-data) your `training/related-text.txt` and `training/pronunciation.txt` training data.
     1. [Train a model](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-train-model) using those datasets.
@@ -156,7 +156,7 @@ When you merge a pull request that includes training data updates, the **SpeechT
 
 * **WER is worse than the benchmark** - The workflow fails if the new model's WER is worse than the benchmark model's WER. In this case, the new model will be deleted and the workflow will exit without creating a release and endpoint for the new model.
 
-To view the results of this workflow, follow the training workflow confirmation steps from [Train an initial model](2-train-an-initial-model.md#Confirm-the-Workflow-Results).
+To view the results of this workflow, follow the training workflow confirmation steps from [Train an initial model](2-test-the-baseline-model.md#Confirm-the-Workflow-Results).
 
 As a part of the release job, there is a step in place which deletes all but the 5 latest models of the current model kind. 
 
@@ -176,6 +176,6 @@ See the following documents for more information on this template and the engine
 
 * [Setup](1-setup.md#table-of-contents)
 
-* [Create an initial custom speech model](2-train-an-initial-model.md#table-of-contents)
+* [Create an initial custom speech model](2-test-the-baseline-model.md#table-of-contents)
 
 * [Advanced customization](4-advanced-customization.md#table-of-contents)

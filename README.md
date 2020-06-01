@@ -59,7 +59,7 @@ Train, test, and release new Custom Speech models automatically as training and 
 ***Required:*** Follow the steps below to create and configure your repository to deploy models to your Azure Subscription, use the provided sample data to understand the workflow, and create a model for your project by replacing the sample data with your own:
 
 1. Follow the steps in [setup](./documentation/1-setup.md) to create a GitHub repository for your project and configure it for use in your project.
-1. Follow the [train an initial model](./documentation/2-train-an-initial-model.md) step-by-step guidance to understand the process and establish a baseline model.
+1. Follow the [train an initial model](./documentation/2-test-the-baseline-model.md) step-by-step guidance to understand the process and establish a baseline model.
 1. Update the training and testing data to understand how to [improve the model](./documentation/3-improve-the-model.md) in an iterative fashion.
 1. Visit [advanced customization](./documentation/4-advanced-customization.md) to customize your repository and project, including changing the folder structure, using an alternative branching strategy, and more.
 
