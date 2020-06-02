@@ -62,7 +62,7 @@ To create these resources:
    - **SPEECH_RESOURCE_NAME:** 2-64 alphanumeric characters, underscores, and hyphens.
    - **SPEECH_RESOURCE_REGION:** Select the region from the dropdown that's best for your project.
 
-      >**Note**: Take note of the `STORAGE_ACCOUNT_NAME` and  `SPEECH_RESOURCE_REGION`. You will need them when you configure the GitHub Actions workflows.
+      >**Note**: Take note of the `Resource Group`, `STORAGE_ACCOUNT_NAME` and  `SPEECH_RESOURCE_REGION`. You will need them when you configure the GitHub Actions workflows.
 
 1. Click **Review + create**.
 1. Agree to the terms, and click **Create**.
