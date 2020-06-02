@@ -1,27 +1,29 @@
 # 3. Improve the model
 
-During the development of a Custom Speech model, developers  improve the accuracy of a model by updating the training data used to train the Custom Speech model, and/or the testing data used to evaluate the accuracy of that model.
+During the development of a Custom Speech model, developers improve the accuracy of a model by updating the training data used to train the Custom Speech model, and/or the testing data used to evaluate the accuracy of that model.
 
-Follow these steps to make updates to the training and testing data to illustrate making improvements to the model when compared to the baseline model from [Test the baseline model](2-test-the-baseline-model.md#table-of-contents).
+This template includes sample testing and training data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of this walk through, including:
 
-This template includes sample testing data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of this walk through. The `testing/audio-and-trans.zip` file contains [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) used to test your model.
+* **`testing/audio-and-trans.zip`:** Contains [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) used to test models.
+* **`training/audio-and-trans.zip`:** Contains [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) used to train acoustic models.
+* **`training/pronunciation.txt`:** [Pronunciation data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-pronunciation-file) is a type of [related text](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) used to improve language model accuracy when recognizing uncommon terms, acronyms, or other words with undefined pronunciations.
+* **`training/related-text.txt`:** [Language, or sentences, data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) is the second type of related text used to improve language model accuracy when recognizing product names, or industry-specific vocabulary within the context of a sentence.
 
-In the steps in this document, you will update the training and testing data and create a pull request containing those updates. That pull request will trigger two GitHub Action workflows:
+Follow these steps to create a pull request containing updates to the training and testing data to illustrate making improvements to the model when compared to the baseline model from [Test a baseline model](2-test-a-baseline-model.md). That pull request will trigger two GitHub Action workflows:
 
-* **SpeechTestDataCI** triggers on updates to test data. This workflow will retest the benchmark model with the updated test data to calculate the new benchmark Word Error Rate (WER).
-* **SpeechTrainDataCICD** triggers on updates to training data. This workflow will build a new model from the training data and test whether the new model has a better WER than the benchmark model. If that new model has a better WER than the benchmark model, the workflow will create a release and endpoint for the new model and the new model will become the new benchmark.
+* **SpeechTestDataCI** triggers on updates to test data, or pushing a baseline tag as you saw in [Test a baseline model](2-test-a-baseline-model.md). This workflow will retest the benchmark model with the updated test data to calculate the new benchmark Word Error Rate (WER).
+* **SpeechTrainDataCICD** triggers on updates to training data. This workflow will build a new model from the training data and test whether the new model has a better WER than the benchmark model. If that new model has a better WER than the benchmark model, the workflow will create a release and an endpoint for the new model and the new model will become the benchmark.
 
 ## Table of contents
 
-* [Create a feature branch](#create-a-feature-branch)
+* [Create a feature branch](#Create-a-feature-branch)
 * [Update training data](#Update-training-data)
 * [Update testing data](#Update-testing-data)
 * [Testing the effect of training and testing data updates](#Testing-the-effect-of-training-and-testing-data-updates)
-* [Create the pull request](#Create-the-Pull-Request)
-* [Confirm the testing workflow results](#Confirm-the-Testing-Workflow-Results)
-* [Confirm the training workflow results](#Confirm-the-Training-Workflow-Results)
+* [Create the pull request](#Create-the-pull-request)
+* [Confirm the testing workflow results](#Confirm-the-testing-workflow-results)
+* [Confirm the training workflow results](#Confirm-the-training-workflow-results)
 * [Next steps](#Next-steps)
-* [Further reading](#Further-reading)
 
 ## Create a feature branch
 
@@ -56,7 +58,7 @@ Update the training data to illustrate making a change to [improve the model's r
 
 ## Update testing data
 
-When developing a custom speech model, you update training data to improve the accuracy of your model. You update the testing data to evaluate that accuracy. Here, you will update the testing data to illustrate making a change to [improve accuracy testing](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data).
+When developing a Custom Speech model, you update training data to improve the accuracy of your model and the testing data to evaluate that accuracy. Here, you will update the testing data to illustrate making a change to [improve accuracy testing](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data).
 
 To make changes to the testing data:
 
@@ -67,7 +69,7 @@ To make changes to the testing data:
     audio.wav SOME UPDATE Once the test is complete, indicated by the status change to Succeeded, you'll find a WER number for both models included in your test. Click on the test name to view the testing detail page. This detail page lists all the utterances in your dataset, indicating the recognition results of the two models alongside the transcription from the submitted dataset. To help inspect the side-by-side comparison, you can toggle various error types including insertion, deletion, and substitution. By listening to the audio and comparing recognition results in each column, which shows the human-labeled transcription and the results for two speech-to-text models, you can decide which model meets your needs and where additional training and improvements are required.
     ```
 
-    >**Note**: Transcript files are strictly formatted. Do not add an additional line, modify the file name (**audio.wav**) at the beginning of the line, or  delete the tab character separating the filename from the following text. For more details refer to  [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) in the Custom Speech documentation.
+    >**Note**: Transcript files are strictly formatted. Do not add an additional line, modify the file name (**audio.wav**) at the beginning of the line, or delete the tab character separating the filename from the following text. For more details refer to [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) in the Custom Speech documentation.
 
 1. Zip up the files and replace the original `testing/audio-and-trans.zip`.
 1. Add and commit the changes:
@@ -115,7 +117,7 @@ To create the pull request:
 
 ## Confirm the testing workflow results
 
-When you merge a pull request that includes testing data updates, the **SpeechTestDataCI** GitHub Actions workflow will run. **SpeechTestDataCI**  retests the benchmark model to calculate the new benchmark WER based on the updated test data.
+When you merge a pull request that includes testing data updates, the **SpeechTestDataCI** GitHub Actions workflow will run. **SpeechTestDataCI** retests the benchmark model to calculate the new benchmark WER based on the updated test data.
 
 This ensures that when the WER of any new models are compared with the WER of the benchmark, both models have been tested against the same test data.
 
@@ -167,10 +169,6 @@ As a part of the release job, there is a step in place which deletes all but the
 Now that you understand how to make training and testing data changes to improve the model, you are ready to start working on your model.
 
 To start working on your model, replace the sample data supplied with this repo with data for your project. Start with small data sets that replicate the language and acoustics that the model will encounter. For example, record audio on the same hardware and in the same acoustic environment as the end solution so that any incompatibilities can be sorted before investing in a larger data set. More audio data can be added at any time using the tools and documentation in this solution. As the data set gets larger, make sure it's diverse and representative of your project's scenario.
-
-Visit [advanced customization](./4-advanced-customization.md) to use alternative branching strategies, change the file structure, and more.
-
-## Further reading
 
 See the following documents for more information on this template and the engineering practices it demonstrates:
 
