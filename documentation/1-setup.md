@@ -108,8 +108,6 @@ To create your GitHub Secrets:
    | **SPEECH_PROJECT_NAME** | The speech project name |
    | **STORAGE_ACCOUNT_NAME** | Azure storage account name |
 
-![GitHub Secrets](../images/GitHubSecrets.png)
-
 ## Create the Azure Service Principal
 
 Create an [Azure Service Principal](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli) to allow the GitHub Actions workflows to login using that identity and work with Azure resources using role-restricted access.
@@ -152,6 +150,8 @@ To create the Azure Service Principal:
 ```
 
 1. Using the process above, create a GitHub Secret named `AZURE_CREDENTIALS` with a value of the JSON above.
+
+![GitHub Secrets](../images/GitHubSecrets.png)
 
 ## Protect the master branch
 
