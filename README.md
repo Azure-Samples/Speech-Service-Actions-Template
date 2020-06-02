@@ -49,7 +49,6 @@ Train, test, and release new Custom Speech models automatically as training and 
 
 ## Prerequisites
 
-* [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest)
 * [Azure subscription](https://azure.microsoft.com/free/)
 * [Git](https://git-scm.com/downloads)
 * [GitHub account](https://github.com/join)
