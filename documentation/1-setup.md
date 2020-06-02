@@ -77,7 +77,7 @@ To create the project:
 
    ![Speech Studio Speech Resource](../images/SpeechStudioSpeechResources.png)
 
-1. Select the Speech Resource that was created in above.
+1. Select the Speech Resource that was created in the previous step. If you cannot see your speech resource, wait for a short while and refresh the page.
 1. Click the eye icon to reveal the **Speech resource key**.
    >**Note**: Take note of this key for use later on.
 
