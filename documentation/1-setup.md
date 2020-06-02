@@ -112,7 +112,7 @@ To create your GitHub Secrets:
 
 Create an [Azure Service Principal](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli) to allow the GitHub Actions workflows to login using that identity and work with Azure resources using role-restricted access.
 
-A Powershell script [./setup/create_sp.ps1](./setup/create_sp.ps1) is provided to create the Azure Service Principal.
+A Powershell script `/setup/create_sp.ps1` is provided to create the Azure Service Principal.
 
 To create the Azure Service Principal:
 
