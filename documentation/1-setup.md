@@ -98,7 +98,7 @@ To create the project:
 To create your GitHub Secrets:
 
 1. Click the **Settings** tab on the home page of your repository.
-1. Select **Options** in the left menu.
+1. Select **Secrets** in the Options menu.
 1. For each secret below, click **New Secret**, enter the **Name** and **Value** below, and click **Add secret**:
 
    | Name | Value |
