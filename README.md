@@ -62,6 +62,10 @@ Train, test, and release new Custom Speech models automatically as training and 
 1. Update the training and testing data to understand how to [improve the model](./documentation/3-improve-the-model.md) in an iterative fashion.
 1. Visit [advanced customization](./documentation/4-advanced-customization.md) to customize your repository and project, including changing the folder structure, using an alternative branching strategy, and more.
 
+## Submit feedback
+
+File feedback regarding documentation or tooling as a an [issue](https://github.com/Azure-Samples/Speech-Service-DevOps-Template/issues), or propose changes by submitting a pull request into the **develop** branch.
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
