@@ -391,13 +391,13 @@ jobs:
         if: env.BENCHMARK_BLOB_EXISTS == 'true'
         run: jq '.wordErrorRate' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs -I {} echo "::set-env name=NEW_WER::{}"
 
-      - name: PASS - Update benchmark in configuration file
+      - name: CONTINUING WORKFLOW - WER improved
         if: env.BENCHMARK_BLOB_EXISTS == 'false' || env.BENCHMARK_WER > env.NEW_WER
         run: |
           echo ${{ env.TEST_SUMMARY_FILE }} > ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt
           az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file ${{ env.TEST_BUILD_FOLDER_PATH }}/benchmark-test.txt --auth-mode login
 
-      - name: FAIL - Delete model uploads to Speech
+      - name: STOPPING WORKFLOW - WER not improved
         if: env.BENCHMARK_WER <= env.NEW_WER
         run: |
           speech model delete ${{ env.CUSTOM_SPEECH_MODEL_ID }}
