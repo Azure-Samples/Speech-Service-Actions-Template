@@ -1,6 +1,6 @@
 # 2. Test the baseline model
 
-Follow these steps to understand the workflow and create a baseline Speech model without customization. This baseline model will be used as an accuracy benchmark to compare against future customized models.
+Follow these steps to understand how to create a baseline Speech model. This baseline model will be used as an accuracy benchmark to compare against future customized models.
 
 ## Table of contents
 
@@ -10,28 +10,27 @@ Follow these steps to understand the workflow and create a baseline Speech model
 
 ## Push a baseline tag
 
-Push a tag beginning with `BASELINE` to test the latest baseline model against data in the `testing` folder and create a benchmark for future Custom Speech models to outperform. A baseline Speech model is an un-customized model that works best for generic solutions without custom or out-of-vocabulary words. If you start development of a Custom Speech model with a baseline model, it's easy to see when your changes to the Custom Speech model improve its recognition accuracy.
+To create a baseline model, push a [git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging) prefixed with `BASELINE`. This tag will trigger the **SpeechTestDataCI** GitHub Actions workflow (found at `.github/workflows/speech-test-data-ci.yml`) to test the latest Speech baseline model against data in the `testing` folder and creates a testing benchmark for future Custom Speech models to to be tested against. When you start development of a Custom Speech model with a baseline model, it's easy to see when your changes to the Custom Speech model improve its recognition accuracy.
 
-The **SpeechTestDataCI** GitHub Actions workflow executes this test and can be found at `.github/workflows/speech-test-data-ci.yml`. Any time a tag is pushed beginning with `BASELINE`, it uses data in the `testing` folder to test the latest baseline model. Each tag should be unique since duplicate tags will cause test results and summaries to be overwritten in Azure Blob storage. It is recommended to use some sort of versioning in tag names as well.
+Each tag should be unique since duplicate tags will cause test results and summaries to be overwritten in Azure Blob storage. It is recommended to use some sort of versioning in tag names as well.
 
 1. To push an [annotated tag](https://www.atlassian.com/git/tutorials/inspecting-a-repository/git-tag), which simply has extra meta data compared to lightweight tags:
 
-```bash
-git checkout master
-git pull
-git tag -a BASELINE_0
-git push origin BASELINE_0
-```
+    ```bash
+    git checkout master
+    git pull
+    git tag -a BASELINE_0
+    git push origin BASELINE_0
+    ```
 
-The **SpeechTestDataCI** workflow also executes when data in the `testing` folder is updated, but do not include changes to the test data when you push a baseline tag since it causes unintended behavior.
+Moving forward, the **SpeechTestDataCI** workflow also executes when data in the `testing` folder is updated, as you'll see in the next step.
+>**Note:** Pushing a `BASELINE` tag and testing updates is not supported at this time. Do not include changes to the test data when pushing a baseline tag.
 
 ## Confirm the workflow results
 
-When you push a baseline tag to **master**, the **SpeechTestDataCI** workflow tests the latest baseline model against the test data and outputs a test summary and test results which are stored in the `test-results` container. Since this is the first time you have run any tests, the results will become the benchmark that future models must outperform.
+When you push a baseline tag to **master**, the **SpeechTestDataCI** workflow tests the latest baseline model against the test data and outputs test results and a test summary. Since this is the first time these tests have been run, the results become the benchmark that future models must outperform.
 
 ### View the workflow run
-
-The **SpeechTestDataCI** workflow triggers from pushing a tag to **master** beginning with `BASELINE`, or from updating data in the `testing` folder.
 
 To view the workflow run for your tag:
 
@@ -64,7 +63,7 @@ The test summary becomes the benchmark the first time tests are run by a workflo
 
 ## Next steps
 
-Now that you understand the workflow and you've created the baseline model, in the next step you'll attempt to [improve the model](./3-improve-the-model.md) by replacing data in the `testing` and `training` folders and comparing the results against the baseline model.
+Now that you understand how to create the baseline model, you're ready to attempt to [improve the model](./3-improve-the-model.md) by replacing data in the `testing` and `training` folders and comparing the results against the baseline model.
 
 See the following documents for more information on this template and the engineering practices it demonstrates:
 
