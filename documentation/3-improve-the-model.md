@@ -9,21 +9,31 @@ This template includes sample testing and training data from the [cognitive-serv
 * **`training/pronunciation.txt`:** [Pronunciation data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#guidelines-to-create-a-pronunciation-file) is a type of [related text](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) used to improve language model accuracy when recognizing uncommon terms, acronyms, or other words with undefined pronunciations.
 * **`training/related-text.txt`:** [Language, or sentences, data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#related-text-data-for-training) is the second type of related text used to improve language model accuracy when recognizing product names, or industry-specific vocabulary within the context of a sentence.
 
-Follow these steps to create a pull request containing updates to the training and testing data to illustrate making improvements to the model when compared to the baseline model from [Test a baseline model](2-test-a-baseline-model.md). That pull request will trigger two GitHub Action workflows:
+Follow these steps to create a pull request containing updates to the training and testing data to illustrate making improvements to the model when compared to the baseline model from [Test the baseline model](2-test-the-baseline-model.md). That pull request will trigger two GitHub Action workflows:
 
-* **SpeechTestDataCI** triggers on updates to test data, or pushing a baseline tag as you saw in [Test a baseline model](2-test-a-baseline-model.md). This workflow will retest the benchmark model with the updated test data to calculate the new benchmark Word Error Rate (WER).
+* **SpeechTestDataCI** triggers on updates to test data, or pushing a baseline tag as you saw in [Test the baseline model](2-test-the-baseline-model.md). This workflow will retest the benchmark model with the updated test data to calculate the new benchmark Word Error Rate (WER).
 * **SpeechTrainDataCICD** triggers on updates to training data. This workflow will build a new model from the training data and test whether the new model has a better WER than the benchmark model. If that new model has a better WER than the benchmark model, the workflow will create a release and an endpoint for the new model and the new model will become the benchmark.
 
 ## Table of contents
 
+* [Create development Speech project](#Create-development-Speech-project)
 * [Create a feature branch](#Create-a-feature-branch)
 * [Update training data](#Update-training-data)
 * [Update testing data](#Update-testing-data)
-* [Testing the effect of training and testing data updates](#Testing-the-effect-of-training-and-testing-data-updates)
+* [Test training and testing data effect](#Test-training-and-testing-data-effect)
 * [Create the pull request](#Create-the-pull-request)
 * [Confirm the testing workflow results](#Confirm-the-testing-workflow-results)
 * [Confirm the training workflow results](#Confirm-the-training-workflow-results)
 * [Next steps](#Next-steps)
+
+## Create development Speech project
+
+The resources and Speech project you created in [Setup](1-setup.md) will be used in the GitHub Actions workflows. In this step, you'll create a resource and Speech project for your personal development and testing.
+
+To create the development Speech project:
+
+1. [Create an Azure Speech resource](https://docs.microsoft.com/azure/cognitive-services/speech-service/get-started#new-resource) in the Azure Resource Group from [Setup](1-setup.md#table-of-contents).
+1. [Create a Speech project](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech#how-to-create-a-project) under this resource.
 
 ## Create a feature branch
 
@@ -79,13 +89,15 @@ To make changes to the testing data:
     git commit -m "Update testing data."
     ```
 
-## Testing the effect of training and testing data updates
+## Test training and testing data effect
 
-Changes should be tested to confirm the effect on the model before a pull request is created. Tests will output a [Word Error Rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) you can use to evaluate whether the changes have improved the model. If so, the updates will be submitted as a pull request.
+The changes to `training/related-text.txt` represent changes you'll make to your training data to adapt your Custom Speech model to your needs. Before a pull request is created, the changes should be tested to confirm that they will improve a model's recognition. [Word error rate](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-evaluate-data#what-is-word-error-rate-wer) (WER) is a metric output from the tests that you can use to evaluate a model's recognition accuracy. If the WER improves, the updates can be submitted in a pull request.
+
+To do that testing, use your development Speech project.
 
 >**Note**: In this walk through, you will submit your changes as a PR regardless of the WER to illustrate making a change to the training and testing data.
 
-To test the effect of your changes:
+Use your development Speech Project to test the effect of your changes:
 
 1. Open [Speech Studio](https://speech.microsoft.com/portal/).
 1. Open your development Speech project from [Test the baseline model](2-test-the-baseline-model#Test-training-data-effect).
