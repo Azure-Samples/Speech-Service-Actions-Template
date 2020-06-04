@@ -62,6 +62,8 @@ Train, test, and release new Custom Speech models automatically as training and 
 1. Update the training and testing data to understand how to [improve the model](./documentation/3-improve-the-model.md) in an iterative fashion.
 1. Visit [advanced customization](./documentation/4-advanced-customization.md) to customize your repository and project, including changing the folder structure, using an alternative branching strategy, and more.
 
+This template includes sample data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of following these steps. Later in this documentation, you will learn how to [replace the sample data](documentation/3-improve-the-model.md#Next-steps) with data for your own project.
+
 ## Submit feedback
 
 File feedback regarding documentation or tooling as a an [issue](https://github.com/Azure-Samples/Speech-Service-DevOps-Template/issues), or propose changes by submitting a pull request into the **develop** branch.
