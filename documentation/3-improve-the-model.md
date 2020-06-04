@@ -72,7 +72,7 @@ When developing a Custom Speech model, you update training data to improve the a
 
 To make changes to the testing data:
 
-1. Unzip the `testing/audio-and-trans.zip` file.
+1. Unzip the `testing/audio-and-trans.zip` file to a temporary folder.
 1. Open `trans.txt` and add some text to the beginning of the transcription, for example:
 
     ```txt
@@ -81,7 +81,7 @@ To make changes to the testing data:
 
     >**Note**: Transcript files are strictly formatted. Do not add an additional line, modify the file name (**audio.wav**) at the beginning of the line, or delete the tab character separating the filename from the following text. For more details refer to [audio + human-labeled transcript data](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) in the Custom Speech documentation.
 
-1. Zip up the files and replace the original `testing/audio-and-trans.zip`.
+1. Zip up the two files `audio.wav` and `trans.txt` into a new zipped folder named `audio-and-trans.zip` and save it in the `testing` folder in your repo, replacing the original `testing/audio-and-trans.zip`.
 1. Add and commit the changes:
 
     ```bash
