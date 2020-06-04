@@ -7,7 +7,7 @@ This document shows how to create your GitHub repository from this template, cre
 - [Create your repo](#Create-your-repo)
 - [Provision Azure resources](#Provision-Azure-resources)
 - [Create the Speech project](#Create-the-Speech-project)
-- [Create GitHub Secrets](#Create-GitHub-Secrets)
+- [Create GitHub secrets](#Create-GitHub-secrets)
 - [Create the Azure Service Principal](#Create-the-Azure-Service-Principal)
 - [Protect the master branch](#Protect-the-master-branch)
 - [Next steps](#Next-steps)
@@ -32,8 +32,6 @@ To create your repository:
     1. Click **Create repository from template** to create your copy of this repository.
 
 1. After your repository is created, [clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository).
-
-This template includes sample data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of this walk through. Details will follow, but eventually the sample data will be replaced with data for your own project.
 
 >**Note**: If you are using this solution as the starting point for a Custom Speech project with a lot of data, consider [configuring Git Large File Storage](4-advanced-customization.md#Use-Git-Large-File-Storage) to manage large files.
 
@@ -76,9 +74,9 @@ To create the project:
 
 1. Open [Speech Studio](https://speech.microsoft.com/portal/) and click the cog in the upper right corner, then click **Speech resources**:
 
-    ![Speech Studio Speech Resource](../images/SpeechStudioSpeechResources.png)
+    ![Speech Studio Speech resource](../images/SpeechStudioSpeechResources.png)
 
-1. Select the Speech Resource that was created in the previous step. If you cannot see your speech resource, wait for a short while and refresh the page.
+1. Select the Speech resource that was created in the previous step. If you cannot see your Speech resource, wait for a short while and refresh the page.
 1. Click the eye icon to reveal the **Speech resource key**.
     >**Note**: Take note of this key for use later on.
 
@@ -92,15 +90,15 @@ To create the project:
     1. **Description**: Enter a description.
     1. **Language**: Select _English (United States)_.
 
-## Create GitHub Secrets
+## Create GitHub secrets
 
-[GitHub Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) serve as parameters to the GitHub Actions workflow while keeping those values secret. When viewing the workflow logs, secrets will appear as `***`.
+[GitHub secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets) serve as parameters to the GitHub Actions workflow while keeping those values secret. When viewing the workflow logs, secrets will appear as `***`.
 
-To create your GitHub Secrets:
+To create your GitHub secrets:
 
 1. Click the **Settings** tab on the home page of your repository.
 1. Select **Secrets** in the Options menu.
-1. For each secret below, click **New Secret**, enter the **Name** and **Value** below, and click **Add secret**:
+1. For each secret below, click **New secret**, enter the **Name** and **Value** below, and click **Add secret**:
 
     | Name | Value |
     |-------------|-------|
@@ -159,7 +157,7 @@ To create the Azure Service Principal:
 
 1. Using the process above, create a GitHub Secret named `AZURE_CREDENTIALS` with a value of the JSON above.
 
-    ![GitHub Secrets](../images/GitHubSecrets.png)
+    ![GitHub secrets](../images/GitHubSecrets.png)
 
 ## Protect the master branch
 

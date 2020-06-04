@@ -24,11 +24,11 @@ $servicePrincipalAppId=$(az ad sp list --display-name $spname --query "[].appId"
 # grant Storage Blob Data Contributor access just to this resource group
 az role assignment create --assignee $servicePrincipalAppId `
         --role "Storage Blob Data Contributor" `
-        --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroup" 
+        --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroup"
 
 # Show token
 Write-Host ""
-Write-Host "Copy the following JSON and paste into a GitHub Secret called AZURE_CREDENTIALS:" -ForegroundColor Yellow
+Write-Host "Copy the following JSON and paste into a GitHub secret called AZURE_CREDENTIALS:" -ForegroundColor Yellow
 Write-Host ""
 Write-Host $RBAC_TOKEN -ForegroundColor Gray
 Write-Host ""
