@@ -10,33 +10,29 @@ Follow these steps to understand how to create a baseline Speech model. This bas
 
 ## Push a baseline tag
 
-To create a baseline model, push a [git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging) prefixed with `BASELINE`. This tag will trigger the **SpeechTestDataCI** GitHub Actions workflow (found at `.github/workflows/speech-test-data-ci.yml`) to test the latest Speech baseline model against data in the `testing` folder and creates a testing benchmark for future Custom Speech models to to be tested against. When you start development of a Custom Speech model with a baseline model, it's easy to see when your changes to the Custom Speech model improve its recognition accuracy.
+Push a tag beginning with `BASELINE` to trigger a GitHub Actions workflow that tests the standard baseline Azure Speech model against data in the `testing` folder. This will create a benchmark against which Custom Speech models will be compared. When you start development of a Custom Speech model with a baseline model, it's easy to see when your changes to the Custom Speech model improve its recognition accuracy.
 
-Each tag should be unique since duplicate tags will cause test results and summaries to be overwritten in Azure Blob storage. It is recommended to use some sort of versioning in tag names as well.
-
-1. To push an [annotated tag](https://www.atlassian.com/git/tutorials/inspecting-a-repository/git-tag), which simply has extra meta data compared to lightweight tags:
+1. To push a tag, enter the following in a command window in the root folder of your repo:
 
     ```bash
     git checkout master
     git pull
-    git tag -a BASELINE_0
+    git tag BASELINE_0
     git push origin BASELINE_0
     ```
 
-Moving forward, the **SpeechTestDataCI** workflow also executes when data in the `testing` folder is updated, as you'll see in the next step.
->**Note:** Pushing a `BASELINE` tag and testing updates is not supported at this time. Do not include changes to the test data when pushing a baseline tag.
+>**Note:** The **SpeechTestDataCI** workflow also executes when data in the `testing` folder is updated. Pushing a `BASELINE` tag and updates to the `testing` folder is not supported. Do not include changes to the test data when pushing a baseline tag.
 
 ## Confirm the workflow results
 
-When you push a baseline tag to **master**, the **SpeechTestDataCI** workflow tests the latest baseline model against the test data and outputs test results and a test summary. Since this is the first time these tests have been run, the results become the benchmark that future models must outperform.
+When you push a baseline tag to **master**, the **SpeechTestDataCI** workflow found at `.github/workflows/speech-test-data-ci.yml` tests the baseline model against the test data and outputs test results and a test summary. Since this is the first time these tests have been run, the results become the benchmark that future models must outperform.
 
 ### View the workflow run
 
 To view the workflow run for your tag:
 
 1. Navigate to the **Actions** tab of your repository.
-1. Select **SpeechTestDataCI** on the left navigation menu.
-1. Select the event that represents your tag.
+1. Click on the **SpeechTestDataCI** workflow run that was triggered by your tag.
 
     ![Actions tab showing that the SpeechTestDataCI workflow is running](../images/WorkflowRunning.png)
 
@@ -51,13 +47,13 @@ The workflow stores the test summary and test results in an Azure Storage contai
 
 To view the test files and the file name of the current benchmark test summary:
 
-1. Open [Azure Portal](https://ms.portal.azure.com/#home) and navigate the Azure Storage Account created in [Setup](1-setup.md#Table-of-contents).
+1. Open [Azure Portal](https://ms.portal.azure.com/#home) and navigate to the Azure Storage Account created in [Setup](1-setup.md#Table-of-contents).
 1. Under **Tools and SDKs**, select **Storage Explorer (preview)**.
 1. Select **BLOB CONTAINERS** in the navigation menu on the left.
 1. Select the **test-results** container.
-1. Open the `test-summary-from-baseline-tag-BASELINE_0.json` file to view the test results from your baseline model.
+1. Double click the `test-summary-from-baseline-tag-BASELINE_0.json` file to view the test results from your baseline model.
 1. Select the **configuration** container.
-1. Open `benchmark-test.txt` and confirm it contains the name of the test summary file from the baseline model, `test-results-from-baseline-tag-BASELINE_0.txt`.
+1. Double click `benchmark-test.txt` and confirm it contains the name of the test summary file from the baseline model, `test-results-from-baseline-tag-BASELINE_0.txt`.
 
 The test summary becomes the benchmark the first time tests are run by a workflow. In the future, pushing a baseline tag won't overwrite the benchmark test summary in `benchmark-test.txt`, but the test files are always available in the `test-results` container where you can find the WER and other notable data.
 
@@ -68,7 +64,5 @@ Now that you understand how to create the baseline model, you're ready to attemp
 See the following documents for more information on this template and the engineering practices it demonstrates:
 
 * [Setup](1-setup.md#table-of-contents)
-
 * [Improve the model](3-improve-the-model.md#table-of-contents)
-
 * [Advanced customization](4-advanced-customization.md#table-of-contents)
