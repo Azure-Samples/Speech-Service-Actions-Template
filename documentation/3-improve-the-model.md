@@ -22,8 +22,7 @@ Follow these steps to create a pull request containing updates to the training a
 * [Update the testing data](#Update-the-testing-data)
 * [Test the effect of training and testing data updates](#Test-the-effect-of-training-and-testing-data-updates)
 * [Create the pull request](#Create-the-pull-request)
-* [Confirm the testing workflow results](#Confirm-the-testing-workflow-results)
-* [Confirm the training workflow results](#Confirm-the-training-workflow-results)
+* [Confirm the workflows](#Confirm-the-workflows)
 * [Next steps](#Next-steps)
 
 ## Create development Speech project
@@ -95,13 +94,11 @@ To make changes to the testing data:
 
 ## Test the effect of training and testing data updates
 
-The changes to `training/related-text.txt` represent changes you'll make to your training data to adapt your Custom Speech model to your needs. Before a pull request is created, the changes should be tested against data in the `testing` folder to confirm that they will improve a model's recognition. The WER from the tests can gauge a model's recognition accuracy. If the WER improves, the updates can be submitted in a pull request.
-
-To do that testing, use your development Speech project.
+After you have made updates to training data for a Custom Speech model, you can test the effect on your model by using Speech Studio before you raise a pull request. The WER from the tests can gauge a model's recognition accuracy. If the WER improves, the updates can be submitted in a pull request.
 
 >**Note**: In this walk through, you will submit your changes as a PR regardless of the WER to illustrate making a change to the training and testing data.
 
-Use your development Speech Project to test the effect of your changes:
+To do that testing, use your development Speech project:
 
 1. Open [Speech Studio](https://speech.microsoft.com/portal/).
 1. Open your development Speech project from [Test the baseline model](2-test-the-baseline-model#Test-training-data-effect).
@@ -132,15 +129,17 @@ To create the pull request:
 1. Click the **Merge pull request** button to merge the pull request into **master**.
     >**Note:** If you have set up branch protection policies, you will need to check **Use your administrator privileges** to merge the pull request.
 
-## Confirm the testing workflow results
+## Confirm the workflows
 
-When you merge a pull request that includes testing data updates, the **SpeechTestDataCI** GitHub Actions workflow will run. **SpeechTestDataCI** retests the benchmark model to calculate the new benchmark WER based on the updated test data.
+In this walkthrough, you merged a pull request to **master** with updates to both the testing and training data. GitHub Action workflows stored in the `.github/workflows/` directory will run when triggered. Updates to testing data trigger the **SpeechTestDataCI** workflow, while updates to training data trigger the **SpeechTrainDataCICD** workflow. Immediately after merging your pull request, click on the **Actions** tab on GitHub to see both of them running.
 
-This ensures that when the WER of any new models is compared with the WER of the benchmark, both models have been tested against the same test data.
+### Confirm the testing workflow results
 
-GitHub Action workflows stored in the `.github/workflows/` directory will run when triggered. To view the **SpeechTestDataCI** YAML open `.github/workflows/speech-test-data-ci.yml`.
+**SpeechTestDataCI** retests the benchmark model to calculate the new benchmark WER based on the updated test data. This ensures that when the WER of any new models is compared with the WER of the benchmark, both models have been tested against the same test data.
 
-### View the workflow run
+To view the **SpeechTestDataCI** YAML open `.github/workflows/speech-test-data-ci.yml`.
+
+#### View the workflow run
 
 To view **SpeechTestDataCI** workflow run for your pull request:
 
@@ -153,7 +152,7 @@ To view **SpeechTestDataCI** workflow run for your pull request:
 1. Wait for the jobs to complete successfully.
 1. Familiarize yourself with the jobs and tasks in the workflow.
 
-### View the test results
+#### View the test results
 
 The test summary and test results created in this run are saved in the `test-results` container that was created during the first execution of the workflow. The file `benchmark-test.txt` in the `configuration` container will be overwritten to contain the name of the benchmark test summary file that was created in this run.
 
@@ -167,19 +166,16 @@ To view the test results and benchmark:
 1. Select the **configuration** container.
 1. Open `benchmark-test.txt` and confirm it contains the name of the test summary file from the baseline model.
 
-## Confirm the training workflow results
+### Confirm the training workflow results
 
-When you merge a pull request that includes training data updates, the **SpeechTrainDataCICD** GitHub Actions workflow will run. Much of the **SpeechTrainDataCICD** workflow is the same as when building the baseline model. The key difference is that the WER of the new model is compared to the WER of the benchmark model, including:
+Much of the **SpeechTrainDataCICD** workflow is the same as when building the baseline model. The key difference is that the WER of the new model is compared to the WER of the benchmark model, including:
 
 * **WER is better than the benchmark** - The training workflow will pass if the new model has a better WER than the benchmark model. The test summary from the new model will replace the benchmark results in `benchmark-test.txt`. The workflow will create a release and endpoint for the new model.
-
 * **WER is worse than the benchmark** - The workflow fails if the new model's WER is worse than the benchmark model's WER. In this case, the new model will be deleted and the workflow will exit without creating a release and endpoint for the new model.
 
 To view the results of this workflow, follow the training workflow confirmation steps from [Test the baseline model](2-test-the-baseline-model.md#Confirm-the-Workflow-Results).
 
-As a part of the **release** job, there is a step in place which deletes all but the 5 latest models of the current model kind.
-
-**Deleting an endpoint should be a manual process because deleting an endpoint has larger ramifications than deleting a model**. Models will not be deleted if they are attached to an endpoint.
+As a part of the **release** job, there is a step in place which deletes all but the 5 latest models of the current model kind. If models are attached to an endpoint, they won't be deleted since deleting an endpoint should be a manual process.
 
 ## Next steps
 
