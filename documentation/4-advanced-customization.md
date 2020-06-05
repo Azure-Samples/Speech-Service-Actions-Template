@@ -18,16 +18,17 @@ The following environment variables are set in  `speech-test-data-ci.yml` and/or
 
 >**Note:** Variable values that are paths should not contain anchors at the beginning or end (for example `./foo.txt`), and folders should not contain slashes at the end (such as `var/`).
 
-| Variable                    | Value |
-|-----------------------------|-------|
-| **IS_PRIVATE_REPOSITORY**   | `true` if the repository is private and `false` otherwise. |
-| **PRONUNCIATION_FILE_PATH** | The path from the root of the repository to the pronunciation data file.<br><br>***Note:** This should be the same value as one of the three entries for `on.push.paths`.* |
-| **RELATED_TEXT_FILE_PATH**  | The path from the root of the repository to the related text data file.<br><br>***Note:** This should be the same value as one of the three entries for `on.push.paths`.* |
-| **SPEECH_LOCALE**           | See [language support](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support) for available locales. |
-| **TEST_ZIP_SOURCE_PATH**    | The path from the root of the repository to a .zip with .wav files and a .txt transcript used for testing. |
-| **TEST_TRANS_FILE**         | The name and extension of the .txt transcript file that will be extracted from `testZipSourcePath`. |
-| **TRAIN_ZIP_SOURCE_PATH**   | The path from the root of the repository to a .zip with .wav files and a .txt transcript used for training.<br><br>***Note:** This should be the same value as one of the three entries for `on.push.paths`.* |
-| **TRAIN_TRANS_FILE**        | The name and extension of the .txt transcript file that will be extracted from `trainZipSourcePath`. |
+| Variable                     | Value |
+|------------------------------|-------|
+| **CUSTOM_SPEECH_MODEL_KIND** | V2 Custom Speech models can be either `Acoustic` or `Language` models. The proper paths to the training data for the specific model type should be set in the `speech-train-data-ci-cd.yml` environment variables. |
+| **IS_PRIVATE_REPOSITORY**    | `true` if the repository is private and `false` otherwise. |
+| **PRONUNCIATION_FILE_PATH**  | The path from the root of the repository to the pronunciation data file. Set to an empty string if you are training an acoustic model.<br><br>***Note:** This should be the same value as one of the three entries for `on.push.paths` in `speech-train-data-ci-cd.yml`.* |
+| **RELATED_TEXT_FILE_PATH**   | The path from the root of the repository to the related text data file. Set to an empty string if you are training an acoustic model.<br><br>***Note:** This should be the same value as one of the three entries for `on.push.paths` in `speech-train-data-ci-cd.yml`.* |
+| **SPEECH_LOCALE**            | See [language support](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support) for available locales. |
+| **TEST_ZIP_SOURCE_PATH**     | The path from the root of the repository to a .zip with .wav files and a .txt transcript used for testing.<br><br>***Note:** This should be the same value as the entry for `on.push.paths` in `speech-test-data-ci.yml`.* |
+| **TEST_TRANS_FILE**          | The name and extension of the .txt transcript file that will be extracted from `testZipSourcePath`. |
+| **TRAIN_ZIP_SOURCE_PATH**    | The path from the root of the repository to a .zip with .wav files and a .txt transcript used for training. Set to an empty string if you are training a language model.<br><br>***Note:** This should be the same value as one of the three entries for `on.push.paths` in `speech-train-data-ci-cd.yml`.* |
+| **TRAIN_TRANS_FILE**         | The name and extension of the .txt transcript file that will be extracted from `trainZipSourcePath`. Set to an empty string if you are training a language model. |
 
 ## Change locales
 
@@ -35,7 +36,7 @@ Custom Speech supports different features depending on the locale. See [language
 
 In `speech-train-data-ci-cd.yml`, the locale is defined to be `en-us`:
 
-```YAML
+```yml
   SPEECH_LOCALE: "en-us"
 ```
 
@@ -56,7 +57,7 @@ Complete the following to configure a clean **master**:
 1. Configure [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) by creating a **develop** branch from master.
 1. Find the following YAML in both `.github/workflows/speech-test-data-ci.yml` and `.github/workflows/speech-train-data-ci-cd.yml`:
 
-    ```YAML
+    ```yml
     on:
       push:
         # Execute on pushes to master.
@@ -66,7 +67,7 @@ Complete the following to configure a clean **master**:
 
 1. Add the **develop** branch to `branches`:
 
-    ```YAML
+    ```yml
     on:
       push:
         # Execute on pushes to master and develop.
@@ -91,7 +92,7 @@ To exclude training data:
 
 1. Find the following YAML in `speech-train-data-ci-cd.yml`:
 
-    ```YAML
+    ```yml
       #############################################################################
       # Training Data
       #############################################################################
@@ -103,7 +104,7 @@ To exclude training data:
 
 1. Set the paths to an empty string for each type of training data you wish to exclude. For example, if a locale did not support acoustic models:
 
-    ```YAML
+    ```yml
       #############################################################################
       # Training Data
       #############################################################################
@@ -125,40 +126,40 @@ There are alternatives to Git LFS for managing this data, such as [Azure Blob St
 
 1. In `.github/workflows`, open `speech-train-data-ci-cd.yml` and `speech-test-data-ci.yml` and find the following YAML:
 
-    ```YAML
-        # lfs: true
+    ```yml
+      #     lfs: true
 
-    # - name: Checkout LFS objects
-    #   run: git lfs checkout
+      # - name: Checkout LFS objects
+      #   run: git lfs checkout
     ```
 
 1. Uncomment the YAML:
 
-    ```YAML
-        lfs: true
+    ```yml
+          lfs: true
 
-    - name: Checkout LFS objects
-      run: git lfs checkout
+      - name: Checkout LFS objects
+        run: git lfs checkout
     ```
 
 1. In `speech-train-data-ci-cd.yml`, find the following YAML:
 
-    ```YAML
-    #   with:
-    #     lfs: true
+    ```yml
+      #   with:
+      #     lfs: true
 
-    # - name: Checkout LFS objects
-    #   run: git lfs checkout
+      # - name: Checkout LFS objects
+      #   run: git lfs checkout
     ```
 
 1. Uncomment the YAML:
 
-    ```YAML
-      with:
-        lfs: true
+    ```yml
+        with:
+          lfs: true
 
-    - name: Checkout LFS objects
-      run: git lfs checkout
+      - name: Checkout LFS objects
+        run: git lfs checkout
     ```
 
 1. Commit the changes:
