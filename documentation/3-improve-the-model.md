@@ -168,14 +168,75 @@ To view the test results and benchmark:
 
 ### Confirm the training workflow results
 
-Much of the **SpeechTrainDataCICD** workflow is the same as when building the baseline model. The key difference is that the WER of the new model is compared to the WER of the benchmark model, including:
+The **SpeechTrainDataCICD** workflow trains a model, tests that model, and compares the WER from testing the new model to the WER from the benchmark model, including:
 
-* **WER is better than the benchmark** - The training workflow will pass if the new model has a better WER than the benchmark model. The test summary from the new model will replace the benchmark results in `benchmark-test.txt`. The workflow will create a release and endpoint for the new model.
+* **WER is better than the benchmark** - The training workflow will pass if the new model has a better WER than the benchmark model. The test summary from the new model will replace the benchmark results in `benchmark-test.txt`. The workflow will create a GitHub release and a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) from that model. The GitHub release contains a copy of the repository contents at the time the release was created, along with a JSON file that contains the endpoint.
 * **WER is worse than the benchmark** - The workflow fails if the new model's WER is worse than the benchmark model's WER. In this case, the new model will be deleted and the workflow will exit without creating a release and endpoint for the new model.
 
-To view the results of this workflow, follow the training workflow confirmation steps from [Test the baseline model](2-test-the-baseline-model.md#Confirm-the-Workflow-Results).
-
 As a part of the **release** job, there is a step in place which deletes all but the 5 latest models of the current model kind. If models are attached to an endpoint, they won't be deleted since deleting an endpoint should be a manual process.
+
+#### View the workflow run
+
+To view workflow run for your pull request:
+
+1. Navigate to the **Actions** tab of your repository.
+1. Select **SpeechTrainDataCICD** on the left navigation menu.
+1. Select the event that represents your pull request.
+
+    ![Actions tab showing that the workflow is running](../images/WorkflowRunning.png)
+
+1. Wait for the jobs to complete successfully.
+    > **Note:** Training models takes upwards of 30 minutes.
+1. Familiarize yourself with the jobs and steps in the workflow.
+
+#### View the model
+
+Data from the `training` folder is used to train a Custom Speech model.
+
+To view the model:
+
+1. Open [Speech Studio](https://speech.microsoft.com/portal/).
+1. Open the the main Speech project from [Setup](1-setup.md#table-of-contents).
+1. Select **Training** and note the new model created.
+
+If the WER does not improve, the model will be deleted, but you can view improved models and models that are in the process of training. The workflow will keep the 5 latest models of whatever kind you are currently training, either acoustic or language models, along with any models that are attached to an endpoint.
+
+#### View the test results
+
+When the new model is done training, the workflow tests the new model's accuracy using [audio + human-labeled transcripts](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-test-and-train#audio--human-labeled-transcript-data-for-testingtraining) in `testing/audio-and-trans.zip`.
+
+Testing creates a test summary and a test results file. The test summary contains the WER for that test.
+
+The workflow stores the test summary and test results in an Azure Storage container called `test-results`. The workflow also creates an Azure Storage container called `configuration` with a single file, `benchmark-test.txt`. This file contains the name of the test summary file for the model with the best WER, establishing a benchmark to compare future models against.
+
+To view the test files and the file name of the current benchmark test summary:
+
+1. Open [Azure Portal](https://ms.portal.azure.com/#home) and navigate the Azure Storage Account created in [Setup](1-setup.md#table-of-contents).
+1. Under **Tools and SDKs**, select **Storage Explorer (preview)**.
+1. Select **BLOB CONTAINERS** in the navigation menu on the left.
+1. Select the **test-results** container.
+1. Open the `test-summary-from-train-data-update-XXXXXXX.json` file to view the test results from your baseline model.
+1. Select the **configuration** container.
+1. Open `benchmark-test.txt` and confirm it contains the name of the test summary file from the baseline model.
+
+#### View the release and endpoint
+
+Finally, if the WER improves, the **SpeechTrainDataCICD** workflow creates a GitHub release and a [Custom Speech endpoint](https://docs.microsoft.com/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) from that model. The GitHub release contains a copy of the repository contents at the time the release was created, along with a JSON file that contains the endpoint.
+
+To view the release and endpoint:
+
+1. Navigate to the **Code** tab of the main repository.
+1. Select **Releases** to see the release created for your pull request.
+
+    ![Latest Release](../images/LatestRelease.png)
+
+1. Select `release-endpoints.json` to download the file and view the ID of the [Custom Speech endpoint](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) created for the model:
+
+    ```json
+    {"ENDPOINT_ID":"########-####-####-####-############"}
+    ```
+
+Update endpoints in your client application to use the latest release at your own discretion. As stated in [View the model](#View-the-model), as long as you don't delete an endpoint manually, the model behind that endpoint will not be deleted either.
 
 ## Next steps
 
