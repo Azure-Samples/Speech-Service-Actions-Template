@@ -43,13 +43,7 @@ To create these resources:
 
 1. Click the **Deploy to Azure** button below:
 
-    **IMPORTANT:** The URL behind this button is temporary while the repo is private. Remove this message and change the URL to the correct target when this goes public.
-
-    [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FKatieProchilo%2FDeployToAzure%2Fmaster%2Fazuredeploy.json)
-
-    <!--
-    [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FSpeech-Services-DevOps-Samples%2Fmaster%2Fazuredeploy.json)
-    -->
+    [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FSpeech-Service-DevOps-Template%2Fmaster%2Fazuredeploy.json)
 
 1. Enter the values in the template, including:
 
