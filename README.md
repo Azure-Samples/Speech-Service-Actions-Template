@@ -10,10 +10,7 @@ urlFragment: "update-this-to-unique-url-stub"
 
 # Speech Services DevOps Template
 
-![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
-
-<!-- Uncomment after repo is public -->
-<!-- ![Preview](https://img.shields.io/github/v/release/Azure-Samples/Speech-Service-DevOps-Samples?include_prereleases&sort=semver) -->
+![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg) ![Preview](https://img.shields.io/github/v/release/Azure-Samples/Speech-Service-DevOps-Template?include_prereleases&sort=semver)
 
 > **Speech-Service-DevOps-Template** is currently under **public preview** and is not ready for production use.
 
