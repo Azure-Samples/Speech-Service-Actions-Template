@@ -378,7 +378,7 @@ jobs:
       - name: Verify the configuration file exists
         run: az storage blob exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --auth-mode login | jq '.exists' | xargs -I {} echo "::set-env name=BENCHMARK_BLOB_EXISTS::{}"
 
-      - name: Get the benchmark word error rate (WER)
+      - name: Get the benchmark Word Error Rate (WER)
         if: env.BENCHMARK_BLOB_EXISTS == 'true'
         run: |
           az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file previous-benchmark-test.txt --auth-mode login
@@ -387,7 +387,7 @@ jobs:
           jq '.wordErrorRate' benchmark-test-results.json | xargs -I {} echo "::set-env name=BENCHMARK_WER::{}"
 
       # Get NEW_WER from the newly-created test results file.
-      - name: Get the new word error rate (WER)
+      - name: Get the new Word Error Rate (WER)
         if: env.BENCHMARK_BLOB_EXISTS == 'true'
         run: jq '.wordErrorRate' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs -I {} echo "::set-env name=NEW_WER::{}"
 
