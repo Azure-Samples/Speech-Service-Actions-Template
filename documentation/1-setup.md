@@ -21,7 +21,7 @@ To create your repository:
 1. If you don't already have a GitHub account, create one by following the instructions at [Join GitHub: Create your account](https://github.com/join).
 1. Click the green **Use this template** button on the home page of this repo to create a new repo with the same files and folders as the template.
 
-    ![Use this template](../images/template_button.png?raw=true "Cloning the template repo")
+    ![Use this template](../images/use-this-template.png?raw=true "Cloning the template repo")
 
     1. Enter your own **Repository name** where prompted.
     1. Select **Private** if you want to create a private repository.
@@ -68,13 +68,13 @@ To create the project:
 
 1. Open [Speech Studio](https://speech.microsoft.com/portal/) and click the cog in the upper right corner, then click **Speech resources**:
 
-    ![Speech Studio Speech resource](../images/SpeechStudioSpeechResources.png)
+    ![Speech Studio Speech resource](../images/speech-studio-speech-resources.png)
 
 1. Select the Speech resource that was created in the previous step. If you cannot see your Speech resource, wait for a short while and refresh the page.
 1. Click the eye icon to reveal the **Speech resource key**.
     >**Note**: Take note of this key for use later on.
 
-    ![Speech Studio Speech Subscription Key](../images/SpeechStudioSubscriptionKey.png)
+    ![Speech Studio Speech Subscription Key](../images/speech-studio-subscription-key.png)
 
 1. Click **Go to Studio**.
 1. Select **Custom Speech**.
@@ -151,7 +151,7 @@ To create the Azure Service Principal:
 
 1. Using the process above, create a GitHub Secret named `AZURE_CREDENTIALS` with a value of the JSON above.
 
-    ![GitHub secrets](../images/GitHubSecrets.png)
+    ![GitHub secrets](../images/github-secrets.png)
 
 ## Protect the master branch
 

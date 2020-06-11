@@ -147,7 +147,7 @@ To view **SpeechTestDataCI** workflow run for your pull request:
 1. Select the **SpeechTestDataCI** workflow on the left navigation menu.
 1. Select the run that represents your pull request.
 
-    ![Actions tab showing that the workflow is running](../images/WorkflowRunning.png)
+    ![Actions tab showing that the workflow is running](../images/test-data-update-workflow-running.png)
 
 1. Wait for the jobs to complete successfully.
 1. Familiarize yourself with the jobs and tasks in the workflow.
@@ -183,7 +183,7 @@ To view workflow run for your pull request:
 1. Select **SpeechTrainDataCICD** on the left navigation menu.
 1. Select the event that represents your pull request.
 
-    ![Actions tab showing that the workflow is running](../images/WorkflowRunning.png)
+    ![Actions tab showing that the workflow is running](../images/train-data-update-workflow-running.png)
 
 1. Wait for the jobs to complete successfully.
     > **Note:** Training models takes upwards of 30 minutes.
@@ -228,7 +228,7 @@ To view the release and endpoint:
 1. Navigate to the **Code** tab of the main repository.
 1. Select **Releases** to see the release created for your pull request.
 
-    ![Latest Release](../images/LatestRelease.png)
+    ![Latest Release](../images/latest-release.png)
 
 1. Select `release-endpoints.json` to download the file and view the ID of the [Custom Speech endpoint](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-custom-speech-deploy-model) created for the model:
 
