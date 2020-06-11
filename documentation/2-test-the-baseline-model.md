@@ -34,7 +34,7 @@ To view the workflow run for your tag:
 1. Navigate to the **Actions** tab of your repository.
 1. Click on the **SpeechTestDataCI** workflow run that was triggered by your tag.
 
-    ![Actions tab showing that the SpeechTestDataCI workflow is running](../images/WorkflowRunning.png)
+    ![Actions tab showing that the SpeechTestDataCI workflow is running](../images/baseline-tag-workflow-running.png)
 
 1. Wait for the jobs to complete successfully.
 1. Familiarize yourself with the jobs and steps in the workflow.
