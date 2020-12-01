@@ -395,9 +395,17 @@ jobs:
         if: ${{ env.BENCHMARK_WER <= env.NEW_WER }}
         run: |
           spx csr model delete --model @my.model.url
-          echo DELETED CUSTOM SPEECH MODEL.
+          spx config --clear
+          echo DELETED CUSTOM SPEECH MODEL AND CONFIGURATION.
           echo "::error ::Failed to improve upon the benchmark Custom Speech model. Submit a pull request with updates to training data to try again."
           exit 1
+
+      # Delete all potentially sensitive config variables from build machine
+      - name: Delete Model configuration 
+        run: |
+          spx config --clear
+          echo MODEL CONFIGURATION DELETED
+  
 
   #############################################################################
   #
@@ -433,13 +441,13 @@ jobs:
 
       # https://github.com/GitTools/GitVersion
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@6dfe406
+        uses: gittools/actions/gitversion/setup@v0.9.7
         with:
-          versionSpec: "5.2.x"
+          versionSpec: "5.5.x"
 
       - name: Use GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@6dfe406
+        uses: gittools/actions/gitversion/execute@v0.9.7
 
       - name: Set environment variables
         run: |
@@ -472,7 +480,8 @@ jobs:
             echo "::error ::Failed to get the benchmark Custom Speech model. Possibly re-run all jobs."
             exit 1
           fi
-          echo "CUSTOM_SPEECH_MODEL_ID=$(echo $custom_speech_model_id)" >> $GITUB_ENV
+          spx csr model list --models --output url @my.model.url
+          echo "CUSTOM_SPEECH_MODEL_ID=$(echo $custom_speech_model_id)" >> $GITHUB_ENV
 
       - name: Delete all but the 5 latest models
         run: |
@@ -507,7 +516,6 @@ jobs:
       - name: Create Release Asset
         run: |
           spx csr endpoint create --name endpoint_${CURRENT_COMMIT_HASH} --language ${{ env.SPEECH_LOCALE }} --model @my.model.url --output url @my.endpoint.url --wait
-          #speech endpoint create -n endpoint_${CURRENT_COMMIT_HASH} -l ${{ env.SPEECH_LOCALE }} -m ${{ env.CUSTOM_SPEECH_MODEL_ID }} -lm ${{ env.CUSTOM_SPEECH_MODEL_ID }} --wait > ${{ env.TRAIN_BUILD_FOLDER_PATH }}/endpoint-output.txt
           endpoint_id=$(cat my.endpoint.url | tail -c 36)
           if ! [[ ${endpoint_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
@@ -544,3 +552,10 @@ jobs:
           asset_path: ${{ env.TRAIN_BUILD_FOLDER_PATH }}/${{ env.RELEASE_FILE }}
           asset_name: ${{ env.RELEASE_FILE }}
           asset_content_type: application/json
+
+      # Delete all potentially sensitive config variables from build machine
+      - name: Delete Endpoint configuration 
+        run: |
+          spx config --clear
+          echo ENDPOINT CONFIGURATION DELETED
+  

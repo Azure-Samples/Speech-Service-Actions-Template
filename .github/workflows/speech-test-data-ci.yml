@@ -212,7 +212,7 @@ jobs:
       # logging, so the result is a JSON file.
       - name: Store JSON test output
         run: |
-          spx csr evaluation status --evaluation @my.test.result --output json ${TEST_BUILD_FOLDER_PATH}/test_json_${HYPHEN_EVENT_NAME}_${EVENT_ID}
+          spx csr evaluation status --evaluation @my.test.result --output json ${TEST_BUILD_FOLDER_PATH}/test_json_${UNDERSCORE_EVENT_NAME}_${EVENT_ID}
       #########################################################################
       # Archive test summary and test results in Blob
       #########################################################################
@@ -226,12 +226,12 @@ jobs:
       - name: Save test summary in Azure Blob
         uses: azure/CLI@v1
         with:
-          inlineScript: az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test_json_${HYPHEN_EVENT_NAME}_${EVENT_ID} --file ${TEST_BUILD_FOLDER_PATH}/test_json_${HYPHEN_EVENT_NAME}_${EVENT_ID} --auth-mode login
+          inlineScript: az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test_json_${UNDERSCORE_EVENT_NAME}_${EVENT_ID} --file ${TEST_BUILD_FOLDER_PATH}/test_json_${UNDERSCORE_EVENT_NAME}_${EVENT_ID} --auth-mode login
 
       - name: Save test results in Azure Blob
         run: |
-          cat ${TEST_BUILD_FOLDER_PATH}/test_json_${HYPHEN_EVENT_NAME}_${EVENT_ID} > test-results.txt
-          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-${HYPHEN_EVENT_NAME}-${EVENT_ID}.txt --file test-results.txt --auth-mode login
+          cat ${TEST_BUILD_FOLDER_PATH}/test_json_${UNDERSCORE_EVENT_NAME}_${EVENT_ID} > test-results.txt
+          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-${UNDERSCORE_EVENT_NAME}-${EVENT_ID}.txt --file test-results.txt --auth-mode login
       # Delete the test. This must be done after the test results file is
       # generated, as the resultsUrl will only be available while the test
       # exists.
@@ -239,6 +239,13 @@ jobs:
         run: |
           spx csr evaluation delete --evaluation @my.test.result
           echo DELETED TEST.
+
+      # Delete all potentially sensitive config variables from build machine
+      - name: Delete Test configuration 
+        run: |
+          spx config --clear
+          echo TEST CONFIGURATION DELETED
+  
       - name: Verify the configuration file exists
         run: az storage blob exists --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --auth-mode login | jq '.exists' | xargs -I {} echo "BENCHMARK_BLOB_EXISTS={}" >> $GITHUB_ENV
 
@@ -252,5 +259,5 @@ jobs:
       - name: Update benchmark in configuration file
         if: ${{ env.IS_BASELINE_TEST != 'true' || env.BENCHMARK_BLOB_EXISTS == 'false' || env.INITIAL_MODEL_EXISTS == 'false' }}
         run: |
-          echo test_json_${HYPHEN_EVENT_NAME}_${EVENT_ID} > ${TEST_BUILD_FOLDER_PATH}/benchmark-test.txt
+          echo test_json_${UNDERSCORE_EVENT_NAME}_${EVENT_ID} > ${TEST_BUILD_FOLDER_PATH}/benchmark-test.txt
           az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file ${TEST_BUILD_FOLDER_PATH}/benchmark-test.txt --auth-mode login
