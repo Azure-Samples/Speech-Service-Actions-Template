@@ -220,25 +220,6 @@ jobs:
           fi
           echo "LANGUAGE_ID=$(echo $language_id)" >> $GITHUB_ENV
 
-      # Get the latest baseline model, which is the underlying, non-customized
-      # portion of Custom Speech models.
-      #
-      # Check that the baseline model has been successfully downloaded with
-      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
-      # the variable is a valid GUID with 32 hexadecimal characters.
-      - name: Get latest baseline model
-        run: |
-          spx csr model list --base --models --output json base_models.json
-          jq --arg LOC "$SPEECH_LOCALE" '.values[] | select(.locale==$LOC).self' base_models.json | tr -d \" > base_models.txt
-          rm base_models.json
-          base_model_id=$(tail -1 base_models.txt | tr -d '[:space:]' | tail -c 36)
-          if ! [[ ${base_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-          then
-            echo "::error ::Failed to get the latest baseline model. Possibly re-run all jobs."
-            exit 1
-          fi
-          echo "BASE_MODEL_ID=$(echo $base_model_id)" >> $GITHUB_ENV
-
       # Train the Custom Speech Model.
       #
       # Check that the Custom Speech model has been successfully trained with
@@ -246,7 +227,8 @@ jobs:
       # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Create Custom Speech model with training data
         run: |
-          spx csr model create --name custom_speech_model_${CURRENT_COMMIT_HASH} --datasets @my.training.datasets --output url @my.model.url --wait
+          custom_speech_model_name=custom_speech_model_${CURRENT_COMMIT_HASH}
+          spx csr model create --name $custom_speech_model_name --datasets @my.training.datasets --output url @my.model.url --wait
           custom_speech_model_id=$(cat my.model.url | tail -c 36)
           if ! [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
@@ -254,6 +236,28 @@ jobs:
             exit 1
           fi
           echo "CUSTOM_SPEECH_MODEL_ID=$(echo $custom_speech_model_id)" >> $GITHUB_ENV
+          echo "CUSTOM_SPEECH_MODEL_NAME=$(echo $custom_speech_model_name)" >> $GITHUB_ENV
+
+      # Get the latest baseline model, which is the underlying, non-customized
+      # portion of Custom Speech models.
+      #
+      # Check that the baseline model has been successfully downloaded with
+      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
+      # the variable is a valid GUID with 32 hexadecimal characters.
+      - name: Get latest baseline model
+        if: ${{ env.CUSTOM_SPEECH_MODEL_NAME && env.CUSTOM_SPEECH_MODEL_NAME != '' }}
+        run: |
+          spx csr model list --models --output json models.json
+          jq --arg MODEL_NAME "$CUSTOM_SPEECH_MODEL_NAME" '.values[] | select(.displayName==$MODEL_NAME).baseModel.self' models.json | tr -d \" > models.txt
+          rm models.json
+          tail -1 models.txt | tr -d '[:space:]' > my.base.model
+          base_model_id=$(cat my.base.model | tail -c 36)
+          if ! [[ ${base_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+          then
+            echo "::error ::Failed to get the latest baseline model. Possibly re-run all jobs."
+            exit 1
+          fi
+          echo "BASE_MODEL_ID=$(echo $base_model_id)" >> $GITHUB_ENV
 
       # Set environment variables to be bash variables to avoid substitution
       # errors. Not all training data will be used, so check that it was with
@@ -318,7 +322,7 @@ jobs:
       # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Test the new Speech model
         run: |
-          spx csr evaluation create --name test_from_train_data_update_${CURRENT_COMMIT_HASH} --model1 @my.model.url --model2 @my.model.url --dataset @my.testing.datasets --output url @my.test.result --wait 
+          spx csr evaluation create --name test_from_train_data_update_${CURRENT_COMMIT_HASH} --model1 @my.base.model --model2 @my.model.url --dataset @my.testing.datasets --output url @my.test.result --wait 
           test_id=$(tail -1 my.test.result | tail -c 36)
           if ! [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
@@ -329,7 +333,26 @@ jobs:
 
       - name: Delete testing datasets
         run: |
-          spx csr dataset delete --foreach ds in @my.testing.datasets
+          datasets_file=my.testing.datasets
+          number_of_datasets_to_delete=$( wc -l < "$datasets_file" )
+          if [[ $number_of_datasets_to_delete -gt 0 ]]
+          then
+            while read -a line
+            do
+              line_url=$(cat line | tr -d '[:space:]')
+              line_id=$(cat line_url | tail -c 36)
+              if [[ ${line_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
+              then
+                spx csr dataset delete --dataset $line_url
+                if [[ ${?} -gt 0 ]]
+                then
+                  echo "::warning::Bad deletion request detected"
+                else
+                  echo DELETED DATASET WITH GUID: "$line"
+                fi
+              fi
+            done < "$datasets_file" | head -$number_of_datasets_to_delete
+          fi
           echo DELETED AUDIO+HUMAN-LABELED TRANSCRIPT TESTING DATA.
 
       # Get the content from the test as a JSON file.
@@ -380,12 +403,12 @@ jobs:
           az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name configuration --name benchmark-test.txt --file previous-benchmark-test.txt --auth-mode login
           benchmark_test_results_name=$(cat previous-benchmark-test.txt)
           az storage blob download --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name $(echo $benchmark_test_results_name) --file benchmark-test-results.json --auth-mode login
-          jq '.properties.wordErrorRate1' benchmark-test-results.json | xargs -I {} echo "BENCHMARK_WER={}" >> $GITHUB_ENV
+          jq '.properties.wordErrorRate2' benchmark-test-results.json | xargs -I {} echo "BENCHMARK_WER={}" >> $GITHUB_ENV
 
       # Get NEW_WER from the newly-created test results file.
       - name: Get the new Word Error Rate (WER)
         if: ${{ env.BENCHMARK_BLOB_EXISTS == 'true' }}
-        run: jq '.properties.wordErrorRate1' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs -I {} echo "NEW_WER={}" >> $GITHUB_ENV
+        run: jq '.properties.wordErrorRate2' ${{ env.TEST_BUILD_FOLDER_PATH }}/${{ env.TEST_SUMMARY_FILE }} | xargs -I {} echo "NEW_WER={}" >> $GITHUB_ENV
 
       - name: CONTINUING WORKFLOW - WER improved
         if: ${{ env.BENCHMARK_BLOB_EXISTS == 'false' || env.BENCHMARK_WER > env.NEW_WER }}
@@ -397,7 +420,7 @@ jobs:
         if: ${{ env.BENCHMARK_WER <= env.NEW_WER }}
         run: |
           spx csr model delete --model @my.model.url
-          spx config --clear
+          spx config @spx.defaults --set @@none
           echo DELETED CUSTOM SPEECH MODEL AND CONFIGURATION.
           echo "::error ::Failed to improve upon the benchmark Custom Speech model. Submit a pull request with updates to training data to try again."
           exit 1
@@ -405,7 +428,7 @@ jobs:
       # Delete all potentially sensitive config variables from build machine
       - name: Delete Model configuration 
         run: |
-          spx config --clear
+          spx config @spx.defaults --set @@none
           echo MODEL CONFIGURATION DELETED
   
 
@@ -558,6 +581,6 @@ jobs:
       # Delete all potentially sensitive config variables from build machine
       - name: Delete Endpoint configuration 
         run: |
-          spx config --clear
+          spx config @spx.defaults --set @@none
           echo ENDPOINT CONFIGURATION DELETED
   

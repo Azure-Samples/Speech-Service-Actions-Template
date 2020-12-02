@@ -159,8 +159,8 @@ jobs:
       # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Get the benchmark model
         run: |
-          spx csr model list --models --output url @my.test.model.url
-          custom_speech_model_id=$(tail -1 my.test.model.url | tail -c 36)
+          spx csr model list --models --output url @my.benchmark.model.url
+          custom_speech_model_id=$(tail -1 my.benchmark.model.url | tail -c 36)
           if [[ ${custom_speech_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
             echo IF THIS IS NOT A BASELINE TEST, TEST THE BENCHMARK CUSTOM SPEECH MODEL WITH GUID: $custom_speech_model_id
@@ -179,11 +179,11 @@ jobs:
       - name: Get the baseline model
         if: ${{ env.IS_BASELINE_TEST == 'true' }}
         run: |
-          spx csr model list --base --models --output json baseline_models.json
-          jq --arg LOC "$SPEECH_LOCALE" '.values[]|select(.locale==$LOC).self' baseline_models.json | tr -d \" > baseline_models.txt
-          rm baseline_models.json
-          tail -1 baseline_models.txt | tr -d '[:space:]' > my.test.model.url
-          baseline_model_id=$(cat my.test.model.url | tail -c 36)
+          spx csr model list --models --output json models.json
+          jq --arg LOC "$SPEECH_LOCALE" '.values[]|select(.locale==$LOC).baseModel.self' models.json | tr -d \" > models.txt
+          rm models.json
+          tail -1 models.txt | tr -d '[:space:]' > my.base.model.url
+          baseline_model_id=$(cat my.base.model.url | tail -c 36)
           if ! [[ ${baseline_model_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
             echo "::error ::Failed to get the latest baseline model. Possibly re-run all jobs."
@@ -198,7 +198,7 @@ jobs:
       # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Test the benchmark or baseline model
         run: |
-          spx csr evaluation create --name test_from_${UNDERSCORE_EVENT_NAME}_${EVENT_ID} --model1 @my.test.model.url --model2 @my.test.model.url --dataset @my.testing.datasets --output url @my.test.result --wait 
+          spx csr evaluation create --name test_from_${UNDERSCORE_EVENT_NAME}_${EVENT_ID} --model1 @my.base.model.url --model2 @my.benchmark.model.url --dataset @my.testing.datasets --output url @my.test.result --wait 
           test_id=$(tail -1 my.test.result | tail -c 36)
           if ! [[ ${test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
@@ -245,7 +245,7 @@ jobs:
       # Delete all potentially sensitive config variables from build machine
       - name: Delete Test configuration 
         run: |
-          spx config --clear
+          spx config @spx.defaults --set @@none
           echo TEST CONFIGURATION DELETED
   
       - name: Verify the configuration file exists
