@@ -43,6 +43,8 @@ env:
   # The path from the root of the repository to a .zip with .wav files and a
   # .txt transcript used for testing.
   TEST_ZIP_SOURCE_PATH: "testing/audio-and-trans.zip"
+  # version of Speech CLI tool to install and use
+  SPX_VERSION: "1.0.1"
 
 jobs:
   #############################################################################
@@ -125,7 +127,7 @@ jobs:
       # https://github.com/Azure-Samples/cognitive-services-speech-tools
       - name: Install and configure SPX
         run: |
-          dotnet tool install -g spx
+          dotnet tool install -g spx --version ${{ env.SPX_VERSION }}
           spx config @name --set ${{ secrets.SPEECH_PROJECT_NAME }} 
           spx config @key --set ${{ secrets.SPEECH_SUBSCRIPTION_KEY }} 
           spx config @region --set ${{ secrets.SPEECH_RESOURCE_REGION }}
@@ -142,7 +144,7 @@ jobs:
       - name: Upload audio and human transcript testing data
         if: ${{ env.TEST_ZIP_SOURCE_PATH && env.TEST_ZIP_SOURCE_PATH != '' }}
         run: |
-          spx csr dataset upload --data $TEST_ZIP_SOURCE_PATH --kind Acoustic --name "AM" --output url @my.testing.datasets --wait
+          spx csr dataset upload --data $TEST_ZIP_SOURCE_PATH --kind Acoustic --name audio_trans_test_${EVENT_ID} --output url @my.testing.datasets --wait
           audio_trans_test_id=$(cat my.testing.datasets | tail -c 36)
           if ! [[ ${audio_trans_test_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
           then
@@ -231,7 +233,7 @@ jobs:
       - name: Save test results in Azure Blob
         run: |
           cat ${TEST_BUILD_FOLDER_PATH}/test_json_${UNDERSCORE_EVENT_NAME}_${EVENT_ID} > test-results.txt
-          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-${UNDERSCORE_EVENT_NAME}-${EVENT_ID}.txt --file test-results.txt --auth-mode login
+          az storage blob upload --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }} --container-name test-results --name test-results-from-${HYPHEN_EVENT_NAME}-${EVENT_ID}.txt --file test-results.txt --auth-mode login
       # Delete the test. This must be done after the test results file is
       # generated, as the resultsUrl will only be available while the test
       # exists.
