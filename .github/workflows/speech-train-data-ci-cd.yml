@@ -57,7 +57,7 @@ env:
   # training a language model.
   TRAIN_ZIP_SOURCE_PATH: ""
   # version of Speech CLI tool to install and use
-  SPX_VERSION: "1.0.1"
+  SPX_VERSION: "1.0.0"
 
 jobs:
   #############################################################################
@@ -157,9 +157,9 @@ jobs:
           fi
 
       # https://github.com/Azure-Samples/cognitive-services-speech-tools
-      - name: Install and configure SPX
+      - name: Install and configure Speech CLI
         run: |
-          dotnet tool install -g spx --version ${{ env.SPX_VERSION }}
+          dotnet tool install -g Microsoft.CognitiveServices.Speech.CLI --version ${{ env.SPX_VERSION }}
           spx config @name --set ${{ secrets.SPEECH_PROJECT_NAME }} 
           spx config @key --set ${{ secrets.SPEECH_SUBSCRIPTION_KEY }} 
           spx config @region --set ${{ secrets.SPEECH_RESOURCE_REGION }}
@@ -482,9 +482,9 @@ jobs:
           echo "TRAIN_BUILD_FOLDER_PATH=build-speech-train" >> $GITHUB_ENV
 
       # https://github.com/Azure-Samples/cognitive-services-speech-tools
-      - name: Install and configure SPX
+      - name: Install and configure Speech CLI
         run: |
-          dotnet tool install -g spx --version ${{ env.SPX_VERSION }}
+          dotnet tool install -g Microsoft.CognitiveServices.Speech.CLI --version ${{ env.SPX_VERSION }}
           spx config @name --set ${{ secrets.SPEECH_PROJECT_NAME }} 
           spx config @key --set ${{ secrets.SPEECH_SUBSCRIPTION_KEY }} 
           spx config @region --set ${{ secrets.SPEECH_RESOURCE_REGION }}
