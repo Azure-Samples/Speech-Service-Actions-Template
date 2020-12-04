@@ -29,18 +29,19 @@ The following environment variables are set in  `speech-test-data-ci.yml` and/or
 | **TEST_TRANS_FILE**          | The name and extension of the .txt transcript file that will be extracted from `testZipSourcePath`. |
 | **TRAIN_ZIP_SOURCE_PATH**    | The path from the root of the repository to a .zip with .wav files and a .txt transcript used for training. Set to an empty string if you are training a language model.<br><br>***Note:** This should be the same value as one of the three entries for `on.push.paths` in `speech-train-data-ci-cd.yml`.* |
 | **TRAIN_TRANS_FILE**         | The name and extension of the .txt transcript file that will be extracted from `trainZipSourcePath`. Set to an empty string if you are training a language model. |
+| **SPX_VERSION**              | The version of [Speech CLI](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/spx-overview) to use for performing custom speech actions (such as creating custom models and testing datasets against them) |
 
 ## Change locales
 
 Custom Speech supports different features depending on the locale. See [language support](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support) for a list of possible locales, along with which features each locale supports.
 
-In `speech-train-data-ci-cd.yml`, the locale is defined to be `en-us`:
+In `speech-train-data-ci-cd.yml`, the locale is defined to be `en-US`:
 
 ```yml
-  SPEECH_LOCALE: "en-us"
+  SPEECH_LOCALE: "en-US"
 ```
 
-Change `en-us` to the locale that works best for your project, but note its available customizations. As seen in [language support](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support), not all locales support all three types of training data. If your locale does not support all three types of training data, you **must** [exclude the unsupported training data](#Exclude-Some-Training-Data) from the workflow.
+Change `en-US` to the locale that works best for your project, but note its available customizations. As seen in [language support](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support), not all locales support all three types of training data. If your locale does not support all three types of training data, you **must** [exclude the unsupported training data](#Exclude-Some-Training-Data) from the workflow.
 
 If under **Customizations** it says "No" for your locale, that means Custom Speech is not supported and you must exclude all three types of training data. You can still use this solution to test the baseline Azure Speech models against test data and/or as new baseline models are released.
 
