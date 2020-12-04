@@ -29,6 +29,7 @@ The following environment variables are set in  `speech-test-data-ci.yml` and/or
 | **TEST_TRANS_FILE**          | The name and extension of the .txt transcript file that will be extracted from `testZipSourcePath`. |
 | **TRAIN_ZIP_SOURCE_PATH**    | The path from the root of the repository to a .zip with .wav files and a .txt transcript used for training. Set to an empty string if you are training a language model.<br><br>***Note:** This should be the same value as one of the three entries for `on.push.paths` in `speech-train-data-ci-cd.yml`.* |
 | **TRAIN_TRANS_FILE**         | The name and extension of the .txt transcript file that will be extracted from `trainZipSourcePath`. Set to an empty string if you are training a language model. |
+| **SPX_VERSION**              | The version of [Speech CLI](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/spx-overview) to use for performing custom speech actions (such as creating custom models and testing datasets against them) |
 
 ## Change locales
 
