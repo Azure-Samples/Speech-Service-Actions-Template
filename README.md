@@ -4,8 +4,7 @@ languages:
 - csharp
 products:
 - dotnet
-description: "Add 150 character max description"
-urlFragment: "update-this-to-unique-url-stub"
+description: "Template for automated custom speech model deployment using Github Actions"
 ---
 
 # Speech Services DevOps Template
