@@ -1,11 +1,11 @@
 ---
 page_type: sample
 languages:
-- csharp
+- yaml
 products:
-- dotnet
-description: "Add 150 character max description"
-urlFragment: "update-this-to-unique-url-stub"
+- azure-cognitive-services
+description: "Template for automated custom speech model deployment using Github Actions"
+urlFragment: speech-service-devops-template
 ---
 
 # Speech Services DevOps Template
