@@ -1,10 +1,11 @@
 ---
 page_type: sample
 languages:
-- csharp
+- yaml
 products:
-- dotnet
+- azure-cognitive-services
 description: "Template for automated custom speech model deployment using Github Actions"
+urlFragment: speech-service-devops-template
 ---
 
 # Speech Services DevOps Template
