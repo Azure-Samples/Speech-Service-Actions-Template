@@ -259,32 +259,9 @@ jobs:
           fi
           echo "BASE_MODEL_ID=$(echo $base_model_id)" >> $GITHUB_ENV
 
-      # Set environment variables to be bash variables to avoid substitution
-      # errors. Not all training data will be used, so check that it was with
-      # [[${my_variable//-/} =~ ^[[:xdigit:]]{32}$]] which will return true if
-      # the variable is a valid GUID with 32 hexadecimal characters.
       - name: Delete training datasets
         run: |
-          datasets_file=my.training.datasets
-          number_of_datasets_to_delete=$( wc -l < "$datasets_file" )
-          if [[ $number_of_datasets_to_delete -gt 0 ]]
-          then
-            while read -a line
-            do
-              line_url=$(cat line | tr -d '[:space:]')
-              line_id=$(cat line_url | tail -c 36)
-              if [[ ${line_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-              then
-                spx csr dataset delete --dataset $line_url
-                if [[ ${?} -gt 0 ]]
-                then
-                  echo "::warning::Bad deletion request detected"
-                else
-                  echo DELETED DATASET WITH GUID: "$line"
-                fi
-              fi
-            done < "$datasets_file" | head -$number_of_datasets_to_delete
-          fi
+          spx csr dataset delete --foreach dataset in my.training.datasets
           echo DELETED TRAINING DATASETS.
 
       #########################################################################
@@ -333,26 +310,7 @@ jobs:
 
       - name: Delete testing datasets
         run: |
-          datasets_file=my.testing.datasets
-          number_of_datasets_to_delete=$( wc -l < "$datasets_file" )
-          if [[ $number_of_datasets_to_delete -gt 0 ]]
-          then
-            while read -a line
-            do
-              line_url=$(cat line | tr -d '[:space:]')
-              line_id=$(cat line_url | tail -c 36)
-              if [[ ${line_id//-/} =~ ^[[:xdigit:]]{32}$ ]]
-              then
-                spx csr dataset delete --dataset $line_url
-                if [[ ${?} -gt 0 ]]
-                then
-                  echo "::warning::Bad deletion request detected"
-                else
-                  echo DELETED DATASET WITH GUID: "$line"
-                fi
-              fi
-            done < "$datasets_file" | head -$number_of_datasets_to_delete
-          fi
+          spx csr dataset delete --foreach dataset in my.testing.datasets
           echo DELETED AUDIO+HUMAN-LABELED TRANSCRIPT TESTING DATA.
 
       # Get the content from the test as a JSON file.

@@ -208,7 +208,7 @@ jobs:
           echo "TEST_ID=$(echo $test_id)" >> $GITHUB_ENV
       - name: Delete testing datasets
         run: |
-          spx csr dataset delete --dataset @my.testing.datasets
+          spx csr dataset delete --foreach dataset in my.testing.datasets
           echo DELETED AUDIO+HUMAN-LABELED TRANSCRIPT TESTING DATA.
       # Get the content from the test and remove the first line, which is
       # logging, so the result is a JSON file.
