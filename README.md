@@ -28,6 +28,12 @@ Train, test, and release new Custom Speech models automatically as training and 
 
 **Important:** This is a *template* repository. Please ensure that you read the [setup instructions](./documentation/1-setup.md) before forking or cloning this repo.
 
+## Submit feedback
+
+**Important:** If you find this template useful, please let us know by filling out [this three line survey](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR5yEkBf_kKJNjbtHwALO3jRUOU1QOEFVR0FRWFk2UUNaUlNUMUs0STJZWi4u). Feedback helps our team decide whether to continue making templates like this!
+
+File feedback regarding documentation or tooling as a an [issue](https://github.com/Azure-Samples/Speech-Service-DevOps-Template/issues), or propose changes by submitting a pull request into the **develop** branch.
+
 ## Contents
 
 | File/folder          | Description                                |
@@ -61,9 +67,6 @@ Train, test, and release new Custom Speech models automatically as training and 
 
 This template includes sample data from the [cognitive-services-speech-sdk repository](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/sampledata/customspeech) for the purposes of following these steps. Later in this documentation, you will learn how to [replace the sample data](documentation/3-improve-the-model.md#Next-steps) with data for your own project.
 
-## Submit feedback
-
-File feedback regarding documentation or tooling as a an [issue](https://github.com/Azure-Samples/Speech-Service-DevOps-Template/issues), or propose changes by submitting a pull request into the **develop** branch.
 
 ## Contributing
 
