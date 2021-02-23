@@ -6,7 +6,7 @@ Tailor your repository to your needs using these advanced customizations.
 
 * [Change environment variables](#Change-environment-variables)
 * [Change locales](#Change-locales)
-* [Configure a clean master](#Configure-a-clean-master)
+* [Configure a clean main](#Configure-a-clean-main)
 * [Exclude training data](#Exclude-training-data)
 * [Use Git Large File Storage](#Use-Git-Large-File-Storage)
 
@@ -45,25 +45,25 @@ Change `en-US` to the locale that works best for your project, but note its avai
 
 If under **Customizations** it says "No" for your locale, that means Custom Speech is not supported and you must exclude all three types of training data. You can still use this solution to test the baseline Azure Speech models against test data and/or as new baseline models are released.
 
-## Configure a clean master
+## Configure a clean main
 
-The training data in **master** does not always represent an improved Custom Speech model because the workflows execute *after* a pull request has already been merged, meaning there is no way to guarantee that model has improved with each change. This doesn't present a problem considering the behavior when models improve - a Custom Speech endpoint is created, a GitHub release is created containing that endpoint, and the repository is tagged with a new version. This approach is preferred because training Custom Speech models and testing them against a large data set will take a long time, and is only done once for each commit to master.
+The training data in **main** does not always represent an improved Custom Speech model because the workflows execute *after* a pull request has already been merged, meaning there is no way to guarantee that model has improved with each change. This doesn't present a problem considering the behavior when models improve - a Custom Speech endpoint is created, a GitHub release is created containing that endpoint, and the repository is tagged with a new version. This approach is preferred because training Custom Speech models and testing them against a large data set will take a long time, and is only done once for each commit to main.
 
-An alternative branching strategy can ensure a "clean" **master** where every commit represents an improved Custom Speech model. Many branching strategies will solve this problem, but [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) is simple and will show the general changes necessary for any branch strategy. With Gitflow, merge feature branches into **develop** and merge **develop** into **master** so that every commit in **master** represents an improved Custom Speech model.
+An alternative branching strategy can ensure a "clean" **main** where every commit represents an improved Custom Speech model. Many branching strategies will solve this problem, but [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) is simple and will show the general changes necessary for any branch strategy. With Gitflow, merge feature branches into **develop** and merge **develop** into **main** so that every commit in **main** represents an improved Custom Speech model.
 
 ### Edit branches
 
-Complete the following to configure a clean **master**:
+Complete the following to configure a clean **main**:
 
-1. Configure [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) by creating a **develop** branch from master.
+1. Configure [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) by creating a **develop** branch from main.
 1. Find the following YAML in both `.github/workflows/speech-test-data-ci.yml` and `.github/workflows/speech-train-data-ci-cd.yml`:
 
     ```yml
     on:
       push:
-        # Execute on pushes to master.
+        # Execute on pushes to main.
         branches:
-          - master
+          - main
     ```
 
 1. Add the **develop** branch to `branches`:
@@ -71,19 +71,19 @@ Complete the following to configure a clean **master**:
     ```yml
     on:
       push:
-        # Execute on pushes to master and develop.
+        # Execute on pushes to main and develop.
         branches:
-          - master
+          - main
           - develop
     ```
 
-1. Add, commit, and push these changes so that both workflows trigger on pushes to **master** and **develop**. For more information, read about [GitHub events that trigger workflows](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#on).
+1. Add, commit, and push these changes so that both workflows trigger on pushes to **main** and **develop**. For more information, read about [GitHub events that trigger workflows](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#on).
 
-### Protect the master and develop branches
+### Protect the main and develop branches
 
-During Setup, you protected the **master** branch. [Follow the same steps](1-setup.md#Protect-the-master-branch) to create a rule for the **develop** branch so that pushes to that branch also require updates to be made via approved pull requests.
+During Setup, you protected the **main** branch. [Follow the same steps](1-setup.md#Protect-the-main-branch) to create a rule for the **develop** branch so that pushes to that branch also require updates to be made via approved pull requests.
 
-With the branch protections and triggers in place, create pull requests from feature branches to **develop**. If the models in **develop** improve, create pull requests from **develop** to **master** so that every commit in **master** represents an improved Custom Speech model.
+With the branch protections and triggers in place, create pull requests from feature branches to **develop**. If the models in **develop** improve, create pull requests from **develop** to **main** so that every commit in **main** represents an improved Custom Speech model.
 
 ## Exclude training data
 
@@ -174,7 +174,7 @@ There are alternatives to Git LFS for managing this data, such as [Azure Blob St
 
 Follow these steps to convert your repo to use Git LFS:
 
-1. Navigate to the root of the repository and create a feature branch from **master**:
+1. Navigate to the root of the repository and create a feature branch from **main**:
 
     ```bash
     git checkout -b gitLFS
@@ -191,7 +191,7 @@ Follow these steps to convert your repo to use Git LFS:
 1. Track the testing and training data, and add them as Git LFS objects:
 
     ```bash
-    git checkout -b gitLFS master
+    git checkout -b gitLFS main
     git lfs track "*.zip"
     git add .gitattributes
     git commit -m "Track large files with LFS."
@@ -221,7 +221,7 @@ The testing and training data is currently stored as Git objects and needs to be
     3a7ddef774 - training/audio-and-trans.zip
     ```
 
-1. Merge the changes into **master**.
+1. Merge the changes into **main**.
 1. If needed, [purchase more large file storage](https://help.github.com/en/github/setting-up-and-managing-billing-and-payments-on-github/upgrading-git-large-file-storage) through GitHub.
 
 Your repository is configured to use Git LFS to track *.zip files. How you use the repository doesn't change, but now Git LFS will only pull down those files when you need to interact with them.

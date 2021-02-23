@@ -40,10 +40,10 @@ Create a feature branch for your updates to the training and testing data.
 
 To create a feature branch:
 
-1. Navigate to the root of the repository and create a feature branch from master:
+1. Navigate to the root of the repository and create a feature branch from main:
 
     ```bash
-    git checkout master
+    git checkout main
     git pull
     git checkout -b newSpeechModel
     ```
@@ -115,7 +115,7 @@ If the WER did not improve, add more training data and test the effect on the mo
 
 ## Create the pull request
 
-Once you are satisfied with how your development model performs based on your changes, create a pull request to submit those changes to **master**.
+Once you are satisfied with how your development model performs based on your changes, create a pull request to submit those changes to **main**.
 
 To create the pull request:
 
@@ -125,13 +125,13 @@ To create the pull request:
     git push -u origin newSpeechModel
     ```
 
-1. Create a pull request from **newSpeechModel** to **master**.
-1. Click the **Merge pull request** button to merge the pull request into **master**.
+1. Create a pull request from **newSpeechModel** to **main**.
+1. Click the **Merge pull request** button to merge the pull request into **main**.
     >**Note:** If you have set up branch protection policies, you will need to check **Use your administrator privileges** to merge the pull request.
 
 ## Confirm the workflows
 
-In this walkthrough, you merged a pull request to **master** with updates to both the testing and training data. GitHub Action workflows stored in the `.github/workflows/` directory will run when triggered. Updates to testing data trigger the **SpeechTestDataCI** workflow, while updates to training data trigger the **SpeechTrainDataCICD** workflow. Immediately after merging your pull request, click on the **Actions** tab on GitHub to see both of them running.
+In this walkthrough, you merged a pull request to **main** with updates to both the testing and training data. GitHub Action workflows stored in the `.github/workflows/` directory will run when triggered. Updates to testing data trigger the **SpeechTestDataCI** workflow, while updates to training data trigger the **SpeechTrainDataCICD** workflow. Immediately after merging your pull request, click on the **Actions** tab on GitHub to see both of them running.
 
 ### Confirm the testing workflow results
 
