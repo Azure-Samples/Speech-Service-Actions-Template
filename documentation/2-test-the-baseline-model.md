@@ -15,7 +15,7 @@ Push a tag beginning with `BASELINE` to trigger a GitHub Actions workflow that t
 1. To push a tag, enter the following in a command window in the root folder of your repo:
 
     ```bash
-    git checkout master
+    git checkout main
     git pull
     git tag BASELINE_0
     git push origin BASELINE_0
@@ -25,7 +25,7 @@ Push a tag beginning with `BASELINE` to trigger a GitHub Actions workflow that t
 
 ## Confirm the workflow results
 
-When you push a baseline tag to **master**, the **SpeechTestDataCI** workflow found at `.github/workflows/speech-test-data-ci.yml` tests the baseline model against the test data and outputs test results and a test summary. Since this is the first time these tests have been run, the results become the benchmark that future models must outperform.
+When you push a baseline tag to **main**, the **SpeechTestDataCI** workflow found at `.github/workflows/speech-test-data-ci.yml` tests the baseline model against the test data and outputs test results and a test summary. Since this is the first time these tests have been run, the results become the benchmark that future models must outperform.
 
 ### View the workflow run
 

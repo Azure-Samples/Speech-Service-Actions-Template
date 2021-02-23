@@ -9,7 +9,7 @@ This document shows how to create your GitHub repository from this template, cre
 - [Create the Speech project](#Create-the-Speech-project)
 - [Create GitHub secrets](#Create-GitHub-secrets)
 - [Create the Azure Service Principal](#Create-the-Azure-Service-Principal)
-- [Protect the master branch](#Protect-the-master-branch)
+- [Protect the main branch](#Protect-the-main-branch)
 - [Next steps](#Next-steps)
 
 ## Create your repo
@@ -28,7 +28,7 @@ To create your repository:
 
         >**Note**: The template works with public repositories by default. If you create a private repository, you will need to [configure the workflows](4-advanced-customization.md##Change-Environment-Variables) for use with a  private repository.
 
-    1. Leave **Include all branches** unchecked as you only need the master branch.
+    1. Leave **Include all branches** unchecked as you only need the main branch.
     1. Click **Create repository from template** to create your copy of this repository.
 
 1. After your repository is created, [clone the repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository).
@@ -153,13 +153,13 @@ To create the Azure Service Principal:
 
     ![GitHub secrets](../images/GitHubSecrets.png)
 
-## Protect the master branch
+## Protect the main branch
 
-It's a software engineering best practice to protect the master branch from direct check-ins. Read [configuring protected branches](https://help.github.com/en/github/administering-a-repository/configuring-protected-branches) to learn more about protecting branches in GitHub.
+It's a software engineering best practice to protect the main branch from direct check-ins. Read [configuring protected branches](https://help.github.com/en/github/administering-a-repository/configuring-protected-branches) to learn more about protecting branches in GitHub.
 
 > **Important:** Branch protections are supported on public GitHub repositories, or if you have a GitHub Pro subscription. If you are using a personal GitHub account and you created your repository as a private repository, you will have to change your repository to be **public**.
 
-The GitHub Actions workflows in this repository are configured to run when a merge to master occurs, for example after a PR is merged.
+The GitHub Actions workflows in this repository are configured to run when a merge to main occurs, for example after a PR is merged.
 Branch Protections are not required for these events to occur, so setting branch protections is optional.
 
 Configure branch protections according to your established software engineering process. If you don't have established branch protection policies, configure branch protections as follows:
@@ -168,7 +168,7 @@ Configure branch protections according to your established software engineering 
 1. Select **Branches** in the left menu.
 1. Under **Branch protection rules**, click **Add rule**.
 1. Enter the following for the rule:
-    1. In the **Branch name pattern** box, enter **master**.
+    1. In the **Branch name pattern** box, enter **main**.
     1. Check **Require pull request reviews before merging**.
     1. Do **not** check **Include administrators**.
         - You will use your administrator privileges to bypass merge restrictions later in this walk through.

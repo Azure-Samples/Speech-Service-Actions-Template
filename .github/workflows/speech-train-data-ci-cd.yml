@@ -11,9 +11,9 @@ name: SpeechTrainDataCICD
 
 on:
   push:
-    # Execute on pushes to master.
+    # Execute on pushes to main.
     branches:
-      - master
+      - main
     # The push must include updates to training data.
     paths:
       # The path from the root of the repository to a .zip with .wav files and a
